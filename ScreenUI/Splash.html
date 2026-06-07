@@ -1,0 +1,271 @@
+<!DOCTYPE html><html lang="vi"><head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Smart Stock - Splash Screen</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-highest": "#e2e2e2",
+                      "surface-tint": "#b3272a",
+                      "inverse-primary": "#ffb3ae",
+                      "on-background": "#1a1c1c",
+                      "on-primary-fixed-variant": "#910816",
+                      "on-primary-fixed": "#410004",
+                      "outline": "#8e706e",
+                      "primary": "#b02528",
+                      "on-error-container": "#93000a",
+                      "secondary-fixed-dim": "#bbc8d0",
+                      "on-secondary-fixed-variant": "#3c494f",
+                      "tertiary": "#93405f",
+                      "surface-container-low": "#f3f3f3",
+                      "on-tertiary-fixed-variant": "#792b4a",
+                      "error-container": "#ffdad6",
+                      "secondary": "#546067",
+                      "secondary-container": "#d7e4ec",
+                      "on-tertiary-fixed": "#3e001e",
+                      "on-secondary-container": "#5a666d",
+                      "on-error": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "tertiary-container": "#b15878",
+                      "outline-variant": "#e2bebb",
+                      "primary-fixed-dim": "#ffb3ae",
+                      "primary-container": "#d23e3e",
+                      "error": "#ba1a1a",
+                      "surface-dim": "#dadada",
+                      "background": "#f9f9f9",
+                      "surface-container-lowest": "#ffffff",
+                      "on-surface": "#1a1c1c",
+                      "on-tertiary": "#ffffff",
+                      "surface-bright": "#f9f9f9",
+                      "on-secondary-fixed": "#111d23",
+                      "surface-container": "#eeeeee",
+                      "on-secondary": "#ffffff",
+                      "surface-container-high": "#e8e8e8",
+                      "surface": "#f9f9f9",
+                      "surface-variant": "#e2e2e2",
+                      "tertiary-fixed-dim": "#ffb0c9",
+                      "tertiary-fixed": "#ffd9e2",
+                      "on-primary-container": "#fffbff",
+                      "on-tertiary-container": "#fffbff",
+                      "primary-fixed": "#ffdad7",
+                      "secondary-fixed": "#d7e4ec",
+                      "inverse-on-surface": "#f1f1f1",
+                      "on-surface-variant": "#5a413f",
+                      "inverse-surface": "#2f3131"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "3xl": "64px",
+                      "gutter": "24px",
+                      "xs": "4px",
+                      "sm": "8px",
+                      "xl": "32px",
+                      "2xl": "48px",
+                      "margin-desktop": "40px",
+                      "lg": "24px",
+                      "md": "16px",
+                      "base": "4px",
+                      "margin-mobile": "16px"
+              },
+              "fontFamily": {
+                      "label-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "title-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "display": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-lg": [
+                              "Hanken Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "label-lg": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.1px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "title-lg": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display": [
+                              "56px",
+                              {
+                                      "lineHeight": "64px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Hanken Grotesk', sans-serif;
+        }
+
+        .progress-bar-container {
+            width: 200px;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 9999px;
+            overflow: hidden;
+            margin-top: 24px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #b02528; /* Red primary as per guidelines */
+            border-radius: 9999px;
+            animation: load 2.5s ease-in-out infinite;
+        }
+
+        @keyframes load {
+            0% { width: 0%; transform: translateX(-100%); }
+            50% { width: 40%; transform: translateX(50%); }
+            100% { width: 100%; transform: translateX(100%); }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .fade-in-up-delay {
+            animation: fadeInUp 0.8s ease-out 0.3s forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+    <style>
+        body {
+          min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background h-screen w-screen flex flex-col items-center justify-center m-0 p-0 overflow-hidden">
+<main class="flex flex-col items-center justify-center flex-1 w-full relative z-10 px-margin-mobile">
+    <!-- Logo and Brand -->
+    <div class="flex flex-col items-center justify-center fade-in-up">
+        <div class="bg-primary-container p-4 rounded-xl mb-4 backdrop-blur-sm border border-primary-container shadow-lg">
+<span class="material-symbols-outlined text-[64px] text-on-primary-container" data-icon="inventory_2" style="font-variation-settings: 'FILL' 1;">
+                    inventory_2
+                </span>
+        </div>
+        <h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background tracking-tight mb-2">
+            Smart Stock
+        </h1>
+        <p class="font-body-md text-body-md text-on-surface-variant text-center max-w-[250px]">
+            Hệ thống quản lý kho thông minh
+        </p>
+    </div>
+    <!-- Loading Indicator -->
+    <div class="fade-in-up-delay mt-12 flex flex-col items-center">
+        <div class="progress-bar-container !bg-surface-variant">
+            <div class="progress-bar"></div>
+        </div>
+        <p class="font-label-md text-label-md text-on-surface-variant mt-sm opacity-70">
+            Đang tải dữ liệu...
+        </p>
+    </div>
+</main>
+<!-- Subtle Background Element -->
+<div class="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-primary/10 to-transparent pointer-events-none z-0"></div>
+<script>
+    // Simulate loading sequence and transition
+    setTimeout(() => {
+        // In a real app, this would redirect or transition to the main app view
+        // window.location.href = '/dashboard';
+        console.log('Splash screen finished loading');
+    }, 3000);
+</script>
+</body></html>

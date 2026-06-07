@@ -1,0 +1,264 @@
+<!DOCTYPE html><html lang="vi"><head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Báo cáo Sự cố</title>
+    <!-- Google Fonts: Hanken Grotesk & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;display=swap" rel="stylesheet">
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Tailwind Configuration -->
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-dim": "#d1dce0",
+                      "on-primary": "#ffffff",
+                      "inverse-surface": "#283236",
+                      "on-error-container": "#93000a",
+                      "background": "#f1fbff",
+                      "inverse-primary": "#ffb3af",
+                      "surface-variant": "#d9e4e9",
+                      "error": "#ba1a1a",
+                      "secondary": "#586062",
+                      "on-tertiary-fixed-variant": "#00504e",
+                      "surface-container-highest": "#d9e4e9",
+                      "secondary-container": "#dae1e3",
+                      "on-secondary-fixed": "#161d1f",
+                      "primary-fixed": "#ffdad7",
+                      "outline": "#8d706e",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-container": "#5d6466",
+                      "on-tertiary-fixed": "#00201f",
+                      "surface-container-high": "#dfeaef",
+                      "primary-container": "#ff5f5f",
+                      "tertiary-fixed-dim": "#2edcd7",
+                      "surface": "#f1fbff",
+                      "on-secondary-fixed-variant": "#41484a",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container": "#e4f0f4",
+                      "tertiary-fixed": "#5af9f3",
+                      "on-primary-fixed-variant": "#91081a",
+                      "on-surface-variant": "#59413f",
+                      "on-secondary": "#ffffff",
+                      "on-background": "#131d21",
+                      "tertiary": "#006a67",
+                      "tertiary-container": "#00a7a3",
+                      "primary": "#b3272e",
+                      "surface-bright": "#f1fbff",
+                      "on-tertiary-container": "#003533",
+                      "inverse-on-surface": "#e7f3f7",
+                      "surface-tint": "#b3272e",
+                      "secondary-fixed-dim": "#c1c8ca",
+                      "on-primary-container": "#64000d",
+                      "on-surface": "#131d21",
+                      "on-primary-fixed": "#410005",
+                      "primary-fixed-dim": "#ffb3af",
+                      "error-container": "#ffdad6",
+                      "secondary-fixed": "#dde4e6",
+                      "surface-container-low": "#eaf5fa",
+                      "on-error": "#ffffff",
+                      "outline-variant": "#e1bebc"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "md": "16px",
+                      "sm": "8px",
+                      "gutter": "24px",
+                      "margin-desktop": "64px",
+                      "xl": "48px",
+                      "lg": "24px",
+                      "unit": "4px",
+                      "margin-mobile": "16px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Hanken Grotesk"],
+                      "body-sm": ["Hanken Grotesk"],
+                      "body-lg": ["Hanken Grotesk"],
+                      "headline-lg": ["Hanken Grotesk"],
+                      "title-md": ["Hanken Grotesk"],
+                      "label-md": ["JetBrains Mono"],
+                      "headline-lg-mobile": ["Hanken Grotesk"]
+              },
+              "fontSize": {
+                      "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                      "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                      "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                      "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                      "title-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                      "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                      "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }]
+              }
+            }
+          }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar for a cleaner look */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d9e4e9; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #c1c8ca; }
+
+        /* Utility for hiding input spin buttons */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+    <style>
+        body {
+          min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-white text-on-surface antialiased min-h-screen flex flex-col font-body-lg selection:bg-primary-container/20">
+<!-- TopAppBar (Task-Focused: Title & Back Action) -->
+<header class="fixed top-0 w-full z-50 bg-white border-b border-surface-container-highest transition-all duration-200">
+    <div class="flex items-center px-margin-mobile h-16 w-full max-w-3xl mx-auto">
+        <!-- Back Button -->
+        <button aria-label="Go back" class="w-10 h-10 flex items-center justify-center rounded-full text-primary hover:bg-primary/5 active:scale-95 transition-transform">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+        </button>
+        <!-- Headline -->
+        <h1 class="flex-1 ml-sm font-title-md text-title-md text-primary truncate">
+            Báo cáo Sự cố
+        </h1>
+        <!-- Brand Logo (Top Right as requested) -->
+        <div class="flex items-center justify-center w-8 h-8 rounded bg-primary-container/10 text-primary">
+            <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+        </div>
+    </div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full max-w-3xl mx-auto pt-20 pb-[104px] px-margin-mobile space-y-md overflow-y-auto bg-white">
+    <!-- Form Section: Identification -->
+    <section class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.04)] p-md flex flex-col gap-md">
+        <!-- Input: Product/SKU -->
+        <div class="flex flex-col gap-xs relative group">
+            <label class="font-label-md text-label-md uppercase text-on-surface-variant flex items-center justify-between" for="sku-search">
+                <span>Sản phẩm / SKU</span>
+                <span class="text-error font-body-sm">*</span>
+            </label>
+            <div class="relative">
+                <span class="absolute left-sm top-1/2 -translate-y-1/2 text-secondary pointer-events-none material-symbols-outlined text-[20px]">search</span>
+                <input class="w-full h-12 pl-10 pr-sm bg-surface rounded-lg border border-outline-variant font-body-lg text-on-surface placeholder:text-secondary-fixed-dim focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all" id="sku-search" placeholder="Nhập tên hoặc mã SKU..." type="text">
+                <button class="absolute right-sm top-1/2 -translate-y-1/2 text-secondary hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">qr_code_scanner</span>
+                </button>
+            </div>
+        </div>
+        <!-- Input: Location (Auto-filled style) -->
+        <div class="flex flex-col gap-xs">
+            <label class="font-label-md text-label-md uppercase text-on-surface-variant" for="location-input">Vị trí hiện tại</label>
+            <div class="relative flex items-center bg-surface-container rounded-lg border border-outline-variant/50 h-12 px-sm text-on-surface-variant font-body-lg">
+                <span class="material-symbols-outlined text-[20px] mr-sm text-secondary">location_on</span>
+                <span class="flex-1 truncate">Khu vực A • Kệ 04 • Tầng 2</span>
+                <!-- Simulated locked state -->
+                <span class="material-symbols-outlined text-[18px] text-secondary-fixed-dim">lock</span>
+            </div>
+        </div>
+    </section>
+    <!-- Form Section: Issue Details -->
+    <section class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.04)] p-md flex flex-col gap-md">
+        <!-- Input: Issue Type -->
+        <div class="flex flex-col gap-xs">
+            <label class="font-label-md text-label-md uppercase text-on-surface-variant flex items-center justify-between" for="issue-type">
+                <span>Loại sự cố</span>
+                <span class="text-error font-body-sm">*</span>
+            </label>
+            <div class="relative">
+                <select class="w-full h-12 pl-sm pr-10 bg-surface rounded-lg border border-outline-variant font-body-lg text-on-surface appearance-none focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all" id="issue-type">
+                    <option disabled="" selected="" value="">Chọn loại sự cố...</option>
+                    <option value="damaged">Hư hỏng vật lý</option>
+                    <option value="missing">Thiếu số lượng</option>
+                    <option value="incorrect">Sai sản phẩm</option>
+                    <option value="packaging">Lỗi đóng gói/Tem nhãn</option>
+                </select>
+                <span class="absolute right-sm top-1/2 -translate-y-1/2 text-secondary pointer-events-none material-symbols-outlined text-[20px]">arrow_drop_down</span>
+            </div>
+        </div>
+        <!-- Input: Quantity -->
+        <div class="flex flex-col gap-xs">
+            <label class="font-label-md text-label-md uppercase text-on-surface-variant" for="quantity">Số lượng ảnh hưởng</label>
+            <div class="flex items-center gap-sm">
+                <button class="w-12 h-12 rounded-lg bg-surface flex items-center justify-center border border-outline-variant text-secondary hover:bg-surface-container transition-colors active:scale-95">
+                    <span class="material-symbols-outlined text-[20px]">remove</span>
+                </button>
+                <input class="flex-1 h-12 text-center bg-surface rounded-lg border border-outline-variant font-body-lg text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all" id="quantity" min="1" type="number" value="1">
+                <button class="w-12 h-12 rounded-lg bg-surface flex items-center justify-center border border-outline-variant text-secondary hover:bg-surface-container transition-colors active:scale-95">
+                    <span class="material-symbols-outlined text-[20px]">add</span>
+                </button>
+            </div>
+        </div>
+    </section>
+    <!-- Form Section: Evidence (Photos) -->
+    <section class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.04)] p-md flex flex-col gap-sm">
+        <div class="flex items-center justify-between">
+            <label class="font-label-md text-label-md uppercase text-on-surface-variant">Đính kèm hình ảnh</label>
+            <span class="font-body-sm text-secondary-fixed-dim">Tối đa 4 ảnh</span>
+        </div>
+        <!-- Photo Grid -->
+        <div class="grid grid-cols-4 gap-sm mt-xs">
+            <!-- Add Photo Button -->
+            <button class="aspect-square rounded-lg border-2 border-dashed border-outline-variant bg-surface flex flex-col items-center justify-center text-secondary hover:border-primary-container hover:text-primary-container hover:bg-primary-container/5 transition-all group">
+                <span class="material-symbols-outlined text-[24px] mb-1 group-hover:scale-110 transition-transform">camera_alt</span>
+                <span class="font-label-md text-[10px] uppercase">Chụp ảnh</span>
+            </button>
+            <!-- Attached Thumbnail 1 -->
+            <div class="aspect-square rounded-lg bg-surface-container relative overflow-hidden group border border-outline-variant/30 shadow-sm">
+                <!-- Placeholder using background color since we can't use complex base64, keeping it clean per instructions, but adding data-alt for the generation pipeline -->
+                <div class="w-full h-full bg-surface-variant/50 flex items-center justify-center" data-alt="A close-up photograph of a damaged cardboard shipping box in a brightly lit warehouse setting. The box has a visible crush on one corner, with internal padding slightly exposed. The lighting is artificial, high-key, casting soft shadows to emphasize the texture of the torn cardboard. The color palette is dominated by neutral browns and whites, fitting a modern industrial logistics aesthetic.">
+                    <span class="material-symbols-outlined text-outline/50 text-[32px]">image</span>
+                </div>
+                <button class="absolute -top-1 -right-1 w-6 h-6 bg-error rounded-full text-on-error flex items-center justify-center shadow-md scale-0 group-hover:scale-100 transition-transform active:scale-90">
+                    <span class="material-symbols-outlined text-[14px]">close</span>
+                </button>
+            </div>
+            <!-- Empty Slots for visual rhythm -->
+            <div class="aspect-square rounded-lg bg-surface-container/30 border border-surface-variant flex items-center justify-center"></div>
+            <div class="aspect-square rounded-lg bg-surface-container/30 border border-surface-variant flex items-center justify-center"></div>
+        </div>
+    </section>
+    <!-- Form Section: Notes -->
+    <section class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.04)] p-md flex flex-col gap-xs">
+        <label class="font-label-md text-label-md uppercase text-on-surface-variant" for="notes">Ghi chú chi tiết</label>
+        <textarea class="w-full p-sm bg-surface rounded-lg border border-outline-variant font-body-lg text-on-surface placeholder:text-secondary-fixed-dim resize-none focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all" id="notes" placeholder="Mô tả chi tiết tình trạng sự cố để hỗ trợ quá trình xử lý..." rows="4"></textarea>
+    </section>
+</main>
+<!-- Fixed Footer Action -->
+<footer class="fixed bottom-0 left-0 w-full bg-white border-t border-surface-variant/40 pb-safe z-40">
+    <div class="max-w-3xl mx-auto px-margin-mobile py-sm">
+        <button class="w-full h-14 bg-primary text-on-primary rounded-full font-title-md text-title-md flex justify-center items-center gap-sm shadow-md transition-transform duration-200 active:scale-95 hover:bg-opacity-90">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">send</span>
+            Gửi báo cáo
+        </button>
+    </div>
+</footer>
+<!-- Script for subtle interactive effects (Optional embellishment) -->
+<script>
+    // Simple script to handle input focus styling generically if needed,
+    // though Tailwind handles most of it via pseudoclasses.
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+        el.addEventListener('focus', function() {
+            this.closest('.group')?.querySelector('label')?.classList.add('text-primary-container');
+        });
+        el.addEventListener('blur', function() {
+            this.closest('.group')?.querySelector('label')?.classList.remove('text-primary-container');
+        });
+    });
+</script>
+</body></html>

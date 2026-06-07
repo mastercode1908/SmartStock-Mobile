@@ -1,0 +1,346 @@
+<!DOCTYPE html><html class="light" lang="vi"><head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Smart Stock - Điều hướng vị trí lưu trữ</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed": "#00201f",
+                      "on-background": "#131d21",
+                      "inverse-surface": "#283236",
+                      "outline-variant": "#e1bebc",
+                      "on-secondary": "#ffffff",
+                      "surface-container": "#e4f0f4",
+                      "tertiary": "#006a67",
+                      "primary-container": "#ff5f5f",
+                      "on-error": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "surface-container-low": "#eaf5fa",
+                      "surface-variant": "#d9e4e9",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-container": "#64000d",
+                      "surface-tint": "#b3272e",
+                      "primary-fixed": "#ffdad7",
+                      "on-tertiary-fixed-variant": "#00504e",
+                      "secondary-container": "#dae1e3",
+                      "on-tertiary-container": "#003533",
+                      "on-secondary-container": "#5d6466",
+                      "primary": "#b3272e",
+                      "on-primary": "#ffffff",
+                      "surface-bright": "#f1fbff",
+                      "secondary-fixed": "#dde4e6",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-fixed": "#410005",
+                      "inverse-on-surface": "#e7f3f7",
+                      "tertiary-fixed-dim": "#2edcd7",
+                      "surface-container-high": "#dfeaef",
+                      "inverse-primary": "#ffb3af",
+                      "surface": "#f1fbff",
+                      "outline": "#8d706e",
+                      "on-primary-fixed-variant": "#91081a",
+                      "on-surface": "#131d21",
+                      "primary-fixed-dim": "#ffb3af",
+                      "on-surface-variant": "#59413f",
+                      "tertiary-fixed": "#5af9f3",
+                      "on-error-container": "#93000a",
+                      "surface-container-highest": "#d9e4e9",
+                      "tertiary-container": "#00a7a3",
+                      "background": "#f1fbff",
+                      "surface-dim": "#d1dce0",
+                      "on-secondary-fixed": "#161d1f",
+                      "secondary-fixed-dim": "#c1c8ca",
+                      "secondary": "#586062",
+                      "on-secondary-fixed-variant": "#41484a",
+                      "error": "#ba1a1a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "unit": "4px",
+                      "margin-mobile": "16px",
+                      "sm": "8px",
+                      "lg": "24px",
+                      "xs": "4px",
+                      "md": "16px",
+                      "margin-desktop": "64px",
+                      "gutter": "24px",
+                      "xl": "48px"
+              },
+              "fontFamily": {
+                      "title-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-sm": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-md": [
+                              "JetBrains Mono"
+                      ],
+                      "display-lg": [
+                              "Hanken Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "title-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1;
+        }
+
+        /* Ambient Soft Shadows */
+        .ambient-shadow {
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.04);
+        }
+
+        /* Hide scrollbar for clean horizontal scrolling */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+    <style>
+        body {
+          min-height: max(884px, 100dvh);
+        }
+    </style>
+    <style>
+        body, input, button, span, p, h1, h2, h3 {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .font-body-lg { font-weight: 500; }
+        .font-body-sm { font-weight: 500; }
+    </style></head>
+<body class="text-on-background font-body-lg min-h-screen pt-[72px] md:pb-0 bg-white pb-[130px]">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-md py-sm dark:bg-surface-dim/80 backdrop-blur-xl shadow-sm bg-white">
+    <button class="text-primary dark:text-primary-fixed-dim hover:bg-primary-container/10 dark:hover:bg-on-primary-fixed-variant/20 rounded-full p-2 transition-all duration-200 active:scale-95 flex items-center justify-center"><span class="material-symbols-outlined text-primary" style="color: #b3272e; font-variation-settings: 'FILL' 1;">arrow_back</span></button>
+    <h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary dark:text-primary-fixed-dim font-black" style="color: #b3272e;">Vị trí kho</h1>
+    <button class="text-on-surface-variant dark:text-secondary-fixed-dim hover:bg-primary-container/10 dark:hover:bg-on-primary-fixed-variant/20 rounded-full p-2 transition-all duration-200 active:scale-95 flex items-center justify-center"><span class="material-symbols-outlined" style="color: #b3272e; font-variation-settings: 'FILL' 1;">inventory_2</span></button>
+</header>
+<main class="max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+    <!-- Search Section -->
+    <section class="mb-xl">
+        <div class="flex gap-2">
+            <div class="relative group flex-1">
+                <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-secondary">search</span>
+                <input class="w-full bg-surface-container-lowest border border-surface-variant rounded-xl py-3 pl-12 pr-md font-body-lg text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-colors ambient-shadow" placeholder="Tìm kiếm SKU, Khu vực,..." type="text">
+                <button class="absolute right-2 top-1/2 -translate-y-1/2 bg-surface-variant text-on-surface-variant hover:bg-primary-container hover:text-white rounded-lg p-1.5 transition-colors flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">qr_code_scanner</span>
+                </button>
+            </div>
+            <button class="bg-surface-container-lowest border border-surface-variant rounded-xl px-4 flex items-center justify-center text-on-surface hover:bg-primary-container hover:text-white transition-colors ambient-shadow">
+                <span class="material-symbols-outlined">tune</span>
+            </button>
+        </div>
+        <div class="mt-md">
+            <div class="flex gap-sm overflow-x-auto hide-scrollbar pb-2 w-full">
+                <span class="font-label-md text-label-md px-3 py-1.5 rounded-full bg-primary-container/10 text-primary-container whitespace-nowrap border border-primary-container/20 font-bold">Tất cả khu vực</span>
+                <span class="font-label-md text-label-md px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant whitespace-nowrap border border-transparent font-bold">Nhu cầu cao</span>
+                <span class="font-label-md text-label-md px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant whitespace-nowrap border border-transparent font-bold">Kho lạnh</span>
+                <span class="font-label-md text-label-md px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant whitespace-nowrap border border-transparent font-bold">Hàng dễ vỡ</span>
+            </div>
+        </div>
+    </section>
+    <!-- Current Context / Breadcrumb -->
+    <div class="flex items-center gap-2 mb-xl text-secondary font-label-md text-label-md bg-surface-container-lowest p-3 rounded-xl ambient-shadow font-bold">
+        <span class="material-symbols-outlined text-[16px]">warehouse</span>
+        <span class="hover:text-primary-container cursor-pointer transition-colors">Kho Alpha</span>
+        <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+        <span class="hover:text-primary-container cursor-pointer transition-colors">Tầng 1</span>
+        <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+        <span class="text-on-surface font-semibold">Khu vực A</span>
+    </div>
+    <!-- Hierarchical Navigation Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <!-- Zone Card 1 -->
+        <div class="bg-surface-container-lowest rounded-xl p-3 ambient-shadow cursor-pointer border border-transparent hover:border-primary-container/30 transition-colors group">
+            <div class="flex justify-between items-start mb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-primary-container group-hover:text-white transition-colors text-primary">
+                        <span class="material-symbols-outlined text-[18px]" data-weight="fill">category</span>
+                    </div>
+                    <div>
+                        <h3 class="font-title-md text-[16px] leading-tight text-on-surface font-bold">Dãy A-10</h3>
+                        <p class="font-body-sm text-[12px] text-secondary font-medium">Điện tử</p>
+                    </div>
+                </div>
+                <div class="bg-tertiary-container/20 text-tertiary font-label-md text-[10px] px-2 py-0.5 rounded-full font-bold">
+                    ĐẦY 85%
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-1">
+                <div class="bg-surface py-1.5 px-2 rounded-lg flex justify-between items-center hover:bg-surface-variant transition-colors">
+                    <span class="font-label-md text-[11px] text-on-surface-variant font-bold">Thùng 01-05</span>
+                    <span class="material-symbols-outlined text-[14px] text-secondary">chevron_right</span>
+                </div>
+                <div class="bg-surface py-1.5 px-2 rounded-lg flex justify-between items-center hover:bg-surface-variant transition-colors">
+                    <span class="font-label-md text-[11px] text-on-surface-variant font-bold">Thùng 06-10</span>
+                    <span class="material-symbols-outlined text-[14px] text-secondary">chevron_right</span>
+                </div>
+                <div class="bg-surface py-1.5 px-2 rounded-lg flex justify-between items-center hover:bg-surface-variant transition-colors">
+                    <span class="font-label-md text-[11px] text-on-surface-variant font-bold">Thùng 11-15</span>
+                    <span class="material-symbols-outlined text-[14px] text-secondary">chevron_right</span>
+                </div>
+                <div class="bg-surface py-1.5 px-2 rounded-lg flex justify-between items-center hover:bg-surface-variant transition-colors">
+                    <span class="font-label-md text-[11px] text-on-surface-variant font-bold">Thùng 16-20</span>
+                    <span class="material-symbols-outlined text-[14px] text-secondary">chevron_right</span>
+                </div>
+            </div>
+        </div>
+        <!-- Zone Card 2 -->
+        <div class="bg-surface-container-lowest rounded-xl p-3 ambient-shadow cursor-pointer border border-transparent hover:border-primary-container/30 transition-colors group">
+            <div class="flex justify-between items-start mb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-primary-container group-hover:text-white transition-colors text-primary">
+                        <span class="material-symbols-outlined text-[18px]" data-weight="fill">category</span>
+                    </div>
+                    <div>
+                        <h3 class="font-title-md text-[16px] leading-tight text-on-surface font-bold">Dãy A-11</h3>
+                        <p class="font-body-sm text-[12px] text-secondary font-medium">Linh kiện</p>
+                    </div>
+                </div>
+                <div class="bg-error-container/50 text-on-error-container font-label-md text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 font-bold">
+                    <span class="material-symbols-outlined text-[12px]">warning</span>
+                    ĐẦY 98%
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-1">
+                <div class="bg-surface py-1.5 px-2 rounded-lg flex justify-between items-center hover:bg-surface-variant transition-colors">
+                    <span class="font-label-md text-[11px] text-on-surface-variant font-bold">Thùng 01-05</span>
+                    <span class="material-symbols-outlined text-[14px] text-secondary">chevron_right</span>
+                </div>
+                <div class="bg-surface py-1.5 px-2 rounded-lg flex justify-between items-center hover:bg-surface-variant transition-colors">
+                    <span class="font-label-md text-[11px] text-on-surface-variant font-bold">Thùng 06-10</span>
+                    <span class="material-symbols-outlined text-[14px] text-secondary">chevron_right</span>
+                </div>
+                <div class="bg-surface py-1.5 px-2 rounded-lg flex justify-between items-center hover:bg-surface-variant transition-colors">
+                    <span class="font-label-md text-[11px] text-on-surface-variant font-bold">Thùng 11-15</span>
+                    <span class="material-symbols-outlined text-[14px] text-secondary">chevron_right</span>
+                </div>
+            </div>
+        </div>
+        <!-- Zone Card 3 -->
+        <div class="bg-surface-container-lowest rounded-xl p-3 ambient-shadow cursor-pointer border border-transparent hover:border-primary-container/30 transition-colors group">
+            <div class="flex justify-between items-start mb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-primary-container group-hover:text-white transition-colors text-primary">
+                        <span class="material-symbols-outlined text-[18px]" data-weight="fill">ac_unit</span>
+                    </div>
+                    <div>
+                        <h3 class="font-title-md text-[16px] leading-tight text-on-surface font-bold">Dãy A-12</h3>
+                        <p class="font-body-sm text-[12px] text-secondary font-medium">Tủ mát</p>
+                    </div>
+                </div>
+                <div class="bg-surface-variant text-on-surface-variant font-label-md text-[10px] px-2 py-0.5 rounded-full font-bold">
+                    ĐẦY 40%
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-1">
+                <div class="bg-surface py-1.5 px-2 rounded-lg flex justify-between items-center hover:bg-surface-variant transition-colors">
+                    <span class="font-label-md text-[11px] text-on-surface-variant font-bold">Thùng 01-05</span>
+                    <span class="material-symbols-outlined text-[14px] text-secondary">chevron_right</span>
+                </div>
+                <div class="bg-surface py-1.5 px-2 rounded-lg flex justify-between items-center hover:bg-surface-variant transition-colors">
+                    <span class="font-label-md text-[11px] text-on-surface-variant font-bold">Thùng 06-10</span>
+                    <span class="material-symbols-outlined text-[14px] text-secondary">chevron_right</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</main><footer class="fixed bottom-0 w-full bg-white/80 backdrop-blur-lg border-t border-outline-variant p-margin-mobile flex flex-col gap-2 z-50 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+    <button class="w-full h-12 bg-primary text-on-primary rounded-xl font-title-md text-body-lg flex items-center justify-center gap-2 active:scale-[0.98] transition-transform font-bold">
+        <span class="material-symbols-outlined">qr_code_scanner</span>
+        Quét vị trí
+    </button>
+    <button class="w-full h-12 bg-surface text-primary border border-primary rounded-xl font-title-md text-body-lg flex items-center justify-center gap-2 active:scale-[0.98] transition-transform font-bold">
+        <span class="material-symbols-outlined">map</span>
+        Xem bản đồ
+    </button>
+</footer>
+<!-- Floating Action Button (FAB) -->
+<!-- BottomNavBar (Mobile Only) -->
+</body></html>

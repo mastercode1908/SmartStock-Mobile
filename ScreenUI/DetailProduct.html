@@ -1,0 +1,265 @@
+<!DOCTYPE html><html class="light" lang="vi"><head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Chi tiết Sản phẩm - Smart Stock</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <!-- Theme Configuration -->
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-container": "#00a7a3",
+                      "surface-tint": "#b3272e",
+                      "surface-container-high": "#dfeaef",
+                      "secondary-fixed-dim": "#c1c8ca",
+                      "primary-container": "#ff5f5f",
+                      "on-tertiary-fixed-variant": "#00504e",
+                      "surface": "#f1fbff",
+                      "surface-container-low": "#eaf5fa",
+                      "error": "#ba1a1a",
+                      "surface-variant": "#d9e4e9",
+                      "primary": "#b3272e",
+                      "on-secondary-fixed": "#161d1f",
+                      "primary-fixed": "#ffdad7",
+                      "tertiary-fixed": "#5af9f3",
+                      "outline": "#8d706e",
+                      "on-primary-fixed": "#410005",
+                      "secondary-fixed": "#dde4e6",
+                      "on-secondary-container": "#5d6466",
+                      "inverse-surface": "#283236",
+                      "surface-container": "#e4f0f4",
+                      "on-tertiary-fixed": "#00201f",
+                      "on-error-container": "#93000a",
+                      "surface-dim": "#d1dce0",
+                      "on-secondary": "#ffffff",
+                      "tertiary": "#006a67",
+                      "secondary-container": "#dae1e3",
+                      "background": "#f1fbff",
+                      "on-error": "#ffffff",
+                      "on-background": "#131d21",
+                      "on-surface-variant": "#59413f",
+                      "surface-bright": "#f1fbff",
+                      "primary-fixed-dim": "#ffb3af",
+                      "on-primary-container": "#64000d",
+                      "on-tertiary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-primary-fixed-variant": "#91081a",
+                      "on-surface": "#131d21",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary-fixed-dim": "#2edcd7",
+                      "secondary": "#586062",
+                      "on-secondary-fixed-variant": "#41484a",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-container": "#003533",
+                      "inverse-on-surface": "#e7f3f7",
+                      "surface-container-highest": "#d9e4e9",
+                      "inverse-primary": "#ffb3af",
+                      "outline-variant": "#e1bebc"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter": "24px",
+                      "unit": "4px",
+                      "sm": "8px",
+                      "xl": "48px",
+                      "lg": "24px",
+                      "margin-desktop": "64px",
+                      "xs": "4px",
+                      "md": "16px",
+                      "margin-mobile": "16px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": ["Hanken Grotesk"],
+                      "body-lg": ["Hanken Grotesk"],
+                      "display-lg": ["Hanken Grotesk"],
+                      "body-sm": ["Hanken Grotesk"],
+                      "label-md": ["JetBrains Mono"],
+                      "title-md": ["Hanken Grotesk"],
+                      "headline-lg": ["Hanken Grotesk"]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                      "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+              }
+            }
+          }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+    <style>
+        body {
+          min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-lg antialiased pb-32" style="background-color: #ffffff;">
+<!-- Detail Top App Bar (Task-Focused, replaces Global Nav) -->
+<header class="sticky top-0 w-full z-50 h-16 flex items-center justify-between px-margin-mobile shadow-[0_1px_3px_rgba(0,0,0,0.02)] bg-white">
+    <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors text-on-surface">
+        <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="font-title-md text-title-md text-primary truncate px-4 font-[600]">Chi tiết Sản phẩm</h1>
+    <div class="w-10 h-10 flex items-center justify-center text-primary">
+        <span class="material-symbols-outlined icon-fill">inventory_2</span>
+    </div>
+</header>
+<main class="max-w-3xl mx-auto">
+    <!-- Product Hero Summary -->
+    <section class="px-margin-mobile mt-md">
+        <div class="w-full aspect-video bg-surface-container rounded-xl overflow-hidden mb-md shadow-sm relative border border-outline-variant/30">
+            <img alt="Intel Core CPU Box" class="w-full h-full object-cover" data-alt="A high-quality, bright product photograph of a modern computer processor box resting on a clean, minimal white surface. The lighting is soft, even, and studio-quality, casting subtle shadows to emphasize the sleek packaging. The scene incorporates a modern, airy aesthetic with slight glassmorphism reflections nearby, perfectly matching a premium inventory management app's clean UI design. Accents of soft coral red are subtly reflected in the background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0qTTTT7S4yCuCXqjlHzOhHIUvqbIu0Y6DL0FwSbEezgAUGWF3VyXAPdyTiCrpqnpFaB_Az9ndzqbcmyP-2Pdef2Kg7riQjlyrTBOebWysUkECT2131wGnGE8n4a8gvt9PXrZwyHFzz3CMZFShXXOg2E9Tc8zbNI-ciyqdLRi-Hx_0BObShWmpm_P7oDeC2WriLRitnkhI4xYNTSzdBhBvbNUuFI2AoAZtnWnHBVHFF6HhO0lqRIKJZNpJ7YXX8Uh4y-bMXC29h8QP">
+        </div>
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+<span class="bg-primary-container/10 text-primary-container font-label-md text-label-md px-3 py-1.5 rounded-full border border-primary-container/20">
+                    SKU: CPU-INT-13700
+                </span>
+            <span class="bg-surface-variant text-on-surface-variant font-label-md text-label-md px-3 py-1.5 rounded-full">
+                    Vi xử lý (CPU)
+                </span>
+        </div>
+        <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Intel Core i7-13700K</h2>
+    </section>
+    <!-- Inventory Stats Bento Grid -->
+    <section class="px-margin-mobile mt-lg">
+        <div class="grid grid-cols-2 gap-md">
+            <!-- Quantity Card -->
+            <div class="bg-surface-container-lowest rounded-xl p-3 shadow-[0px_4px_12px_rgba(0,0,0,0.03)] flex flex-col justify-between border border-outline-variant/10">
+                <div class="flex items-center gap-2 mb-sm text-secondary">
+                    <span class="material-symbols-outlined text-[18px]">inventory_2</span>
+                    <span class="font-label-md text-label-md uppercase tracking-wider">Số lượng</span>
+                </div>
+                <div class="flex items-baseline gap-1">
+                    <span class="font-headline-lg-mobile text-[32px] font-bold text-on-surface">142</span>
+                    <span class="font-body-sm text-secondary">cái</span>
+                </div>
+            </div>
+            <!-- Location Card -->
+            <div class="bg-surface-container-lowest rounded-xl p-3 shadow-[0px_4px_12px_rgba(0,0,0,0.03)] flex flex-col justify-between border border-outline-variant/10">
+                <div class="flex items-center gap-2 mb-sm text-secondary">
+                    <span class="material-symbols-outlined text-[18px]">location_on</span>
+                    <span class="font-label-md text-label-md uppercase tracking-wider">Vị trí</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-title-md text-title-md text-on-surface">Kệ A-12</span>
+                </div>
+            </div>
+            <!-- Status Card -->
+            <div class="col-span-2 bg-tertiary-container/10 flex items-center justify-between border border-tertiary-container/20 rounded-xl p-md">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-tertiary-container icon-fill">check_circle</span>
+                    <div>
+                        <p class="font-label-md text-label-md text-secondary uppercase mb-1">Trạng thái</p>
+                        <p class="font-title-md text-title-md text-on-surface">Sẵn sàng xuất kho</p>
+                    </div>
+                </div>
+                <span class="bg-surface-container-lowest text-tertiary font-label-md text-label-md rounded-full shadow-sm px-md py-xs flex-shrink-0">
+  Bình thường
+</span>
+            </div>
+        </div>
+    </section>
+    <!-- Tracking Info -->
+    <section class="px-margin-mobile mt-lg">
+        <h3 class="font-title-md text-title-md text-on-surface mb-sm">Phương thức theo dõi</h3>
+        <div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(0,0,0,0.04)] border border-outline-variant/10">
+            <div class="flex justify-between items-center mb-xs">
+                <span class="font-body-lg text-secondary">Loại quản lý</span>
+                <span class="font-label-md text-label-md bg-surface-variant text-on-surface-variant px-2 py-1 rounded">Serial Number (S/N)</span>
+            </div>
+            <div class="h-px w-full bg-outline-variant/30 my-sm"></div>
+            <p class="font-body-sm text-secondary">Sản phẩm này yêu cầu quét mã Serial duy nhất cho mỗi đơn vị khi nhập và xuất kho.</p>
+        </div>
+    </section>
+    <!-- Detailed Specs -->
+    <section class="px-margin-mobile mt-lg">
+        <h3 class="font-title-md text-title-md text-on-surface mb-sm">Thông số kỹ thuật</h3>
+        <div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.04)] border border-outline-variant/10 overflow-hidden">
+            <div class="flex justify-between items-center p-md border-b border-outline-variant/20">
+                <span class="font-body-lg text-on-surface">Socket</span>
+                <span class="font-label-md text-secondary">LGA 1700</span>
+            </div>
+            <div class="flex justify-between items-center p-md border-b border-outline-variant/20">
+                <span class="font-body-lg text-on-surface">Số nhân / luồng</span>
+                <span class="font-label-md text-secondary">16 / 24</span>
+            </div>
+            <div class="flex justify-between items-center p-md">
+                <span class="font-body-lg text-on-surface">Xung nhịp tối đa</span>
+                <span class="font-label-md text-secondary">5.40 GHz</span>
+            </div>
+        </div>
+    </section>
+    <!-- Recent Activity -->
+    <section class="px-margin-mobile mb-xl mt-lg">
+        <h3 class="font-title-md text-title-md text-on-surface mb-sm">Hoạt động gần đây</h3>
+        <div class="flex flex-col gap-sm">
+            <!-- Activity Item -->
+            <div class="flex gap-md items-start bg-surface-container-lowest p-sm rounded-lg">
+                <div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-secondary shrink-0">
+                    <span class="material-symbols-outlined text-[20px]">add_circle</span>
+                </div>
+                <div>
+                    <p class="font-body-lg text-on-surface">Nhập kho từ nhà cung cấp</p>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="font-label-md text-secondary">Hôm qua, 14:30</span>
+                        <span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+                        <span class="font-label-md text-tertiary-container">+50 cái</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Activity Item -->
+            <div class="flex gap-md items-start bg-surface-container-lowest p-sm rounded-lg">
+                <div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-secondary shrink-0">
+                    <span class="material-symbols-outlined text-[20px]">fact_check</span>
+                </div>
+                <div>
+                    <p class="font-body-lg text-on-surface">Kiểm kê định kỳ (Tháng 10)</p>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="font-label-md text-secondary">15/10/2023</span>
+                        <span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+                        <span class="font-label-md text-secondary">Khớp số liệu</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<!-- Fixed Action Bar (Task Context) -->
+<div class="fixed bottom-0 left-0 w-full z-50 bg-surface/90 backdrop-blur-xl border-t border-outline-variant/20 p-margin-mobile pb-safe flex gap-md shadow-[0px_-12px_32px_rgba(0,0,0,0.04)]">
+    <button class="flex-1 h-12 bg-surface-container-high text-primary rounded-xl font-title-md text-title-md hover:bg-surface-variant transition-colors flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined">edit_note</span>
+        Chỉnh sửa
+    </button>
+    <button class="flex-1 h-12 bg-primary text-on-primary rounded-xl font-title-md text-title-md hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 shadow-sm">
+        <span class="material-symbols-outlined">barcode_scanner</span>
+        Kiểm kê nhanh
+    </button>
+</div>
+
+
+</body></html>

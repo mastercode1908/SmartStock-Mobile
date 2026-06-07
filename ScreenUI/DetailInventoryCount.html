@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Chi tiết Kiểm kê</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-primary": "#ffb3af",
+                      "on-tertiary-fixed": "#00201f",
+                      "secondary-fixed": "#dde4e6",
+                      "surface-variant": "#d9e4e9",
+                      "surface-bright": "#f1fbff",
+                      "on-error-container": "#93000a",
+                      "surface-container": "#e4f0f4",
+                      "outline": "#8d706e",
+                      "on-secondary-fixed-variant": "#41484a",
+                      "on-tertiary-container": "#003533",
+                      "background": "#f1fbff",
+                      "on-error": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-background": "#131d21",
+                      "on-primary-container": "#64000d",
+                      "outline-variant": "#e1bebc",
+                      "tertiary": "#006a67",
+                      "on-primary-fixed": "#410005",
+                      "primary": "#b3272e",
+                      "primary-container": "#ff5f5f",
+                      "on-tertiary": "#ffffff",
+                      "secondary": "#586062",
+                      "inverse-on-surface": "#e7f3f7",
+                      "on-surface": "#131d21",
+                      "on-surface-variant": "#59413f",
+                      "error": "#ba1a1a",
+                      "primary-fixed-dim": "#ffb3af",
+                      "on-primary": "#ffffff",
+                      "surface": "#f1fbff",
+                      "primary-fixed": "#ffdad7",
+                      "on-secondary-fixed": "#161d1f",
+                      "inverse-surface": "#283236",
+                      "surface-tint": "#b3272e",
+                      "on-primary-fixed-variant": "#91081a",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary-fixed-dim": "#c1c8ca",
+                      "tertiary-container": "#00a7a3",
+                      "surface-container-low": "#eaf5fa",
+                      "on-secondary-container": "#5d6466",
+                      "on-secondary": "#ffffff",
+                      "tertiary-fixed": "#5af9f3",
+                      "surface-container-high": "#dfeaef",
+                      "on-tertiary-fixed-variant": "#00504e",
+                      "surface-container-highest": "#d9e4e9",
+                      "tertiary-fixed-dim": "#2edcd7",
+                      "surface-dim": "#d1dce0",
+                      "secondary-container": "#dae1e3"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "sm": "8px",
+                      "gutter": "24px",
+                      "xl": "48px",
+                      "xs": "4px",
+                      "md": "16px",
+                      "unit": "4px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "64px",
+                      "lg": "24px"
+              },
+              "fontFamily": {
+                      "title-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-sm": [
+                              "Hanken Grotesk"
+                      ],
+                      "display-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-md": [
+                              "JetBrains Mono"
+                      ],
+                      "body-lg": [
+                              "Hanken Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "title-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+    <style>
+        body {
+          min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-24 md:pb-0 font-body-lg text-body-lg bg-white text-black">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 backdrop-blur-xl dark:bg-surface-dim/80 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] flex items-center px-margin-mobile w-full justify-between h-14 bg-white"><div class="flex items-center w-full justify-between h-14">
+    <button class="p-2 text-primary hover:bg-primary/5 rounded-full transition-all duration-200 active:scale-95">
+        <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="font-title-md text-title-md font-bold text-primary">Chi tiết Kiểm kê</h1>
+    <div class="p-2 flex items-center justify-center text-primary"><span class="material-symbols-outlined" style='font-variation-settings: "FILL" 1;'>inventory_2</span></div>
+</div></header>
+<main class="px-margin-mobile md:px-margin-desktop max-w-[1440px] mx-auto pt-16">
+    <!-- Info Card -->
+    <section class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.04)] border border-surface-container-high/50 p-2 mb-4">
+        <div class="flex flex-col gap-sm">
+            <div class="flex justify-between items-center">
+                <span class="font-label-md text-label-md text-on-surface-variant uppercase">Mã phiếu</span>
+                <span class="font-label-md text-label-md font-bold text-primary">INV-2023-001</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="font-label-md text-label-md text-on-surface-variant uppercase">Kho</span>
+                <span class="font-body-sm text-body-sm text-on-surface">Kho Chính - Tầng 1</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="font-label-md text-label-md text-on-surface-variant uppercase">Ngày tạo</span>
+                <span class="font-body-sm text-body-sm text-on-surface">24/10/2023</span>
+            </div>
+        </div>
+    </section>
+    <!-- Search & Filter -->
+    <section class="flex gap-sm mb-4">
+        <div class="relative flex-1">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+            <input class="w-full bg-surface-container-lowest border border-outline-variant focus:border-primary-container rounded-lg py-2 pl-10 pr-3 font-body-sm text-body-sm outline-none transition-colors" placeholder="Tìm tên/SKU..." type="text"/>
+        </div>
+        <button class="bg-surface-container-lowest border border-outline-variant rounded-lg p-2 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors" onclick="document.getElementById('filterModal').classList.remove('hidden')">
+            <span class="material-symbols-outlined">tune</span>
+        </button>
+    </section>
+    <!-- Product List -->
+    <section class="flex flex-col gap-2"><!-- Item 1 (Matched) -->
+        <div class="bg-surface-container-lowest rounded-lg p-3 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] flex flex-col gap-1.5 border border-surface-container-high/50">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="font-body-lg text-[15px] font-semibold text-on-surface leading-tight">Cáp sạc USB-C</h3>
+                    <p class="font-label-md text-[10px] text-on-surface-variant">SKU: CAB-USBC-01</p>
+                </div>
+                <span class="material-symbols-outlined text-[18px] text-tertiary">check_circle</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-on-surface-variant">
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[12px]">location_on</span>
+                    <span class="">Kệ A1</span>
+                </div>
+                <div class="flex gap-1.5">
+                    <span class="uppercase opacity-60">Lô:</span><span class="font-medium">B-202310</span>
+                    <span class="uppercase opacity-60 ml-1">Serial:</span><span class="font-medium">N/A</span>
+                    <span class="uppercase opacity-60 ml-1">Kênh:</span><span class="font-medium">Số lượng</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between gap-3 mt-0.5">
+                <div class="text-[11px] text-on-surface-variant whitespace-nowrap">
+                    Hệ thống: <span class="font-label-md text-[12px] text-on-surface font-semibold">150</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <span class="text-[11px] text-on-surface-variant">Thực tế:</span>
+                    <input class="w-16 h-7 bg-surface-container border border-outline-variant focus:border-primary-container rounded py-0 px-2 font-label-md text-[13px] outline-none" type="number" value="150"/>
+                    <button class="p-1 text-primary hover:bg-primary/5 rounded-full transition-all duration-200 active:scale-90">
+                        <span class="material-symbols-outlined text-[18px]">rate_review</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Item 2 (Mismatched) -->
+        <div class="bg-surface-container-lowest rounded-lg p-3 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] flex flex-col gap-1.5 border border-error/20">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="font-body-lg text-[15px] font-semibold text-on-surface leading-tight">Tai nghe Bluetooth</h3>
+                    <p class="font-label-md text-[10px] text-on-surface-variant">SKU: AUD-BT-02</p>
+                </div>
+                <span class="material-symbols-outlined text-[18px] text-error">warning</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-on-surface-variant">
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[12px]">location_on</span>
+                    <span class="">Kệ B3</span>
+                </div>
+                <div class="flex gap-1.5">
+                    <span class="uppercase opacity-60">Lô:</span><span class="font-medium">N/A</span>
+                    <span class="uppercase opacity-60 ml-1">Serial:</span><span class="font-medium">SN-29384</span>
+                    <span class="uppercase opacity-60 ml-1">Kênh:</span><span class="font-medium">Serial</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between gap-3 mt-0.5">
+                <div class="text-[11px] text-on-surface-variant whitespace-nowrap">
+                    Hệ thống: <span class="font-label-md text-[12px] text-on-surface font-semibold">45</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <span class="text-[11px] text-on-surface-variant">Thực tế:</span>
+                    <input class="w-16 h-7 bg-error-container/20 border border-error/50 focus:border-error rounded py-0 px-2 font-label-md text-[13px] outline-none text-error" type="number" value="42"/>
+                    <button class="p-1 text-primary hover:bg-primary/5 rounded-full transition-all duration-200 active:scale-90">
+                        <span class="material-symbols-outlined text-[18px]">rate_review</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Item 3 (Unchecked) -->
+        <div class="bg-surface-container-lowest rounded-lg p-3 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] flex flex-col gap-1.5 border border-surface-container-high/50 opacity-80">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="font-body-lg text-[15px] font-semibold text-on-surface leading-tight">Bàn phím cơ</h3>
+                    <p class="font-label-md text-[10px] text-on-surface-variant">SKU: KBD-MEC-05</p>
+                </div>
+                <span class="material-symbols-outlined text-[18px] text-outline-variant">help_outline</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-on-surface-variant">
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[12px]">location_on</span>
+                    <span class="">Kệ C2</span>
+                </div>
+                <div class="flex gap-1.5">
+                    <span class="uppercase opacity-60">Lô:</span><span class="font-medium">N/A</span>
+                    <span class="uppercase opacity-60 ml-1">Serial:</span><span class="font-medium">KBD-0912</span>
+                    <span class="uppercase opacity-60 ml-1">Kênh:</span><span class="font-medium">Serial</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between gap-3 mt-0.5">
+                <div class="text-[11px] text-on-surface-variant whitespace-nowrap">
+                    Hệ thống: <span class="font-label-md text-[12px] text-on-surface font-semibold">12</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <span class="text-[11px] text-on-surface-variant">Thực tế:</span>
+                    <input class="w-16 h-7 bg-surface-container border border-outline-variant focus:border-primary-container rounded py-0 px-2 font-label-md text-[13px] outline-none" placeholder="--" type="number"/>
+                    <button class="p-1 text-primary hover:bg-primary/5 rounded-full transition-all duration-200 active:scale-90">
+                        <span class="material-symbols-outlined text-[18px]">rate_review</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Item 4 -->
+        <div class="bg-surface-container-lowest rounded-lg p-3 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] flex flex-col gap-1.5 border border-surface-container-high/50">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="font-body-lg text-[15px] font-semibold text-on-surface leading-tight">Chuột không dây</h3>
+                    <p class="font-label-md text-[10px] text-on-surface-variant">SKU: MOU-WLS-09</p>
+                </div>
+                <span class="material-symbols-outlined text-[18px] text-outline-variant">help_outline</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-on-surface-variant">
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[12px]">location_on</span>
+                    <span class="">Kệ A2</span>
+                </div>
+                <div class="flex gap-1.5">
+                    <span class="uppercase opacity-60">Lô:</span><span class="font-medium">B-202309</span>
+                    <span class="uppercase opacity-60 ml-1">Serial:</span><span class="font-medium">N/A</span>
+                    <span class="uppercase opacity-60 ml-1">Kênh:</span><span class="font-medium">Số lượng</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between gap-3 mt-0.5">
+                <div class="text-[11px] text-on-surface-variant whitespace-nowrap">
+                    Hệ thống: <span class="font-label-md text-[12px] text-on-surface font-semibold">20</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <span class="text-[11px] text-on-surface-variant">Thực tế:</span>
+                    <input class="w-16 h-7 bg-surface-container border border-outline-variant focus:border-primary-container rounded py-0 px-2 font-label-md text-[13px] outline-none" placeholder="--" type="number"/>
+                    <button class="p-1 text-primary hover:bg-primary/5 rounded-full transition-all duration-200 active:scale-90">
+                        <span class="material-symbols-outlined text-[18px]">rate_review</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Item 5 -->
+        <div class="bg-surface-container-lowest rounded-lg p-3 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] flex flex-col gap-1.5 border border-surface-container-high/50">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="font-body-lg text-[15px] font-semibold text-on-surface leading-tight">Màn hình 24 inch</h3>
+                    <p class="font-label-md text-[10px] text-on-surface-variant">SKU: MON-24-HD</p>
+                </div>
+                <span class="material-symbols-outlined text-[18px] text-outline-variant">help_outline</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-on-surface-variant">
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[12px]">location_on</span>
+                    <span class="">Kệ D1</span>
+                </div>
+                <div class="flex gap-1.5">
+                    <span class="uppercase opacity-60">Lô:</span><span class="font-medium">N/A</span>
+                    <span class="uppercase opacity-60 ml-1">Serial:</span><span class="font-medium">MON-4421</span>
+                    <span class="uppercase opacity-60 ml-1">Kênh:</span><span class="font-medium">Serial</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between gap-3 mt-0.5">
+                <div class="text-[11px] text-on-surface-variant whitespace-nowrap">
+                    Hệ thống: <span class="font-label-md text-[12px] text-on-surface font-semibold">5</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <span class="text-[11px] text-on-surface-variant">Thực tế:</span>
+                    <input class="w-16 h-7 bg-surface-container border border-outline-variant focus:border-primary-container rounded py-0 px-2 font-label-md text-[13px] outline-none" placeholder="--" type="number"/>
+                    <button class="p-1 text-primary hover:bg-primary/5 rounded-full transition-all duration-200 active:scale-90">
+                        <span class="material-symbols-outlined text-[18px]">rate_review</span>
+                    </button>
+                </div>
+            </div>
+        </div></section>
+</main>
+<!-- Bottom Actions (Mobile) -->
+<div class="fixed bottom-0 left-0 w-full bg-surface-container-lowest/90 backdrop-blur-md border-t border-surface-container-high/50 p-margin-mobile flex flex-col gap-sm z-40 pb-safe md:hidden shadow-[0px_-4px_20px_rgba(0,0,0,0.04)]"><button class="w-full bg-primary text-on-primary py-3 rounded-xl font-title-md text-title-md flex items-center justify-center gap-2 shadow-md active:scale-95 transition-transform">
+    <span class="material-symbols-outlined">qr_code_scanner</span>
+    Quét mã nhanh
+</button>
+    <div class="flex gap-3">
+        <button class="flex-1 bg-white text-primary py-3 rounded-xl font-title-md text-title-md active:scale-95 transition-transform border border-primary">
+            Lưu tạm
+        </button>
+        <button class="flex-[2] bg-primary text-on-primary py-3 rounded-xl font-title-md text-title-md flex items-center justify-center gap-2 shadow-md active:scale-95 transition-transform">
+            Hoàn thành
+        </button>
+    </div></div>
+<!-- Filter Modal -->
+<div class="hidden fixed inset-0 z-50 flex items-end justify-center sm:items-center p-4 bg-on-background/40 backdrop-blur-sm transition-opacity" id="filterModal">
+    <div class="bg-surface-container-lowest w-full max-w-md rounded-t-2xl sm:rounded-2xl shadow-xl flex flex-col max-h-[90vh]">
+        <div class="flex items-center justify-between p-4 border-b border-outline-variant/30">
+            <h2 class="font-title-md text-title-md text-on-surface">Bộ lọc</h2>
+            <button class="p-2 text-on-surface-variant hover:bg-surface-variant/50 rounded-full transition-colors" onclick="document.getElementById('filterModal').classList.add('hidden')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="p-4 overflow-y-auto flex-1 flex flex-col gap-6">
+            <!-- Status Filter -->
+            <div class="flex flex-col gap-3">
+                <h3 class="font-body-lg text-body-lg font-medium text-on-surface">Trạng thái</h3>
+                <div class="flex flex-wrap gap-2">
+                    <button class="px-4 py-1.5 rounded-full border border-primary text-primary bg-primary/10 font-body-sm text-body-sm">Tất cả</button>
+                    <button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-variant/50 font-body-sm text-body-sm">Khớp</button>
+                    <button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-variant/50 font-body-sm text-body-sm">Lệch</button>
+                    <button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-variant/50 font-body-sm text-body-sm">Chưa kiểm</button>
+                </div>
+            </div>
+            <!-- Tracking Type Filter -->
+            <div class="flex flex-col gap-3">
+                <h3 class="font-body-lg text-body-lg font-medium text-on-surface">Loại theo dõi</h3>
+                <div class="flex flex-wrap gap-2">
+                    <button class="px-4 py-1.5 rounded-full border border-primary text-primary bg-primary/10 font-body-sm text-body-sm">Tất cả</button>
+                    <button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-variant/50 font-body-sm text-body-sm">Batch</button>
+                    <button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-variant/50 font-body-sm text-body-sm">Serial</button>
+                    <button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-variant/50 font-body-sm text-body-sm">Số lượng</button>
+                </div>
+            </div>
+            <!-- Zone Filter -->
+            <div class="flex flex-col gap-3">
+                <h3 class="font-body-lg text-body-lg font-medium text-on-surface">Khu vực</h3>
+                <div class="flex flex-wrap gap-2">
+                    <button class="px-4 py-1.5 rounded-full border border-primary text-primary bg-primary/10 font-body-sm text-body-sm">Tất cả</button>
+                    <button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-variant/50 font-body-sm text-body-sm">Khu A</button>
+                    <button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-variant/50 font-body-sm text-body-sm">Khu B</button>
+                    <button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-variant/50 font-body-sm text-body-sm">Khu C</button>
+                    <button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-variant/50 font-body-sm text-body-sm">Khu D</button>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 border-t border-outline-variant/30 flex gap-3 bg-surface-container-lowest rounded-b-2xl pb-safe">
+            <button class="flex-1 px-4 py-2 rounded-lg border border-outline text-on-surface-variant font-body-lg text-body-lg hover:bg-surface-variant/50 transition-colors">Thiết lập lại</button>
+            <button class="flex-[2] px-4 py-2 rounded-lg bg-primary text-on-primary font-body-lg text-body-lg hover:bg-primary/90 transition-colors shadow-sm" onclick="document.getElementById('filterModal').classList.add('hidden')">Áp dụng</button>
+        </div>
+    </div>
+</div>
+</body></html>

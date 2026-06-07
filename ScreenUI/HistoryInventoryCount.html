@@ -1,0 +1,362 @@
+<!DOCTYPE html><html lang="vi"><head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Smart Stock - Lịch Sử Tồn Kho</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-container": "#00a7a3",
+                      "on-tertiary-fixed-variant": "#00504e",
+                      "on-primary-fixed": "#410005",
+                      "surface-container-highest": "#d9e4e9",
+                      "outline-variant": "#e1bebc",
+                      "on-secondary-fixed": "#161d1f",
+                      "surface": "#f1fbff",
+                      "secondary": "#586062",
+                      "on-tertiary-container": "#003533",
+                      "primary-fixed-dim": "#ffb3af",
+                      "surface-container-high": "#dfeaef",
+                      "outline": "#8d706e",
+                      "tertiary-fixed": "#5af9f3",
+                      "surface-container-low": "#eaf5fa",
+                      "on-surface-variant": "#59413f",
+                      "primary": "#b3272e",
+                      "on-secondary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-container": "#64000d",
+                      "on-error": "#ffffff",
+                      "tertiary-fixed-dim": "#2edcd7",
+                      "on-background": "#131d21",
+                      "on-secondary-fixed-variant": "#41484a",
+                      "on-tertiary-fixed": "#00201f",
+                      "primary-container": "#ff5f5f",
+                      "on-tertiary": "#ffffff",
+                      "inverse-surface": "#283236",
+                      "secondary-fixed": "#dde4e6",
+                      "tertiary": "#006a67",
+                      "secondary-container": "#dae1e3",
+                      "on-secondary-container": "#5d6466",
+                      "on-primary-fixed-variant": "#91081a",
+                      "secondary-fixed-dim": "#c1c8ca",
+                      "error": "#ba1a1a",
+                      "background": "#f1fbff",
+                      "surface-variant": "#d9e4e9",
+                      "surface-tint": "#b3272e",
+                      "surface-bright": "#f1fbff",
+                      "inverse-primary": "#ffb3af",
+                      "on-surface": "#131d21",
+                      "on-primary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "inverse-on-surface": "#e7f3f7",
+                      "surface-dim": "#d1dce0",
+                      "surface-container": "#e4f0f4",
+                      "primary-fixed": "#ffdad7",
+                      "error-container": "#ffdad6"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "lg": "24px",
+                      "xl": "48px",
+                      "unit": "4px",
+                      "md": "16px",
+                      "sm": "8px",
+                      "gutter": "24px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "64px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "title-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-md": [
+                              "JetBrains Mono"
+                      ],
+                      "body-sm": [
+                              "Hanken Grotesk"
+                      ],
+                      "display-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "title-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for horizontal chip list */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+    <style>
+        body {
+          min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-background font-['Hanken_Grotesk'] antialiased min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-surface-container-lowest dark:bg-surface-dim font-title-md text-title-md fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile h-[72px] border-b border-outline-variant dark:border-outline transition-colors">
+    <div class="flex items-center gap-2 text-primary dark:text-primary-fixed-dim">
+        <span class="material-symbols-outlined text-primary" style="font-variation-settings: &quot;FILL&quot; 1;">inventory_2</span>
+        <span class="font-headline-lg-mobile font-bold text-primary dark:text-primary-fixed">Smart Stock</span>
+    </div>
+    <div class="text-primary dark:text-primary-fixed-dim">
+        <span class="material-symbols-outlined text-primary" style="font-variation-settings: &quot;FILL&quot; 1;">notifications</span>
+    </div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-[96px] pb-[100px] px-margin-mobile md:px-margin-desktop max-w-[1440px] mx-auto flex flex-col gap-lg">
+    <!-- Page Header -->
+    <section class="flex flex-col gap-xs pt-md">
+        <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background">Lịch sử kiểm kê</h2>
+        <p class="font-body-sm text-on-surface-variant">Xem lại nhật ký phiên và báo cáo độ chính xác.</p>
+    </section>
+    <!-- Search & Filter Controls -->
+    <section class="flex flex-col gap-sm"><div class="flex gap-sm">
+        <div class="flex-1 flex items-center bg-surface-container-low border border-outline-variant focus-within:border-primary transition-all rounded-xl px-4 py-2.5">
+            <span class="material-symbols-outlined text-secondary mr-sm">search</span>
+            <input class="w-full bg-transparent border-none focus:ring-0 p-0 font-body-lg text-on-surface placeholder:text-secondary/60 focus:outline-none" placeholder="Tìm kiếm theo ID hoặc Người..." type="text">
+        </div>
+        <button class="flex items-center justify-center gap-xs px-5 bg-primary text-on-primary rounded-xl font-label-md hover:bg-primary/90 transition-all shadow-sm active:scale-95">
+            <span class="material-symbols-outlined text-[20px]">tune</span>
+            <span class="hidden md:inline">Lọc</span>
+        </button>
+    </div>
+        <div class="flex overflow-x-auto no-scrollbar gap-sm py-sm">
+            <button class="whitespace-nowrap px-4 py-1.5 rounded-full font-label-md bg-primary text-on-primary shadow-sm transition-colors">Tất Cả</button>
+            <button class="whitespace-nowrap px-4 py-1.5 rounded-full font-label-md bg-surface-container-high text-on-surface-variant border border-outline-variant hover:bg-surface-variant transition-colors">Khu A (Thô)</button>
+            <button class="whitespace-nowrap px-4 py-1.5 rounded-full font-label-md bg-surface-container-high text-on-surface-variant border border-outline-variant hover:bg-surface-variant transition-colors">Khu B (Thành Phẩm)</button>
+            <button class="whitespace-nowrap px-4 py-1.5 rounded-full font-label-md bg-surface-container-high text-on-surface-variant border border-outline-variant hover:bg-surface-variant transition-colors">Kho Lạnh</button>
+        </div></section>
+    <!-- History List -->
+    <section class="flex flex-col gap-sm">
+        <!-- History Card 1 -->
+        <article class="bg-surface-container-lowest rounded-lg p-3 shadow-sm flex flex-col gap-2 border border-outline-variant/50 hover:bg-surface-bright transition-colors relative">
+            <div class="flex justify-between items-start">
+                <div class="flex flex-col">
+                    <span class="text-[11px] text-secondary font-bold tracking-tight uppercase">#INV-2310-04</span>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <span class="font-title-md text-[15px] text-on-surface">Sarah Jenkins</span>
+                        <span class="px-1.5 py-0.5 rounded-sm bg-secondary-container text-on-secondary-container text-[9px] font-bold uppercase">Khu A</span>
+                    </div>
+                </div>
+                <span class="text-[11px] text-secondary flex items-center gap-1 font-medium"><span class="material-symbols-outlined text-[13px]">schedule</span> 24/10/2023</span>
+            </div>
+            <div class="flex items-center justify-between border-t border-outline-variant/30 pt-2">
+                <div class="flex gap-6">
+                    <div class="flex flex-col">
+                        <span class="text-[14px] text-primary font-bold">99.8%</span>
+                        <span class="text-[9px] text-secondary uppercase font-bold tracking-tighter">Độ Chính Xác</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[14px] text-on-surface font-bold">1</span>
+                        <span class="text-[9px] text-secondary uppercase font-bold tracking-tighter">Chênh Lệch</span>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined text-secondary/60 text-[18px]">chevron_right</span>
+            </div>
+        </article>
+        <!-- History Card 2 -->
+        <article class="bg-surface-container-lowest rounded-lg p-3 shadow-sm flex flex-col gap-2 border border-outline-variant/50 hover:bg-surface-bright transition-colors relative">
+            <div class="flex justify-between items-start">
+                <div class="flex flex-col">
+                    <span class="text-[11px] text-secondary font-bold tracking-tight uppercase">#INV-2310-03</span>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <span class="font-title-md text-[15px] text-on-surface">Marcus Reed</span>
+                        <span class="px-1.5 py-0.5 rounded-sm bg-secondary-container text-on-secondary-container text-[9px] font-bold uppercase">Kho Lạnh</span>
+                    </div>
+                </div>
+                <span class="text-[11px] text-secondary flex items-center gap-1 font-medium"><span class="material-symbols-outlined text-[13px]">schedule</span> 20/10/2023</span>
+            </div>
+            <div class="flex items-center justify-between border-t border-outline-variant/30 pt-2">
+                <div class="flex gap-6">
+                    <div class="flex flex-col">
+                        <span class="text-[14px] text-error font-bold">94.2%</span>
+                        <span class="text-[9px] text-secondary uppercase font-bold tracking-tighter">Độ Chính Xác</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[14px] text-error font-bold">12</span>
+                        <span class="text-[9px] text-secondary uppercase font-bold tracking-tighter">Chênh Lệch</span>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined text-secondary/60 text-[18px]">chevron_right</span>
+            </div>
+        </article>
+        <!-- History Card 3 -->
+        <article class="bg-surface-container-lowest rounded-lg p-3 shadow-sm flex flex-col gap-2 border border-outline-variant/50 hover:bg-surface-bright transition-colors relative">
+            <div class="flex justify-between items-start">
+                <div class="flex flex-col">
+                    <span class="text-[11px] text-secondary font-bold tracking-tight uppercase">#INV-2310-02</span>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <span class="font-title-md text-[15px] text-on-surface">Elena Lopez</span>
+                        <span class="px-1.5 py-0.5 rounded-sm bg-secondary-container text-on-secondary-container text-[9px] font-bold uppercase">Khu B</span>
+                    </div>
+                </div>
+                <span class="text-[11px] text-secondary flex items-center gap-1 font-medium"><span class="material-symbols-outlined text-[13px]">schedule</span> 15/10/2023</span>
+            </div>
+            <div class="flex items-center justify-between border-t border-outline-variant/30 pt-2">
+                <div class="flex gap-6">
+                    <div class="flex flex-col">
+                        <span class="text-[14px] text-on-surface font-bold">100%</span>
+                        <span class="text-[9px] text-secondary uppercase font-bold tracking-tighter">Độ Chính Xác</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[14px] text-on-surface font-bold">0</span>
+                        <span class="text-[9px] text-secondary uppercase font-bold tracking-tighter">Chênh Lệch</span>
+                    </div>
+                </div>
+                <span class="material-symbols-outlined text-secondary/60 text-[18px]">chevron_right</span>
+            </div>
+        </article>
+    </section>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden bg-surface-container-lowest dark:bg-inverse-surface font-label-md text-label-md fixed bottom-0 w-full z-50 border-t border-outline-variant dark:border-outline flex justify-around items-center px-2 py-3">
+    <a class="flex flex-col items-center justify-center text-secondary dark:text-on-tertiary-container px-3 py-2 hover:bg-surface-container transition-colors active:scale-90 duration-200" href="#">
+        <span class="material-symbols-outlined">home</span>
+        <span class="mt-1">Trang chủ</span>
+    </a>
+    <a class="flex flex-col items-center justify-center text-secondary dark:text-on-tertiary-container px-3 py-2 hover:bg-surface-container transition-colors active:scale-90 duration-200" href="#">
+        <span class="material-symbols-outlined">inventory_2</span>
+        <span class="mt-1">Kiểm kê</span>
+    </a>
+    <a class="flex flex-col items-center justify-center text-secondary dark:text-on-tertiary-container px-3 py-2 hover:bg-surface-container transition-colors active:scale-90 duration-200" href="#">
+        <span class="material-symbols-outlined">barcode_scanner</span>
+        <span class="mt-1">Scan</span>
+    </a>
+    <!-- Active Item: Lịch sử -->
+    <a class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-xl px-5 py-2 transition-all active:scale-90 duration-200" href="#">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">history</span>
+        <span class="mt-1 font-semibold">Lịch sử</span>
+    </a>
+    <a class="flex flex-col items-center justify-center text-secondary dark:text-on-tertiary-container px-3 py-2 hover:bg-surface-container transition-colors active:scale-90 duration-200" href="#">
+        <span class="material-symbols-outlined">person</span>
+        <span class="mt-1">Cá nhân</span>
+    </a>
+</nav>
+<!-- Filter Popup Overlay (Hidden by default) -->
+<div class="fixed inset-0 z-[100] bg-scrim/50 backdrop-blur-sm hidden items-end justify-center" id="filter-popup">
+    <div class="bg-surface w-full max-w-md rounded-t-2xl p-md flex flex-col gap-md shadow-lg transform translate-y-full transition-transform duration-300">
+        <div class="flex justify-between items-center pb-sm border-b border-outline-variant">
+            <h3 class="font-title-md text-on-surface">Bộ Lọc</h3>
+            <button class="p-1 text-on-surface-variant hover:bg-surface-variant rounded-full transition-colors" onclick="document.getElementById('filter-popup').classList.add('hidden'); document.getElementById('filter-popup').classList.remove('flex')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="flex flex-col gap-sm">
+            <label class="font-label-md text-on-surface">Khoảng Thời Gian</label>
+            <input class="bg-surface-container-lowest border border-outline-variant rounded-lg px-sm py-2 font-body-sm text-on-surface focus:outline-none focus:border-primary" type="date">
+            <input class="bg-surface-container-lowest border border-outline-variant rounded-lg px-sm py-2 font-body-sm text-on-surface focus:outline-none focus:border-primary" type="date">
+        </div>
+        <div class="flex flex-col gap-sm">
+            <label class="font-label-md text-on-surface">Người Thực Hiện</label>
+            <select class="bg-surface-container-lowest border border-outline-variant rounded-lg px-sm py-2 font-body-sm text-on-surface focus:outline-none focus:border-primary">
+                <option>Tất cả</option>
+                <option>Sarah Jenkins</option>
+                <option>Marcus Reed</option>
+                <option>Elena Lopez</option>
+            </select>
+        </div>
+        <div class="flex gap-sm pt-sm">
+            <button class="flex-1 py-2 border border-outline-variant rounded-full text-on-surface font-label-md hover:bg-surface-variant transition-colors">Xóa Bộ Lọc</button>
+            <button class="flex-1 py-2 bg-primary text-on-primary rounded-full font-label-md hover:bg-primary/90 transition-colors" onclick="document.getElementById('filter-popup').classList.add('hidden'); document.getElementById('filter-popup').classList.remove('flex')">Áp Dụng</button>
+        </div>
+    </div>
+</div>
+<script>
+    // Simple script to toggle popup for demonstration
+    document.querySelector('button[aria-label="Filter"], button .material-symbols-outlined:contains("tune")')?.closest('button').addEventListener('click', () => {
+        const popup = document.getElementById('filter-popup');
+        popup.classList.remove('hidden');
+        popup.classList.add('flex');
+        // Simple animation logic would go here in a real app
+    });
+</script>
+
+
+</body></html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html><html lang="vi"><head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Smart Stock - Đăng nhập</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-highest": "#e2e2e2",
+                      "surface-tint": "#b3272a",
+                      "inverse-primary": "#ffb3ae",
+                      "on-background": "#1a1c1c",
+                      "on-primary-fixed-variant": "#910816",
+                      "on-primary-fixed": "#410004",
+                      "outline": "#8e706e",
+                      "primary": "#b02528",
+                      "on-error-container": "#93000a",
+                      "secondary-fixed-dim": "#bbc8d0",
+                      "on-secondary-fixed-variant": "#3c494f",
+                      "tertiary": "#93405f",
+                      "surface-container-low": "#f3f3f3",
+                      "on-tertiary-fixed-variant": "#792b4a",
+                      "error-container": "#ffdad6",
+                      "secondary": "#546067",
+                      "secondary-container": "#d7e4ec",
+                      "on-tertiary-fixed": "#3e001e",
+                      "on-secondary-container": "#5a666d",
+                      "on-error": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "tertiary-container": "#b15878",
+                      "outline-variant": "#e2bebb",
+                      "primary-fixed-dim": "#ffb3ae",
+                      "primary-container": "#d23e3e",
+                      "error": "#ba1a1a",
+                      "surface-dim": "#dadada",
+                      "background": "#f9f9f9",
+                      "surface-container-lowest": "#ffffff",
+                      "on-surface": "#1a1c1c",
+                      "on-tertiary": "#ffffff",
+                      "surface-bright": "#f9f9f9",
+                      "on-secondary-fixed": "#111d23",
+                      "surface-container": "#eeeeee",
+                      "on-secondary": "#ffffff",
+                      "surface-container-high": "#e8e8e8",
+                      "surface": "#f9f9f9",
+                      "surface-variant": "#e2e2e2",
+                      "tertiary-fixed-dim": "#ffb0c9",
+                      "tertiary-fixed": "#ffd9e2",
+                      "on-primary-container": "#fffbff",
+                      "on-tertiary-container": "#fffbff",
+                      "primary-fixed": "#ffdad7",
+                      "secondary-fixed": "#d7e4ec",
+                      "inverse-on-surface": "#f1f1f1",
+                      "on-surface-variant": "#5a413f",
+                      "inverse-surface": "#2f3131"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "3xl": "64px",
+                      "gutter": "24px",
+                      "xs": "4px",
+                      "sm": "8px",
+                      "xl": "32px",
+                      "2xl": "48px",
+                      "margin-desktop": "40px",
+                      "lg": "24px",
+                      "md": "16px",
+                      "base": "4px",
+                      "margin-mobile": "16px"
+              },
+              "fontFamily": {
+                      "label-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "title-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "display": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-lg": [
+                              "Hanken Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "label-lg": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.1px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "title-lg": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display": [
+                              "56px",
+                              {
+                                      "lineHeight": "64px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+    <style>
+        body {
+          min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex items-center justify-center p-4">
+<div class="w-full max-w-md bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant p-8">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-primary text-on-primary rounded-xl mb-4 shadow-sm">
+            <span class="material-symbols-outlined text-4xl" data-icon="inventory_2" data-weight="fill" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+        </div>
+        <h1 class="font-headline-md text-headline-md text-on-surface mb-2">Smart Stock</h1>
+        <p class="font-body-md text-body-md text-on-surface-variant">Hệ thống quản lý kho vận chuyên nghiệp</p>
+    </div>
+    <!-- Login Form -->
+    <form class="space-y-4">
+        <!-- Email / Mã NV -->
+        <div>
+            <label class="block font-label-md text-label-md text-on-surface mb-1" for="username">Mã nhân viên / Email</label>
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="person">person</span>
+                <input class="w-full h-10 pl-10 pr-4 bg-surface rounded border border-outline-variant text-on-surface font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" id="username" name="username" placeholder="Nhập mã nhân viên hoặc email" type="text">
+            </div>
+        </div>
+        <!-- Mật khẩu -->
+        <div>
+            <div class="flex justify-between items-center mb-1">
+                <label class="block font-label-md text-label-md text-on-surface" for="password">Mật khẩu</label>
+                <a class="font-body-md text-body-md text-primary hover:underline" href="#">Quên mật khẩu?</a>
+            </div>
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="lock">lock</span>
+                <input class="w-full h-10 pl-10 pr-10 bg-surface rounded border border-outline-variant text-on-surface font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" id="password" name="password" placeholder="Nhập mật khẩu" type="password">
+                <button class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors focus:outline-none" onclick="togglePassword()" type="button">
+                    <span class="material-symbols-outlined" data-icon="visibility" id="visibility-icon">visibility</span>
+                </button>
+            </div>
+        </div>
+        <!-- Nút Đăng nhập -->
+        <div class="pt-4">
+            <button class="w-full h-10 bg-primary text-on-primary font-body-md text-body-md font-semibold rounded hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-sm" type="submit">
+                Đăng nhập
+                <span class="material-symbols-outlined text-sm" data-icon="login">login</span>
+            </button>
+        </div>
+    </form>
+    <!-- Divider -->
+    <div class="mt-8 mb-6 flex items-center">
+        <div class="flex-grow border-t border-outline-variant"></div>
+        <span class="px-4 font-body-md text-body-md text-outline">hoặc</span>
+        <div class="flex-grow border-t border-outline-variant"></div>
+    </div>
+    <!-- Google Login -->
+    <div>
+        <button class="w-full h-10 bg-surface-container-lowest text-on-surface border border-outline-variant font-body-md text-body-md font-medium rounded hover:bg-surface-container-low transition-colors flex items-center justify-center gap-2" type="button">
+            <img alt="Google logo" class="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEIJFwBGQF4WGwA90QCAeAQ43qNmHgt5Qn5TWSM8SJEOmzkTLFEONBWII_GNtUbouQaPoniqZ2jqreFywc_-6OAYj2RKHKBmTxk0Zj0fmt-xxeEMIh42l3uxdjYrTrhrn1wITIfpe5XcisZxZX5XGkQ9GE5u3GIRThYD-4VhXnKOBUGe-rWrjxxmBbF88QNjoEvA5QJZ4Fv_UiM64NuSf2Ke9uRZ11HxrZABqoPH-TX_0rS8fygp4Ohe9Sp4N-NoVK5oD2bSSuk8_M">
+            Đăng nhập bằng Google
+        </button>
+    </div>
+</div>
+<script>
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const visibilityIcon = document.getElementById('visibility-icon');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            visibilityIcon.textContent = 'visibility_off';
+            visibilityIcon.setAttribute('data-icon', 'visibility_off');
+        } else {
+            passwordInput.type = 'password';
+            visibilityIcon.textContent = 'visibility';
+            visibilityIcon.setAttribute('data-icon', 'visibility');
+        }
+    }
+</script>
+</body></html>

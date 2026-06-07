@@ -1,0 +1,315 @@
+<!DOCTYPE html><html lang="vi"><head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Bản đồ Kho - Smart Stock</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#b3272e",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#ffb3af",
+                        "outline-variant": "#e1bebc",
+                        "secondary-fixed": "#dde4e6",
+                        "surface-container-low": "#eaf5fa",
+                        "secondary": "#586062",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#5af9f3",
+                        "secondary-fixed-dim": "#c1c8ca",
+                        "tertiary-fixed-dim": "#2edcd7",
+                        "primary-fixed": "#ffdad7",
+                        "on-primary-fixed-variant": "#91081a",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#d9e4e9",
+                        "on-secondary-fixed-variant": "#41484a",
+                        "surface-container-high": "#dfeaef",
+                        "on-surface-variant": "#59413f",
+                        "background": "#f1fbff",
+                        "primary-container": "#ff5f5f",
+                        "on-secondary-fixed": "#161d1f",
+                        "on-surface": "#131d21",
+                        "surface-variant": "#d9e4e9",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed": "#410005",
+                        "on-tertiary-fixed-variant": "#00504e",
+                        "inverse-on-surface": "#e7f3f7",
+                        "primary-fixed-dim": "#ffb3af",
+                        "on-background": "#131d21",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#64000d",
+                        "inverse-surface": "#283236",
+                        "on-tertiary-container": "#003533",
+                        "surface-dim": "#d1dce0",
+                        "surface-container": "#e4f0f4",
+                        "secondary-container": "#dae1e3",
+                        "primary": "#b3272e",
+                        "outline": "#8d706e",
+                        "on-tertiary-fixed": "#00201f",
+                        "surface": "#f1fbff",
+                        "tertiary-container": "#00a7a3",
+                        "on-secondary-container": "#5d6466",
+                        "surface-bright": "#f1fbff",
+                        "tertiary": "#006a67"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "margin-mobile": "16px",
+                        "xl": "48px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "unit": "4px",
+                        "lg": "24px",
+                        "gutter": "24px",
+                        "sm": "8px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "title-md": ["Hanken Grotesk"],
+                        "label-md": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Hanken Grotesk', sans-serif; background-color: #f1fbff; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .map-container { touch-action: none; }
+        /* Hide scrollbar for clean UI */
+        ::-webkit-scrollbar { display: none; }
+    </style>
+    <style>
+        body {
+          min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="text-on-background antialiased min-h-screen flex flex-col relative overflow-hidden bg-white" style="background-color: #ffffff;">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 backdrop-blur-xl shadow-sm flex items-center px-margin-mobile h-16 w-full justify-between bg-white">
+    <button class="text-on-surface-variant transition-colors active:scale-95 duration-200 p-2 rounded-full flex items-center justify-center text-primary">
+        <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold">Bản đồ Kho</h1>
+    <div class="w-10"></div> <!-- Placeholder for balance -->
+</header>
+<!-- Main Content Canvas - Warehouse Map -->
+<main class="flex-1 mt-16 relative w-full h-full overflow-hidden map-container mb-24" id="mapCanvas">
+    <!-- Zoom & Location Controls -->
+    <div class="absolute right-4 top-4 z-40 flex flex-col gap-2"><button class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-primary active:scale-90 duration-150 hover:bg-surface-container-low transition-colors" onclick="zoomIn()"><span class="material-symbols-outlined">add</span></button><button class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-primary active:scale-90 duration-150 hover:bg-surface-container-low transition-colors" onclick="zoomOut()"><span class="material-symbols-outlined">remove</span></button><button class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-primary active:scale-90 duration-150 mt-4 hover:bg-surface-container-low transition-colors" onclick="resetView()"><span class="material-symbols-outlined">my_location</span></button></div>
+    <!-- Legend -->
+    <div class="absolute left-4 top-4 z-40 bg-surface/90 backdrop-blur-md p-3 rounded-xl shadow-lg border border-surface-variant/50">
+        <h3 class="font-label-md text-label-md text-on-surface-variant mb-2 uppercase">Trạng thái</h3>
+        <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-primary-container"></div>
+                <span class="font-body-sm text-body-sm text-on-surface">Đầy / Cảnh báo (&gt;90%)</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-tertiary-container"></div>
+                <span class="font-body-sm text-body-sm text-on-surface">Bình thường (&lt;90%)</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-surface-variant border border-outline-variant"></div>
+                <span class="font-body-sm text-body-sm text-on-surface">Trống</span>
+            </div>
+        </div>
+    </div>
+    <!-- The Map Area (Scalable/Draggable logic simulated) -->
+    <div class="w-full h-full min-h-[600px] flex items-center justify-center p-8 transition-transform duration-300 ease-out origin-center border-2 border-surface-container-high rounded-2xl m-4" id="mapWrapper">
+        <div class="grid grid-cols-4 gap-x-8 gap-y-12 relative w-full max-w-4xl">
+            <!-- Section A -->
+            <div class="col-span-1 flex flex-col gap-2">
+                <div class="text-center font-label-md text-label-md text-on-surface-variant mb-1">Khu A</div>
+                <!-- Rack A-10 (Full) -->
+                <div class="h-16 bg-primary-container rounded-md shadow-sm flex items-center justify-center cursor-pointer hover:ring-2 ring-primary ring-offset-2 transition-all relative group" onclick="showTooltip(this, 'A-10', 'Điện tử', '95%')">
+                    <span class="font-label-md text-label-md text-on-primary-container">A-10</span>
+                </div>
+                <!-- Rack A-11 (Normal) -->
+                <div class="h-16 bg-tertiary-container rounded-md shadow-sm flex items-center justify-center cursor-pointer hover:ring-2 ring-tertiary ring-offset-2 transition-all" onclick="showTooltip(this, 'A-11', 'Điện tử', '60%')">
+                    <span class="font-label-md text-label-md text-on-tertiary-container">A-11</span>
+                </div>
+                <!-- Rack A-12 (Empty) -->
+                <div class="h-16 bg-surface-variant border border-outline-variant rounded-md flex items-center justify-center cursor-pointer hover:ring-2 ring-secondary ring-offset-2 transition-all" onclick="showTooltip(this, 'A-12', 'Trống', '0%')">
+                    <span class="font-label-md text-label-md text-on-surface-variant">A-12</span>
+                </div>
+                <!-- Rack A-13 (Normal) -->
+                <div class="h-16 bg-tertiary-container rounded-md shadow-sm flex items-center justify-center cursor-pointer hover:ring-2 ring-tertiary ring-offset-2 transition-all" onclick="showTooltip(this, 'A-13', 'Gia dụng', '45%')">
+                    <span class="font-label-md text-label-md text-on-tertiary-container">A-13</span>
+                </div>
+            </div>
+            <!-- Section B -->
+            <div class="col-span-1 flex flex-col gap-2">
+                <div class="text-center font-label-md text-label-md text-on-surface-variant mb-1">Khu B</div>
+                <div class="h-16 bg-tertiary-container rounded-md shadow-sm flex items-center justify-center cursor-pointer hover:ring-2 ring-tertiary ring-offset-2 transition-all" onclick="showTooltip(this, 'B-01', 'Phụ tùng', '70%')">
+                    <span class="font-label-md text-label-md text-on-tertiary-container">B-01</span>
+                </div>
+                <div class="h-16 bg-primary-container rounded-md shadow-sm flex items-center justify-center cursor-pointer hover:ring-2 ring-primary ring-offset-2 transition-all" onclick="showTooltip(this, 'B-02', 'Hóa chất', '98%')">
+                    <span class="font-label-md text-label-md text-on-primary-container">B-02</span>
+                </div>
+                <div class="h-16 bg-tertiary-container rounded-md shadow-sm flex items-center justify-center cursor-pointer hover:ring-2 ring-tertiary ring-offset-2 transition-all" onclick="showTooltip(this, 'B-03', 'Phụ tùng', '20%')">
+                    <span class="font-label-md text-label-md text-on-tertiary-container">B-03</span>
+                </div>
+                <div class="h-16 bg-tertiary-container rounded-md shadow-sm flex items-center justify-center cursor-pointer hover:ring-2 ring-tertiary ring-offset-2 transition-all" onclick="showTooltip(this, 'B-04', 'Phụ tùng', '55%')">
+                    <span class="font-label-md text-label-md text-on-tertiary-container">B-04</span>
+                </div>
+            </div>
+            <!-- Aisle Space -->
+            <div class="col-span-1 flex items-center justify-center relative">
+                <div class="absolute h-full w-4 bg-surface-variant/30 rounded-full flex flex-col items-center justify-around py-4">
+                    <div class="w-1.5 h-1.5 bg-outline-variant rounded-full"></div>
+                    <div class="w-1.5 h-1.5 bg-outline-variant rounded-full"></div>
+                    <div class="w-1.5 h-1.5 bg-outline-variant rounded-full"></div>
+                    <div class="w-1.5 h-1.5 bg-outline-variant rounded-full"></div>
+                </div>
+                <div class="w-8 h-8 bg-inverse-primary rounded-full shadow-md flex items-center justify-center absolute top-1/3 left-1/2 -translate-x-1/2 ring-4 ring-surface pulse-animation z-10">
+                    <span class="material-symbols-outlined text-on-primary-container text-sm">person</span>
+                </div>
+            </div>
+            <!-- Section C -->
+            <div class="col-span-1 flex flex-col gap-2">
+                <div class="text-center font-label-md text-label-md text-on-surface-variant mb-1">Khu C</div>
+                <div class="h-16 bg-surface-variant border border-outline-variant rounded-md flex items-center justify-center cursor-pointer hover:ring-2 ring-secondary ring-offset-2 transition-all" onclick="showTooltip(this, 'C-01', 'Trống', '0%')">
+                    <span class="font-label-md text-label-md text-on-surface-variant">C-01</span>
+                </div>
+                <div class="h-16 bg-tertiary-container rounded-md shadow-sm flex items-center justify-center cursor-pointer hover:ring-2 ring-tertiary ring-offset-2 transition-all" onclick="showTooltip(this, 'C-02', 'Đóng gói', '85%')">
+                    <span class="font-label-md text-label-md text-on-tertiary-container">C-02</span>
+                </div>
+                <div class="h-16 bg-tertiary-container rounded-md shadow-sm flex items-center justify-center cursor-pointer hover:ring-2 ring-tertiary ring-offset-2 transition-all" onclick="showTooltip(this, 'C-03', 'Đóng gói', '40%')">
+                    <span class="font-label-md text-label-md text-on-tertiary-container">C-03</span>
+                </div>
+                <div class="h-16 bg-primary-container rounded-md shadow-sm flex items-center justify-center cursor-pointer hover:ring-2 ring-primary ring-offset-2 transition-all" onclick="showTooltip(this, 'C-04', 'Lỗi/Trả về', '100%')">
+                    <span class="font-label-md text-label-md text-on-primary-container">C-04</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Dynamic Tooltip Modal (Hidden by default) -->
+    <div class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-200" id="rackTooltip">
+        <div class="absolute inset-0 bg-on-background/20 backdrop-blur-sm pointer-events-auto" onclick="hideTooltip()"></div>
+        <div class="bg-surface p-6 rounded-xl shadow-[0_12px_32px_rgba(0,0,0,0.08)] border border-surface-variant relative z-10 w-[280px] transform scale-95 transition-transform duration-200" id="tooltipContent">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h2 class="font-title-md text-title-md text-on-surface" id="ttRackName">A-10</h2>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant" id="ttCategory">Điện tử</p>
+                </div>
+                <button class="text-on-surface-variant hover:text-on-surface" onclick="hideTooltip()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="mb-4">
+                <div class="flex justify-between font-label-md text-label-md text-on-surface-variant mb-1">
+                    <span>Lấp đầy</span>
+                    <span class="text-primary font-bold" id="ttCapacityText">95%</span>
+                </div>
+                <div class="h-2 w-full bg-surface-variant rounded-full overflow-hidden">
+                    <div class="h-full bg-primary-container rounded-full" id="ttCapacityBar" style="width: 95%;"></div>
+                </div>
+            </div>
+            <button class="w-full py-2 bg-surface border border-outline-variant text-primary rounded-lg font-label-md text-label-md hover:bg-primary/5 transition-colors">
+                XEM CHI TIẾT
+            </button>
+        </div>
+    </div>
+</main><footer class="fixed bottom-0 w-full bg-white/80 backdrop-blur-lg border-t border-outline-variant p-margin-mobile flex flex-col gap-2 z-50 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]"><button class="w-full h-12 bg-primary text-on-primary rounded-xl font-title-md text-body-lg flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"><span class="material-symbols-outlined">qr_code_scanner</span>Quét vị trí</button><button class="w-full h-12 bg-surface text-primary border border-primary rounded-xl font-title-md text-body-lg flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"><span class="material-symbols-outlined">list_alt</span>Danh sách chi tiết</button></footer>
+<!-- BottomNavBar -->
+<style>
+    @keyframes pulse-ring {
+        0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(255, 95, 95, 0.4); }
+        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 95, 95, 0); }
+        100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(255, 95, 95, 0); }
+    }
+    .pulse-animation {
+        animation: pulse-ring 2s infinite cubic-bezier(0.66, 0, 0, 1);
+    }
+</style>
+<script>
+    // Simple Zoom Logic
+    let currentScale = 1;
+    const mapWrapper = document.getElementById('mapWrapper');
+
+    function zoomIn() {
+        currentScale = Math.min(currentScale + 0.2, 2);
+        updateTransform();
+    }
+
+    function zoomOut() {
+        currentScale = Math.max(currentScale - 0.2, 0.5);
+        updateTransform();
+    }
+
+    function resetView() {
+        currentScale = 1;
+        updateTransform();
+    }
+
+    function updateTransform() {
+        mapWrapper.style.transform = `scale(${currentScale})`;
+    }
+
+    // Tooltip Logic
+    const tooltip = document.getElementById('rackTooltip');
+    const tooltipContent = document.getElementById('tooltipContent');
+
+    function showTooltip(element, name, category, capacity) {
+        document.getElementById('ttRackName').innerText = name;
+        document.getElementById('ttCategory').innerText = category;
+        document.getElementById('ttCapacityText').innerText = capacity;
+
+        const capValue = parseInt(capacity);
+        const bar = document.getElementById('ttCapacityBar');
+        const text = document.getElementById('ttCapacityText');
+
+        bar.style.width = capacity;
+
+        if (capValue >= 90) {
+            bar.className = 'h-full rounded-full bg-primary-container';
+            text.className = 'font-bold text-primary';
+        } else if (capValue > 0) {
+            bar.className = 'h-full rounded-full bg-tertiary-container';
+            text.className = 'font-bold text-tertiary';
+        } else {
+            bar.className = 'h-full rounded-full bg-surface-variant';
+            text.className = 'font-bold text-on-surface-variant';
+        }
+
+        tooltip.classList.remove('opacity-0', 'pointer-events-none');
+        tooltipContent.classList.remove('scale-95');
+        tooltipContent.classList.add('scale-100');
+    }
+
+    function hideTooltip() {
+        tooltip.classList.add('opacity-0', 'pointer-events-none');
+        tooltipContent.classList.remove('scale-100');
+        tooltipContent.classList.add('scale-95');
+    }
+</script>
+</body></html>
