@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'features/scanner/screens/scan_screen.dart';
+import 'features/products/screens/product_list_screen.dart';
+import 'features/inventory/screens/warehouse_location_screen.dart';
+import 'features/dashboard/screens/dashboard_screen.dart';
+import 'features/notifications/screens/notification_screen.dart';
+import 'features/profile/screens/profile_screen.dart';
+import 'features/inventory/screens/incident_report_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -108,6 +115,76 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ScanScreen()),
+                );
+              },
+              child: const Text('Mở Màn Hình Quét Mã'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProductListScreen()),
+                );
+              },
+              child: const Text('Mở Danh Sách Sản Phẩm'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const WarehouseLocationScreen()),
+                );
+              },
+              child: const Text('Mở Vị Trí Kho'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                );
+              },
+              child: const Text('Mở Thông Báo'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const DashboardScreen()),
+                );
+              },
+              child: const Text('Mở Dashboard'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                );
+              },
+              child: const Text('Mở Hồ Sơ Cá Nhân'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const IncidentReportScreen()),
+                );
+              },
+              child: const Text('Mở Báo Cáo Sự Cố'),
             ),
           ],
         ),
