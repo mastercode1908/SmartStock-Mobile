@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'warehouse_map_screen.dart';
+import '../../scanner/screens/scan_screen.dart';
 
 class WarehouseLocationScreen extends StatelessWidget {
   const WarehouseLocationScreen({super.key});
@@ -209,7 +210,12 @@ class WarehouseLocationScreen extends StatelessWidget {
                     width: double.infinity,
                     height: 48,
                     child: ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ScanScreen()),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xffb3272e),
                         foregroundColor: Colors.white,

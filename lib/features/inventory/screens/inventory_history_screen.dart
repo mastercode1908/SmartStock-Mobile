@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../home/screens/employee_dashboard_screen.dart';
 import 'inventory_list_screen.dart';
+import '../../scanner/screens/scan_screen.dart';
+import '../../profile/screens/profile_screen.dart';
 
 class InventoryHistoryScreen extends StatelessWidget {
   const InventoryHistoryScreen({Key? key}) : super(key: key);
@@ -48,7 +50,11 @@ class InventoryHistoryScreen extends StatelessWidget {
       shadowColor: Colors.black.withOpacity(0.05),
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: _primary),
-        onPressed: () => Navigator.pop(context),
+        onPressed: () {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          }
+        },
       ),
       title: Row(
         mainAxisSize: MainAxisSize.min,
@@ -315,14 +321,44 @@ class InventoryHistoryScreen extends StatelessWidget {
       unselectedLabelStyle: const TextStyle(fontSize: 12),
       onTap: (index) {
         if (index == 0) {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
-            PageRouteBuilder(pageBuilder: (context, a1, a2) => const EmployeeDashboardScreen(), transitionDuration: Duration.zero),
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const EmployeeDashboardScreen(),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
           );
         } else if (index == 1) {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
-            PageRouteBuilder(pageBuilder: (context, a1, a2) => const InventoryListScreen(), transitionDuration: Duration.zero),
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const InventoryListScreen(),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
+          );
+        } else if (index == 2) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const ScanScreen(),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
+          );
+        } else if (index == 4) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const ProfileScreen(),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
           );
         }
       },

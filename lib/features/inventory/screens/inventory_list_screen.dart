@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../home/screens/employee_dashboard_screen.dart';
 import 'inventory_history_screen.dart';
+import 'create_inventory_screen.dart';
+import '../../scanner/screens/scan_screen.dart';
+import '../../profile/screens/profile_screen.dart';
 
 class InventoryListScreen extends StatelessWidget {
   const InventoryListScreen({Key? key}) : super(key: key);
@@ -41,7 +44,12 @@ class InventoryListScreen extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CreateInventoryScreen()),
+          );
+        },
         backgroundColor: _primary,
         foregroundColor: Colors.white,
         child: const Icon(Icons.add),
@@ -58,7 +66,11 @@ class InventoryListScreen extends StatelessWidget {
       shape: Border(bottom: BorderSide(color: _outlineVariant.withOpacity(0.3), width: 1)),
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: _primary),
-        onPressed: () => Navigator.pop(context),
+        onPressed: () {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          }
+        },
       ),
       title: Row(
         children: [
@@ -340,14 +352,44 @@ class InventoryListScreen extends StatelessWidget {
       unselectedLabelStyle: const TextStyle(fontSize: 12),
       onTap: (index) {
         if (index == 0) {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
-            PageRouteBuilder(pageBuilder: (context, a1, a2) => const EmployeeDashboardScreen(), transitionDuration: Duration.zero),
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const EmployeeDashboardScreen(),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
+          );
+        } else if (index == 2) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const ScanScreen(), 
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
           );
         } else if (index == 3) {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
-            PageRouteBuilder(pageBuilder: (context, a1, a2) => const InventoryHistoryScreen(), transitionDuration: Duration.zero),
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const InventoryHistoryScreen(),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
+          );
+        } else if (index == 4) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const ProfileScreen(), 
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
           );
         }
       },

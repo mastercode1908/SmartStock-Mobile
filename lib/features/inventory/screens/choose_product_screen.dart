@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'inventory_detail_screen.dart';
 
 class ChooseProductScreen extends StatefulWidget {
   const ChooseProductScreen({Key? key}) : super(key: key);
@@ -164,76 +165,93 @@ class _ChooseProductScreenState extends State<ChooseProductScreen> {
   }
 
   Widget _buildProductCard(String title, String sku, String shelf, String tracking, int qty, bool isChecked) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: _surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: _surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: _surfaceContainerHighest.withOpacity(0.5)),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 2)),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: _onSurface),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: _surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                const SizedBox(height: 4),
-                Row(
+                child: Icon(Icons.inventory_2, color: _primaryContainer),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('SKU: $sku', style: TextStyle(fontSize: 11, color: _onSurfaceVariant)),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: _secondaryContainer.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(shelf, style: TextStyle(fontSize: 11, color: _onSurfaceVariant)),
+                    Text(
+                      title,
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _onSurface),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Text('SKU: $sku', style: TextStyle(fontSize: 11, color: _onSurfaceVariant)),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: _secondaryContainer.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(shelf, style: TextStyle(fontSize: 11, color: _onSurfaceVariant)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(tracking.toUpperCase(), style: TextStyle(fontSize: 11, color: _secondary)),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: _surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: _outlineVariant.withOpacity(0.3)),
+                          ),
+                          child: Row(
+                            children: [
+                              Text('Thực tế: ', style: TextStyle(fontSize: 11, color: _onSurfaceVariant.withOpacity(0.7))),
+                              Text('$qty', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF91081A))),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(tracking.toUpperCase(), style: TextStyle(fontSize: 11, color: _secondary)),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: _surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: _outlineVariant.withOpacity(0.3)),
-                      ),
-                      child: Row(
-                        children: [
-                          Text('Thực tế: ', style: TextStyle(fontSize: 11, color: _onSurfaceVariant.withOpacity(0.7))),
-                          Text('$qty', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF91081A))),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ),
+              Checkbox(
+                value: isChecked,
+                onChanged: (val) {
+                  setState(() {
+                    isChecked = val ?? false;
+                  });
+                },
+                activeColor: _primaryContainer,
+                shape: const CircleBorder(),
+              ),
+            ],
           ),
-          Checkbox(
-            value: isChecked,
-            onChanged: (val) {},
-            activeColor: _primaryContainer,
-            shape: const CircleBorder(),
-          ),
-        ],
-      ),
+        );
+      }
     );
   }
 
@@ -266,7 +284,12 @@ class _ChooseProductScreenState extends State<ChooseProductScreen> {
           Expanded(
             flex: 2,
             child: ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const InventoryDetailScreen()),
+                );
+              },
               icon: const Icon(Icons.check_circle),
               label: const Text('Xác nhận chọn (2)', style: TextStyle(fontSize: 16)),
               style: ElevatedButton.styleFrom(

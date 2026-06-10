@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../home/screens/employee_dashboard_screen.dart';
 
 class ConfirmSyncScreen extends StatelessWidget {
   const ConfirmSyncScreen({Key? key}) : super(key: key);
@@ -34,7 +35,7 @@ class ConfirmSyncScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomBar(),
+      bottomNavigationBar: _buildBottomBar(context),
     );
   }
 
@@ -310,24 +311,44 @@ class ConfirmSyncScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomBar() {
+  Widget _buildBottomBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.9),
         border: Border(top: BorderSide(color: Colors.black.withOpacity(0.05))),
       ),
-      child: ElevatedButton.icon(
-        onPressed: () {},
-        icon: const Icon(Icons.sync),
-        label: const Text('ĐỒNG BỘ NGAY', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _primary,
-          foregroundColor: Colors.white,
-          minimumSize: const Size(double.infinity, 56),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          elevation: 4,
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ElevatedButton.icon(
+            onPressed: () {},
+            icon: const Icon(Icons.sync),
+            label: const Text('ĐỒNG BỘ NGAY', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _primary,
+              foregroundColor: Colors.white,
+              minimumSize: const Size(double.infinity, 56),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 4,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextButton.icon(
+            onPressed: () {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const EmployeeDashboardScreen()),
+                (route) => false,
+              );
+            },
+            icon: Icon(Icons.home, color: _primary),
+            label: Text('Về trang chủ', style: TextStyle(fontWeight: FontWeight.bold, color: _primary)),
+            style: TextButton.styleFrom(
+              minimumSize: const Size(double.infinity, 48),
+            ),
+          ),
+        ],
       ),
     );
   }

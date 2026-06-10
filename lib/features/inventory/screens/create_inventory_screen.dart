@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'choose_product_screen.dart';
 
 class CreateInventoryScreen extends StatelessWidget {
   const CreateInventoryScreen({Key? key}) : super(key: key);
@@ -37,7 +38,7 @@ class CreateInventoryScreen extends StatelessWidget {
                 const SizedBox(height: 24),
                 _buildForm(),
                 const SizedBox(height: 24),
-                _buildSubmitButton(),
+                _buildSubmitButton(context),
                 const SizedBox(height: 64), // pb-32
               ],
             ),
@@ -232,11 +233,16 @@ class CreateInventoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSubmitButton() {
+  Widget _buildSubmitButton(BuildContext context) {
     return Align(
       alignment: Alignment.centerRight,
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ChooseProductScreen()),
+          );
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: _primary,
           foregroundColor: Colors.white,

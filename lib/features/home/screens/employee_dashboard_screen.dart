@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../inventory/screens/inventory_list_screen.dart';
 import '../../inventory/screens/inventory_history_screen.dart';
+import '../../notifications/screens/notification_screen.dart';
+import '../../inventory/screens/warehouse_location_screen.dart';
+import '../../inventory/screens/incident_report_screen.dart';
+import '../../scanner/screens/scan_screen.dart';
+import '../../profile/screens/profile_screen.dart';
+import '../../inventory/screens/create_inventory_screen.dart';
 
 class EmployeeDashboardScreen extends StatelessWidget {
   const EmployeeDashboardScreen({Key? key}) : super(key: key);
@@ -44,7 +50,7 @@ class EmployeeDashboardScreen extends StatelessWidget {
             const SizedBox(height: 24),
             _buildSummaryCards(),
             const SizedBox(height: 24),
-            _buildQuickAccess(),
+            _buildQuickAccess(context),
             const SizedBox(height: 24),
             _buildRecentActivity(),
           ],
@@ -62,7 +68,11 @@ class EmployeeDashboardScreen extends StatelessWidget {
       shape: Border(bottom: BorderSide(color: _outlineVariant, width: 1)),
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: _primary),
-        onPressed: () => Navigator.pop(context),
+        onPressed: () {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          }
+        },
       ),
       title: Row(
         children: [
@@ -81,7 +91,12 @@ class EmployeeDashboardScreen extends StatelessWidget {
       actions: [
         IconButton(
           icon: Icon(Icons.notifications_none, color: _primary),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const NotificationScreen()),
+            );
+          },
         ),
       ],
     );
@@ -307,7 +322,7 @@ class EmployeeDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickAccess() {
+  Widget _buildQuickAccess(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -323,46 +338,69 @@ class EmployeeDashboardScreen extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildQuickAccessItem(Icons.analytics, 'Báo cáo', _primaryContainer, _onPrimaryContainer),
-            _buildQuickAccessItem(Icons.assignment, 'Nhiệm vụ', _primaryContainer, _onPrimaryContainer),
-            _buildQuickAccessItem(Icons.inventory_2, 'Kiểm kê', _surfaceVariant, _onSurfaceVariant, true),
-            _buildQuickAccessItem(Icons.location_on, 'Vị trí kho', _primary, Colors.white),
+            _buildQuickAccessItem(Icons.analytics, 'Báo cáo', _primaryContainer, _onPrimaryContainer, false, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const IncidentReportScreen()),
+              );
+            }),
+            _buildQuickAccessItem(Icons.assignment, 'Nhiệm vụ', _primaryContainer, _onPrimaryContainer, false, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const InventoryListScreen()),
+              );
+            }),
+            _buildQuickAccessItem(Icons.inventory_2, 'Kiểm kê', _surfaceVariant, _onSurfaceVariant, true, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CreateInventoryScreen()),
+              );
+            }),
+            _buildQuickAccessItem(Icons.location_on, 'Vị trí kho', _primary, Colors.white, false, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const WarehouseLocationScreen()),
+              );
+            }),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildQuickAccessItem(IconData icon, String label, Color bgColor, Color iconColor, [bool hasBorder = false]) {
-    return Column(
-      children: [
-        Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(16),
-            border: hasBorder ? Border.all(color: _outlineVariant) : null,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
+  Widget _buildQuickAccessItem(IconData icon, String label, Color bgColor, Color iconColor, [bool hasBorder = false, VoidCallback? onTap]) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(16),
+              border: hasBorder ? Border.all(color: _outlineVariant) : null,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Icon(icon, color: iconColor, size: 28),
           ),
-          child: Icon(icon, color: iconColor, size: 28),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: _onSurface,
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: _onSurface,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -536,14 +574,44 @@ class EmployeeDashboardScreen extends StatelessWidget {
       unselectedLabelStyle: const TextStyle(fontSize: 12),
       onTap: (index) {
         if (index == 1) {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
-            PageRouteBuilder(pageBuilder: (context, a1, a2) => const InventoryListScreen(), transitionDuration: Duration.zero),
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const InventoryListScreen(), 
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
+          );
+        } else if (index == 2) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const ScanScreen(), 
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
           );
         } else if (index == 3) {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
-            PageRouteBuilder(pageBuilder: (context, a1, a2) => const InventoryHistoryScreen(), transitionDuration: Duration.zero),
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const InventoryHistoryScreen(), 
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
+          );
+        } else if (index == 4) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const ProfileScreen(), 
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
           );
         }
       },

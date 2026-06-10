@@ -127,7 +127,11 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
                     ),
                     child: IconButton(
                       icon: const Icon(Icons.close, color: Colors.white, weight: 300),
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () {
+                        if (Navigator.canPop(context)) {
+                          Navigator.of(context).pop();
+                        }
+                      },
                     ),
                   ),
                   const Text(

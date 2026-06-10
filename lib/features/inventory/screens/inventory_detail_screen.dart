@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../scanner/screens/scan_screen.dart';
+import 'confirm_sync_screen.dart';
 
 class InventoryDetailScreen extends StatelessWidget {
   const InventoryDetailScreen({Key? key}) : super(key: key);
@@ -32,7 +34,7 @@ class InventoryDetailScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomSheet: _buildBottomActions(),
+      bottomSheet: _buildBottomActions(context),
     );
   }
 
@@ -293,8 +295,15 @@ class InventoryDetailScreen extends StatelessWidget {
                       border: Border.all(color: actualColor ?? _outlineVariant),
                     ),
                     alignment: Alignment.center,
-                    child: Text(
-                      actualQty != null ? '$actualQty' : '--',
+                    child: TextField(
+                      textAlign: TextAlign.center,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        hintText: actualQty != null ? '$actualQty' : '--',
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -318,7 +327,7 @@ class InventoryDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomActions() {
+  Widget _buildBottomActions(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -329,7 +338,12 @@ class InventoryDetailScreen extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ScanScreen()),
+              );
+            },
             icon: const Icon(Icons.qr_code_scanner),
             label: const Text('Quét mã nhanh', style: TextStyle(fontSize: 16)),
             style: ElevatedButton.styleFrom(
@@ -359,7 +373,12 @@ class InventoryDetailScreen extends StatelessWidget {
               Expanded(
                 flex: 2,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ConfirmSyncScreen()),
+                    );
+                  },
                   child: const Text('Hoàn thành', style: TextStyle(fontSize: 16)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _primary,
