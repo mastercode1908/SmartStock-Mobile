@@ -6,6 +6,7 @@ import 'features/dashboard/screens/dashboard_screen.dart';
 import 'features/notifications/screens/notification_screen.dart';
 import 'features/profile/screens/profile_screen.dart';
 import 'features/inventory/screens/incident_report_screen.dart';
+import 'navigation_menu_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,11 +15,11 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Smart Stock',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -131,7 +132,9 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ProductListScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const ProductListScreen(),
+                  ),
                 );
               },
               child: const Text('Mở Danh Sách Sản Phẩm'),
@@ -141,7 +144,9 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const WarehouseLocationScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const WarehouseLocationScreen(),
+                  ),
                 );
               },
               child: const Text('Mở Vị Trí Kho'),
@@ -151,7 +156,9 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const NotificationScreen(),
+                  ),
                 );
               },
               child: const Text('Mở Thông Báo'),
@@ -161,7 +168,9 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const DashboardScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const DashboardScreen(),
+                  ),
                 );
               },
               child: const Text('Mở Dashboard'),
@@ -171,7 +180,9 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const ProfileScreen(),
+                  ),
                 );
               },
               child: const Text('Mở Hồ Sơ Cá Nhân'),
@@ -181,7 +192,9 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const IncidentReportScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const IncidentReportScreen(),
+                  ),
                 );
               },
               child: const Text('Mở Báo Cáo Sự Cố'),
@@ -193,7 +206,10 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFB02528)),
+        useMaterial3: true,
       ),
+      home: const NavigationMenuScreen(),
     );
   }
 }
