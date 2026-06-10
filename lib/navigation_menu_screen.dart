@@ -8,6 +8,13 @@ import 'features/inventory/screens/choose_product_screen.dart';
 import 'features/inventory/screens/inventory_detail_screen.dart';
 import 'features/inventory/screens/confirm_sync_screen.dart';
 import 'features/inventory/screens/inventory_history_screen.dart';
+import 'features/scanner/screens/scan_screen.dart';
+import 'features/products/screens/product_list_screen.dart';
+import 'features/inventory/screens/warehouse_location_screen.dart';
+import 'features/dashboard/screens/dashboard_screen.dart';
+import 'features/notifications/screens/notification_screen.dart';
+import 'features/profile/screens/profile_screen.dart';
+import 'features/inventory/screens/incident_report_screen.dart';
 
 class NavigationMenuScreen extends StatelessWidget {
   const NavigationMenuScreen({Key? key}) : super(key: key);
@@ -38,6 +45,20 @@ class NavigationMenuScreen extends StatelessWidget {
           _buildMenuButton(context, '7. Confirm & Sync', const ConfirmSyncScreen()),
           const SizedBox(height: 12),
           _buildMenuButton(context, '8. Inventory History', const InventoryHistoryScreen()),
+          const SizedBox(height: 12),
+          _buildMenuButton(context, '9. Scan Screen', const ScanScreen()),
+          const SizedBox(height: 12),
+          _buildMenuButton(context, '10. Product List', const ProductListScreen()),
+          const SizedBox(height: 12),
+          _buildMenuButton(context, '11. Warehouse Location', const WarehouseLocationScreen()),
+          const SizedBox(height: 12),
+          _buildMenuButton(context, '12. Notification', const NotificationScreen()),
+          const SizedBox(height: 12),
+          _buildMenuButton(context, '13. Dashboard', const DashboardScreen()),
+          const SizedBox(height: 12),
+          _buildMenuButton(context, '14. Profile', const ProfileScreen()),
+          const SizedBox(height: 12),
+          _buildMenuButton(context, '15. Incident Report', const IncidentReportScreen()),
         ],
       ),
     );
