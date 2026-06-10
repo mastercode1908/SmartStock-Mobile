@@ -131,7 +131,7 @@ class DashboardScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(16),
@@ -158,7 +158,7 @@ class DashboardScreen extends StatelessWidget {
                         const SizedBox(height: 16),
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
                               color: const Color(0xffffdad6),
                               borderRadius: BorderRadius.circular(16),
