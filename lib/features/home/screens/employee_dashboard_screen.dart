@@ -9,6 +9,7 @@ import '../../profile/screens/profile_screen.dart';
 import '../../inventory/screens/create_inventory_screen.dart';
 import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../products/screens/product_list_screen.dart';
 
 class EmployeeDashboardScreen extends StatelessWidget {
   const EmployeeDashboardScreen({Key? key}) : super(key: key);
@@ -340,8 +341,10 @@ class EmployeeDashboardScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Wrap(
+          spacing: 16,
+          runSpacing: 16,
+          alignment: WrapAlignment.start,
           children: [
             _buildQuickAccessItem(Icons.analytics, 'Báo cáo', _primaryContainer, _onPrimaryContainer, false, () {
               Navigator.push(
@@ -365,6 +368,12 @@ class EmployeeDashboardScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const WarehouseLocationScreen()),
+              );
+            }),
+            _buildQuickAccessItem(Icons.widgets, 'Sản phẩm', _tertiary, Colors.white, false, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProductListScreen()),
               );
             }),
           ],

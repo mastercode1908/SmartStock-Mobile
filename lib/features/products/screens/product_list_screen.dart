@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../scanner/screens/scan_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import '../providers/product_provider.dart';
+import '../models/product.dart';
 import 'product_detail_screen.dart';
-// import '../scanner/screens/scan_screen.dart'; // To link scan bottom nav
+import 'product_create_screen.dart';
+import '../../scanner/screens/scan_screen.dart';
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -12,148 +16,267 @@ class ProductListScreen extends StatefulWidget {
 
 class _ProductListScreenState extends State<ProductListScreen> {
   final int _selectedIndex = 1; // "Kiểm kê" is active
+  final TextEditingController _searchController = TextEditingController();
+  final currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
 
-  final List<Map<String, dynamic>> _products = [
-    {
-      'name': 'Samsung 980 Pro 1TB',
-      'sku': 'SSD-SAM-980P',
-      'quantity': '120 cái',
-      'location': 'Kệ A-12',
-      'image': 'https://lh3.googleusercontent.com/aida-public/AB6AXuD0ruiX73lMyBaULCD4ldYD9hniAje4g0jpla3hMrLpNaTvX2ZBvfxK0zOID6rRmKezeu_n7XHiyeVgoR7cAmGNCeEHHS4-o7BSBht74e49uqhR54wtCUBmtkLf0jd4MvKvO_0tMxWruGCQBkvBxwSjXw1h_2SZpsby-Q8xwCvu4fPGbIHuLsoX8UYRplt0McSG3OFfMyICTy2oPLOh49ZdJx60fzKFZFLddSQU-iNrGiu2jEn72fEnHWcx0gteC5N-AdO8Og9DfA4X',
-    },
-    {
-      'name': 'Apple Watch Series 8',
-      'sku': 'AW-S8-45MM',
-      'quantity': '15 cái',
-      'location': 'Tủ B-04',
-      'image': 'https://lh3.googleusercontent.com/aida-public/AB6AXuAqlo53hwuAtDsg0hgxT95f7yH4x1302FC3BCyW2CYEa1lZ4yH0Fd3ODj5C2qLmEtCIyVIwlkpgv-PRRLVc_0O20ZAzlUHvhMKAVa64CP1Vp9W50XvvYD645J58OHTcGwndf6_NN9A7uhc-Rrj9j5oH-GxU_o2u41IlFpEvPht6ydtHHtX5BNtQAskHH0DXi33Lw8Kh-cRNQBfJUQJhq-HZU7Xg_WL12DDaaEyHD0zHC6UV4gV7ftD0ajkCCbAeGYQ-hTmOwOoOeynR',
-      'warning': true,
-    },
-    {
-      'name': 'Dây đồng 2mm (Cuộn)',
-      'sku': 'WIR-CU-2MM',
-      'quantity': '45 cuộn',
-      'location': 'Kho Phụ',
-      'image': 'https://lh3.googleusercontent.com/aida-public/AB6AXuDr6aNT4sWUXszitowJZ7fbKiG0P3eFBQlINMa2w6IEFHNKYGwEfx8RDsJlAicsvGafUyw6ObU0SdOgB6LkfB92-EP2odqyCDA4crw1W6msTlL9roL9QpJ7vg1DfA9kfZWxSopBjrTXhd8Coctmb90KNORtc_nlY2UWz6je4-SojChmWW86A3D1A8HJLSmtbP3fIAePSvfeV4yca_QY93UIHnbrzd0D11kRkhVpU15TrfgARgi7TAUKRN7iy-rjaPcDeQFz9BVVdvQi',
-    },
-    {
-      'name': 'Sony WH-1000XM5',
-      'sku': 'AUD-SON-XM5',
-      'quantity': '32 cái',
-      'location': 'Kệ C-01',
-      'image': 'https://lh3.googleusercontent.com/aida-public/AB6AXuBtqANgG2ufv3VcrdwlXZ51TeugVI3TFzsno9tJApzwmNsm-Athp0a8Cc-O0i6-lorDkgx2iT2s1-grfISgb7Yzy8R7cCDEAQVL4VkvTckzIUIx7skGB87jA3z4_gW3QHjLC26gQG8BZKpdODM8qqgegkNMNf2K5WMwHWd6dGwfhodSKcvxFtYewUrFZ4LrBGjjbjaMAp3OgZLzZC6FFe3QNF3ZzY-sU60BEAV2yvQ-KYDp40UhzYIhnrZxGvT4L674hdotMs61bDJM',
-    },
-  ];
+  // Styling colors matching mockups
+  final Color _primary = const Color(0xFFB02528);
+  final Color _primaryContainer = const Color(0xFFD23E3E);
+  final Color _surface = const Color(0xFFF9F9F9);
+
+  int? _tempCategoryId;
+  int? _tempBrandId;
+  int? _tempTrackingMethod;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<ProductProvider>(context, listen: false);
+      provider.clearFilters();
+      provider.loadMetadata();
+      provider.loadProducts(isRefresh: true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchSubmit(String query) {
+    final provider = Provider.of<ProductProvider>(context, listen: false);
+    provider.setSearchQuery(query.trim().isEmpty ? null : query.trim());
+    provider.loadProducts(isRefresh: true);
+  }
+
+  void _applyCategoryFilter(int? categoryId) {
+    final provider = Provider.of<ProductProvider>(context, listen: false);
+    provider.setFilters(
+      categoryId: categoryId,
+      brandId: provider.selectedBrandId,
+      trackingMethod: provider.selectedTrackingMethod,
+    );
+    provider.loadProducts(isRefresh: true);
+  }
 
   void _showFilterModal(BuildContext context) {
+    final provider = Provider.of<ProductProvider>(context, listen: false);
+    _tempCategoryId = provider.selectedCategoryId;
+    _tempBrandId = provider.selectedBrandId;
+    _tempTrackingMethod = provider.selectedTrackingMethod;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Bộ lọc',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.8,
               ),
-              const SizedBox(height: 24),
-              _buildFilterSection('Sắp xếp theo', ['Tên', 'Số lượng', 'Vị trí'], 0),
-              const SizedBox(height: 24),
-              _buildFilterSection('Phương thức theo dõi', ['Số lượng', 'Lô hàng', 'Serial'], -1),
-              const SizedBox(height: 24),
-              _buildFilterSection('Trạng thái kho', ['Còn hàng', 'Sắp hết', 'Hết hàng'], -1),
-              const SizedBox(height: 32),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: const Text('Đặt lại', style: TextStyle(color: Colors.black54)),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xffb02528),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: const Text('Áp dụng', style: TextStyle(color: Colors.white)),
-                    ),
-                  ),
-                ],
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
-              const SizedBox(height: 16),
-            ],
-          ),
+              padding: const EdgeInsets.all(24),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Bộ lọc sản phẩm',
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.black54),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Tracking Method Filter
+                    const Text(
+                      'Phương thức theo dõi',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black54),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _buildFilterOption(
+                          'Tất cả',
+                          _tempTrackingMethod == null,
+                          () => setModalState(() => _tempTrackingMethod = null),
+                        ),
+                        _buildFilterOption(
+                          'Không theo dõi (NONE)',
+                          _tempTrackingMethod == 0,
+                          () => setModalState(() => _tempTrackingMethod = 0),
+                        ),
+                        _buildFilterOption(
+                          'Lô hàng (BATCH)',
+                          _tempTrackingMethod == 1,
+                          () => setModalState(() => _tempTrackingMethod = 1),
+                        ),
+                        _buildFilterOption(
+                          'Số Serial (SERIAL)',
+                          _tempTrackingMethod == 2,
+                          () => setModalState(() => _tempTrackingMethod = 2),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Category Filter Dropdown
+                    const Text(
+                      'Danh mục',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black54),
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<int>(
+                      value: _tempCategoryId,
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                      hint: const Text('Tất cả danh mục'),
+                      items: [
+                        const DropdownMenuItem<int>(value: null, child: Text('Tất cả danh mục')),
+                        ...provider.categories.map((cat) => DropdownMenuItem<int>(
+                              value: cat.categoryId,
+                              child: Text(cat.categoryName),
+                            )),
+                      ],
+                      onChanged: (val) {
+                        setModalState(() {
+                          _tempCategoryId = val;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Brand Filter Dropdown
+                    const Text(
+                      'Thương hiệu',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black54),
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<int>(
+                      value: _tempBrandId,
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                      hint: const Text('Tất cả thương hiệu'),
+                      items: [
+                        const DropdownMenuItem<int>(value: null, child: Text('Tất cả thương hiệu')),
+                        ...provider.brands.map((br) => DropdownMenuItem<int>(
+                              value: br.brandId,
+                              child: Text(br.brandName),
+                            )),
+                      ],
+                      onChanged: (val) {
+                        setModalState(() {
+                          _tempBrandId = val;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Actions
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              setModalState(() {
+                                _tempCategoryId = null;
+                                _tempBrandId = null;
+                                _tempTrackingMethod = null;
+                              });
+                            },
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: const Text('Đặt lại', style: TextStyle(color: Colors.black54)),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              provider.setFilters(
+                                categoryId: _tempCategoryId,
+                                brandId: _tempBrandId,
+                                trackingMethod: _tempTrackingMethod,
+                              );
+                              provider.loadProducts(isRefresh: true);
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _primary,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: const Text('Áp dụng', style: TextStyle(color: Colors.white)),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );
   }
 
-  Widget _buildFilterSection(String title, List<String> options, int selectedIndex) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black54),
+  Widget _buildFilterOption(String label, bool isSelected, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? _primaryContainer.withOpacity(0.1) : Colors.grey[100],
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? _primary : Colors.transparent,
+            width: 1,
+          ),
         ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: List.generate(options.length, (index) {
-            final isSelected = index == selectedIndex;
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: isSelected ? const Color(0xffd23e3e) : const Color(0xffe8e8e8),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                options[index],
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.black54,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            );
-          }),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? _primary : Colors.black87,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            fontSize: 13,
+          ),
         ),
-      ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _surface,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -178,240 +301,404 @@ class _ProductListScreenState extends State<ProductListScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications, color: Color(0xffb02528)),
-            onPressed: () {},
+            icon: const Icon(Icons.add, color: Color(0xffb02528), size: 28),
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProductCreateScreen()),
+              );
+              if (result == true) {
+                Provider.of<ProductProvider>(context, listen: false).loadProducts(isRefresh: true);
+              }
+            },
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Search and Filter
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey[300]!),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Tìm kiếm sản phẩm, SKU...',
-                          hintStyle: TextStyle(color: Colors.black38),
-                          prefixIcon: Icon(Icons.search, color: Colors.black38),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  InkWell(
-                    onTap: () => _showFilterModal(context),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      height: 48,
-                      width: 48,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey[300]!),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(Icons.tune, color: Colors.black54),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Category Chips
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildChip('Tất cả', isSelected: true),
-                    const SizedBox(width: 8),
-                    _buildChip('Điện tử'),
-                    const SizedBox(width: 8),
-                    _buildChip('Linh kiện'),
-                    const SizedBox(width: 8),
-                    _buildChip('Gia dụng'),
-                    const SizedBox(width: 8),
-                    _buildChip('Phụ kiện'),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Product List
-              ListView.separated(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: _products.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 8),
-                itemBuilder: (context, index) {
-                  final product = _products[index];
-                  return _buildProductCard(product, context);
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: _buildBottomNav(context),
-    );
-  }
-
-  Widget _buildChip(String label, {bool isSelected = false}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      decoration: BoxDecoration(
-        color: isSelected ? const Color(0xffd23e3e).withOpacity(0.1) : Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: isSelected ? const Color(0xffd23e3e).withOpacity(0.2) : Colors.grey[300]!,
-        ),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: isSelected ? const Color(0xffd23e3e) : Colors.black54,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProductCard(Map<String, dynamic> product, BuildContext context) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const ProductDetailScreen()),
-        );
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.grey[200]!),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                product['image'],
-                width: 64,
-                height: 64,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: 64,
-                    height: 64,
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.image, color: Colors.grey),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product['name'],
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    product['sku'],
-                    style: const TextStyle(
-                      color: Colors.black54,
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
+      body: Consumer<ProductProvider>(
+        builder: (context, provider, child) {
+          return RefreshIndicator(
+            onRefresh: () => provider.loadProducts(isRefresh: true),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Search and Filter Bar
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Row(
                     children: [
-                      Icon(
-                        product['warning'] == true ? Icons.warning : Icons.inventory,
-                        size: 14,
-                        color: product['warning'] == true ? const Color(0xffd23e3e) : Colors.black87,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        product['quantity'],
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: product['warning'] == true ? const Color(0xffb02528) : Colors.black87,
+                      Expanded(
+                        child: Container(
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(color: Colors.black.withOpacity(0.01), blurRadius: 4, offset: const Offset(0, 2)),
+                            ],
+                          ),
+                          child: TextField(
+                            controller: _searchController,
+                            textInputAction: TextInputAction.search,
+                            onSubmitted: _onSearchSubmit,
+                            decoration: InputDecoration(
+                              hintText: 'Tìm kiếm sản phẩm, SKU...',
+                              hintStyle: const TextStyle(color: Colors.black38, fontSize: 14),
+                              prefixIcon: const Icon(Icons.search, color: Colors.black38),
+                              suffixIcon: _searchController.text.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(Icons.clear, color: Colors.black38),
+                                      onPressed: () {
+                                        _searchController.clear();
+                                        _onSearchSubmit('');
+                                      },
+                                    )
+                                  : null,
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: const Color(0xffd7e4ec),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          product['location'],
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xff5a666d),
+                      InkWell(
+                        onTap: () => _showFilterModal(context),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          height: 48,
+                          width: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            Icons.tune,
+                            color: (provider.selectedBrandId != null ||
+                                    provider.selectedTrackingMethod != null)
+                                ? _primary
+                                : Colors.black54,
                           ),
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.green[100],
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    'LÔ HÀNG',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green[800],
+                ),
+
+                // Category Chips horizontal scroll
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: SizedBox(
+                    height: 38,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: provider.categories.length + 1,
+                      itemBuilder: (context, idx) {
+                        if (idx == 0) {
+                          final isSelected = provider.selectedCategoryId == null;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: _buildChip(
+                              'Tất cả',
+                              isSelected: isSelected,
+                              onTap: () => _applyCategoryFilter(null),
+                            ),
+                          );
+                        }
+
+                        final cat = provider.categories[idx - 1];
+                        final isSelected = provider.selectedCategoryId == cat.categoryId;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: _buildChip(
+                            cat.categoryName,
+                            isSelected: isSelected,
+                            onTap: () => _applyCategoryFilter(cat.categoryId),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Icon(Icons.more_vert, color: Color(0xffb02528), size: 20),
+
+                // Product List
+                Expanded(
+                  child: provider.isLoading && provider.products.isEmpty
+                      ? const Center(child: CircularProgressIndicator())
+                      : provider.products.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.inventory_2_outlined, size: 64, color: Colors.grey[300]),
+                                  const SizedBox(height: 16),
+                                  const Text('Không tìm thấy sản phẩm nào', style: TextStyle(color: Colors.black54)),
+                                ],
+                              ),
+                            )
+                          : ListView.builder(
+                              padding: const EdgeInsets.all(16),
+                              itemCount: provider.products.length,
+                              itemBuilder: (context, index) {
+                                final product = provider.products[index];
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 12.0),
+                                  child: _buildParentProductCard(product),
+                                );
+                              },
+                            ),
+                ),
               ],
             ),
+          );
+        },
+      ),
+      bottomNavigationBar: _buildBottomNav(context),
+    );
+  }
+
+  Widget _buildChip(String label, {required bool isSelected, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? _primaryContainer.withOpacity(0.1) : Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: isSelected ? _primaryContainer.withOpacity(0.2) : Colors.grey[300]!,
+          ),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? _primary : Colors.black54,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildParentProductCard(Product product) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2)),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: ExpansionTile(
+          shape: const Border(),
+          backgroundColor: Colors.white,
+          collapsedBackgroundColor: Colors.white,
+          leading: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: product.imageUrl.isNotEmpty
+                ? Image.network(
+                    product.imageUrl,
+                    width: 48,
+                    height: 48,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 48,
+                      height: 48,
+                      color: Colors.grey[100],
+                      child: const Icon(Icons.image, color: Colors.grey),
+                    ),
+                  )
+                : Container(
+                    width: 48,
+                    height: 48,
+                    color: Colors.grey[100],
+                    child: const Icon(Icons.image, color: Colors.grey),
+                  ),
+          ),
+          title: Text(
+            product.productName,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87),
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Text(
+                    product.category?.categoryName ?? 'Chưa phân loại',
+                    style: const TextStyle(fontSize: 12, color: Colors.black54),
+                  ),
+                  if (product.brand != null) ...[
+                    const SizedBox(width: 6),
+                    const Text('•', style: TextStyle(color: Colors.black26)),
+                    const SizedBox(width: 6),
+                    Text(
+                      product.brand!.brandName,
+                      style: const TextStyle(fontSize: 12, color: Colors.black54),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  _buildTrackingBadge(product.trackingMethod),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${product.productVariants.length} biến thể',
+                    style: TextStyle(fontSize: 11, color: _primary, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          trailing: const Icon(Icons.expand_more, color: Colors.black45),
+          children: [
+            Container(color: Colors.grey[50], height: 1),
+            if (product.productVariants.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Sản phẩm chưa có biến thể',
+                      style: TextStyle(color: Colors.black38, fontSize: 13, fontStyle: FontStyle.italic),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () => _navigateToDetails(product.productId),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        minimumSize: Size.zero,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      icon: const Icon(Icons.add, size: 14),
+                      label: const Text('Thêm', style: TextStyle(fontSize: 12)),
+                    )
+                  ],
+                ),
+              )
+            else
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: product.productVariants.length,
+                separatorBuilder: (context, idx) => Divider(height: 1, color: Colors.grey[200]),
+                itemBuilder: (context, idx) {
+                  final variant = product.productVariants[idx];
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    title: Text(
+                      variant.variantName,
+                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black87),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 2),
+                        Text(
+                          'SKU: ${variant.sku}',
+                          style: const TextStyle(fontSize: 11, color: Colors.black45, fontFamily: 'JetBrains Mono'),
+                        ),
+                        if (variant.barcode.isNotEmpty) ...[
+                          Text(
+                            'Barcode: ${variant.barcode}',
+                            style: const TextStyle(fontSize: 11, color: Colors.black45),
+                          ),
+                        ],
+                      ],
+                    ),
+                    trailing: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          currencyFormat.format(variant.costPrice),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _primary),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          variant.status == 1 ? 'ĐANG BÁN' : 'NGƯNG BÁN',
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            color: variant.status == 1 ? Colors.green[700] : Colors.red[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                    onTap: () => _navigateToDetails(product.productId),
+                  );
+                },
+              ),
+            Container(
+              color: Colors.grey[100],
+              child: ListTile(
+                title: const Text(
+                  'Xem chi tiết sản phẩm',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black54),
+                ),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.black54),
+                onTap: () => _navigateToDetails(product.productId),
+              ),
+            )
           ],
+        ),
+      ),
+    );
+  }
+
+  void _navigateToDetails(int productId) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProductDetailScreen(productId: productId),
+      ),
+    );
+    if (result == true) {
+      Provider.of<ProductProvider>(context, listen: false).loadProducts(isRefresh: true);
+    }
+  }
+
+  Widget _buildTrackingBadge(int trackingMethod) {
+    String label = 'Không theo dõi';
+    Color color = Colors.grey[600]!;
+    Color bg = Colors.grey[100]!;
+
+    if (trackingMethod == 1) {
+      label = 'LÔ HÀNG';
+      color = Colors.green[800]!;
+      bg = Colors.green[100]!;
+    } else if (trackingMethod == 2) {
+      label = 'SERIAL';
+      color = const Color(0xff006a67);
+      bg = const Color(0xff00a7a3).withOpacity(0.1);
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 9,
+          fontWeight: FontWeight.bold,
+          color: color,
         ),
       ),
     );
