@@ -5,7 +5,7 @@ class InventorySession {
   final int warehouseId;
   final String sessionCode;
   final String countType; // FULL, PARTIAL, LOCATION, PRODUCT
-  final String status; // DRAFT, IN_PROGRESS, COMPLETED, CANCELLED
+  final String status; // DRAFT, PENDING, APPROVED, REJECTED, CANCELLED, POSTED
   final String description;
   final DateTime startDate;
   final DateTime? endDate;
@@ -32,9 +32,11 @@ class InventorySession {
     if (value is int) {
       switch (value) {
         case 0: return 'DRAFT';
-        case 1: return 'IN_PROGRESS';
-        case 2: return 'COMPLETED';
-        case 3: return 'CANCELLED';
+        case 1: return 'PENDING';
+        case 2: return 'APPROVED';
+        case 3: return 'REJECTED';
+        case 4: return 'CANCELLED';
+        case 5: return 'POSTED';
         default: return 'UNKNOWN';
       }
     }
@@ -72,11 +74,12 @@ class InventorySession {
   }
 
   Map<String, dynamic> toJson() {
-    // Map string back to int for backend
     int statusInt = 0;
-    if (status == 'IN_PROGRESS') statusInt = 1;
-    if (status == 'COMPLETED') statusInt = 2;
-    if (status == 'CANCELLED') statusInt = 3;
+    if (status == 'PENDING') statusInt = 1;
+    if (status == 'APPROVED') statusInt = 2;
+    if (status == 'REJECTED') statusInt = 3;
+    if (status == 'CANCELLED') statusInt = 4;
+    if (status == 'POSTED') statusInt = 5;
 
     int countTypeInt = 0;
     if (countType == 'PARTIAL') countTypeInt = 1;

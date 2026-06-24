@@ -187,11 +187,12 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
   Widget _buildFilterChips() {
     return Consumer<InventoryProvider>(
       builder: (context, provider, child) {
-        final sessions = provider.sessions;
+        final sessions = provider.sessions.where((s) => s.status != 'POSTED').toList();
         int allCount = sessions.length;
-        int inProgressCount = sessions.where((s) => s.status == 'IN_PROGRESS').length;
         int draftCount = sessions.where((s) => s.status == 'DRAFT').length;
-        int completedCount = sessions.where((s) => s.status == 'COMPLETED').length;
+        int pendingCount = sessions.where((s) => s.status == 'PENDING').length;
+        int approvedCount = sessions.where((s) => s.status == 'APPROVED').length;
+        int rejectedCount = sessions.where((s) => s.status == 'REJECTED').length;
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -199,11 +200,13 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
             children: [
               _buildChip('TẤT CẢ ($allCount)', 'TẤT CẢ'),
               const SizedBox(width: 8),
-              _buildChip('ĐANG THỰC HIỆN ($inProgressCount)', 'IN_PROGRESS'),
+              _buildChip('ĐANG KIỂM ĐẾM ($draftCount)', 'DRAFT'),
               const SizedBox(width: 8),
-              _buildChip('CHỜ XỬ LÝ ($draftCount)', 'DRAFT'),
+              _buildChip('CHỜ DUYỆT ($pendingCount)', 'PENDING'),
               const SizedBox(width: 8),
-              _buildChip('HOÀN THÀNH ($completedCount)', 'COMPLETED'),
+              _buildChip('ĐÃ DUYỆT ($approvedCount)', 'APPROVED'),
+              const SizedBox(width: 8),
+              _buildChip('TỪ CHỐI ($rejectedCount)', 'REJECTED'),
             ],
           ),
         );
@@ -247,16 +250,16 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        List<InventorySession> filteredSessions = provider.sessions;
+        List<InventorySession> activeSessions = provider.sessions.where((s) => s.status != 'POSTED').toList();
         if (_currentFilter != 'TẤT CẢ') {
-          filteredSessions = filteredSessions.where((s) => s.status == _currentFilter).toList();
+          activeSessions = activeSessions.where((s) => s.status == _currentFilter).toList();
         }
 
-        if (filteredSessions.isEmpty) {
+        if (activeSessions.isEmpty) {
           return const Center(
             child: Padding(
               padding: EdgeInsets.all(32.0),
-              child: Text('Chưa có phiếu kiểm kê nào.'),
+              child: Text('Không có phiếu kiểm kê nào.'),
             ),
           );
         }
@@ -264,10 +267,10 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
         return ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: filteredSessions.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 16),
+          itemCount: activeSessions.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
-            final session = filteredSessions[index];
+            final session = activeSessions[index];
             final dateStr = DateFormat('dd/MM/yyyy').format(session.startDate);
 
             Widget statusWidget;
@@ -276,7 +279,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
             Color iconBg;
             bool isCompleted = false;
 
-            if (session.status == 'COMPLETED') {
+            if (session.status == 'POSTED') {
               icon = Icons.check_circle;
               iconColor = _secondary;
               iconBg = _secondaryContainer;
@@ -284,41 +287,52 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
               statusWidget = Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Hoàn thành', style: TextStyle(color: _secondary, fontSize: 12, fontWeight: FontWeight.w500)),
+                  Text('Đã đồng bộ', style: TextStyle(color: _secondary, fontSize: 12, fontWeight: FontWeight.w500)),
                   Text('XEM BÁO CÁO', style: TextStyle(color: _secondary, fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
               );
-            } else if (session.status == 'DRAFT') {
-              icon = Icons.pending_actions;
+            } else if (session.status == 'PENDING') {
+              icon = Icons.hourglass_top;
+              iconColor = Colors.orange;
+              iconBg = Colors.orange.withOpacity(0.1);
+              statusWidget = Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Chờ quản lý duyệt', style: TextStyle(color: Colors.orange, fontSize: 12, fontWeight: FontWeight.bold)),
+                ],
+              );
+            } else if (session.status == 'APPROVED') {
+              icon = Icons.verified;
+              iconColor = Colors.green;
+              iconBg = Colors.green.withOpacity(0.1);
+              statusWidget = Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Đã duyệt', style: TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('ĐỒNG BỘ KHO', style: TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold)),
+                ],
+              );
+            } else if (session.status == 'REJECTED') {
+              icon = Icons.cancel;
               iconColor = _primary;
               iconBg = _primary.withOpacity(0.1);
               statusWidget = Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Chờ xử lý (Nháp)', style: TextStyle(color: _primary, fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('TIẾP TỤC', style: TextStyle(color: _primary, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('Bị từ chối', style: TextStyle(color: _primary, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('ĐẾM LẠI', style: TextStyle(color: _primary, fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
               );
             } else {
-              // IN_PROGRESS
+              // DRAFT or others
               icon = Icons.inventory;
               iconColor = _tertiary;
               iconBg = _tertiary.withOpacity(0.1);
               statusWidget = Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: 0.5, // Dummy progress
-                        backgroundColor: _surfaceContainerLow,
-                        valueColor: AlwaysStoppedAnimation<Color>(_tertiary),
-                        minHeight: 8,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text('Đang xử lý', style: TextStyle(fontSize: 12)),
+                  Text('Bản nháp (Đang kiểm)', style: TextStyle(color: _tertiary, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('TIẾP TỤC', style: TextStyle(color: _tertiary, fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
               );
             }

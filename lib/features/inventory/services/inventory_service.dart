@@ -124,16 +124,40 @@ class InventoryService {
     }
   }
 
-  Future<void> submitInventoryDetail(InventoryCountDetail detail) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/InventoryCountDetails'),
+  String _parseError(http.Response response) {
+    try {
+      final jsonResponse = json.decode(response.body);
+      String errorMsg = jsonResponse['message'] ?? 'Đã xảy ra lỗi (${response.statusCode})';
+      
+      if (jsonResponse['errors'] != null) {
+        final errors = jsonResponse['errors'];
+        if (errors is String) {
+          errorMsg = errors;
+        } else if (errors is Map) {
+          errorMsg = errors.values.map((e) => e is List ? e.join(', ') : e.toString()).join('\n');
+        } else if (errors is List) {
+          errorMsg = errors.join('\n');
+        }
+      }
+      return errorMsg;
+    } catch (e) {
+      return 'Lỗi máy chủ (${response.statusCode})';
+    }
+  }
+
+  Future<void> submitInventoryDetail(InventoryCountDetail detail, {bool isUpdate = false}) async {
+    final uri = isUpdate 
+        ? Uri.parse('$baseUrl/InventoryCountDetails/${detail.countDetailId}')
+        : Uri.parse('$baseUrl/InventoryCountDetails');
+        
+    final response = await (isUpdate ? http.put : http.post)(
+      uri,
       headers: await _getHeaders(),
       body: json.encode(detail.toJson()),
     );
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      final payloadStr = json.encode(detail.toJson());
-      throw Exception('Failed: ${response.body}\nPayload: $payloadStr');
+      throw Exception(_parseError(response));
     }
   }
 
@@ -144,7 +168,7 @@ class InventoryService {
     );
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception('Failed to sync session: ${response.body}');
+      throw Exception(_parseError(response));
     }
   }
 

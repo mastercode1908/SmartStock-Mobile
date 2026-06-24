@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'choose_product_screen.dart';
 import '../providers/inventory_provider.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../models/inventory_session.dart';
 
 class CreateInventoryScreen extends StatefulWidget {
@@ -51,6 +52,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
     }
 
     final provider = context.read<InventoryProvider>();
+    final auth = context.read<AuthProvider>();
     final newSession = InventorySession(
       id: 0, // Server will generate the ID
       warehouseId: _selectedWarehouseId!,
@@ -59,7 +61,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
       status: 'DRAFT', // Trạng thái nháp để hỗ trợ offline sync
       description: 'Location ID: $_selectedLocationId - ${_notesController.text}',
       startDate: DateTime.now(),
-      createdBy: 1, // Mock user ID
+      createdBy: auth.currentUser?.userId ?? 0,
     );
 
     await provider.addSession(newSession);
@@ -133,34 +135,42 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
   }
 
   Widget _buildForm() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.7),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.4)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 24,
-            offset: const Offset(0, 4),
+    return Consumer<AuthProvider>(
+      builder: (context, auth, child) {
+        final userName = auth.currentUser?.fullName ?? 'Không xác định';
+        final userId = auth.currentUser?.userId ?? 0;
+        final currentDate = DateTime.now().toString().split(' ')[0];
+
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white.withOpacity(0.4)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 24,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildWarehouseDropdown(),
-          const SizedBox(height: 24),
-          _buildLocationDropdown(),
-          const SizedBox(height: 24),
-          _buildReadOnlyField('NGÀY KIỂM KÊ', Icons.calendar_today, DateTime.now().toString().split(' ')[0]),
-          const SizedBox(height: 24),
-          _buildReadOnlyField('NGƯỜI THỰC HIỆN', Icons.person, 'Nguyễn Văn A'),
-          const SizedBox(height: 24),
-          _buildTextArea('GHI CHÚ', 'Nhập ghi chú hoặc lý do kiểm kê...', _notesController),
-        ],
-      ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildWarehouseDropdown(),
+              const SizedBox(height: 24),
+              _buildLocationDropdown(),
+              const SizedBox(height: 24),
+              _buildReadOnlyField('NGÀY KIỂM KÊ', Icons.calendar_today, currentDate),
+              const SizedBox(height: 24),
+              _buildReadOnlyField('NGƯỜI THỰC HIỆN', Icons.person, userName),
+              const SizedBox(height: 24),
+              _buildTextArea('GHI CHÚ', 'Nhập ghi chú hoặc lý do kiểm kê...', _notesController),
+            ],
+          ),
+        );
+      }
     );
   }
 

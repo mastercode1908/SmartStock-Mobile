@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/inventory_provider.dart';
+import '../../scanner/screens/scan_screen.dart';
 
 class InventoryHistoryDetailScreen extends StatefulWidget {
   final int sessionId;
@@ -59,31 +60,77 @@ class _InventoryHistoryDetailScreenState extends State<InventoryHistoryDetailScr
           final dateStr = DateFormat('dd/MM/yyyy HH:mm').format(session.startDate.toLocal());
           final details = session.details ?? [];
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildInfoCard(session.sessionCode, dateStr, session.status, session.warehouseId.toString()),
-                const SizedBox(height: 24),
-                Text(
-                  'Danh sách sản phẩm',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: _onSurface),
-                ),
-                const SizedBox(height: 16),
-                if (details.isEmpty)
-                  const Text('Chưa có chi tiết sản phẩm nào.')
-                else
-                  ...details.map((d) => _buildDetailItem(d)).toList(),
-              ],
+          return Scaffold(
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildInfoCard(session.sessionCode, dateStr, session.status, session.warehouseId.toString()),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Danh sách sản phẩm',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: _onSurface),
+                  ),
+                  const SizedBox(height: 16),
+                  if (details.isEmpty)
+                    const Text('Chưa có chi tiết sản phẩm nào.')
+                  else
+                    ...details.map((d) => _buildDetailItem(d)).toList(),
+                ],
+              ),
             ),
+            floatingActionButton: (session.status == 'DRAFT' || session.status == 'REJECTED')
+                ? FloatingActionButton.extended(
+                    onPressed: () async {
+                      await provider.editSession(session);
+                      if (context.mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ScanScreen()),
+                        );
+                      }
+                    },
+                    backgroundColor: _primary,
+                    foregroundColor: Colors.white,
+                    icon: const Icon(Icons.edit),
+                    label: const Text('Tiếp tục / Chỉnh sửa'),
+                  )
+                : null,
           );
         },
       ),
     );
   }
 
+  String _getStatusText(String status) {
+    switch (status) {
+      case 'DRAFT': return 'Đang kiểm đếm (Nháp)';
+      case 'PENDING': return 'Chờ quản lý duyệt';
+      case 'APPROVED': return 'Đã duyệt';
+      case 'REJECTED': return 'Bị từ chối';
+      case 'CANCELLED': return 'Đã hủy';
+      case 'POSTED': return 'Đã đồng bộ (Hoàn thành)';
+      default: return status;
+    }
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'DRAFT': return _primary;
+      case 'PENDING': return Colors.orange;
+      case 'APPROVED': return Colors.green;
+      case 'REJECTED': return _primary;
+      case 'CANCELLED': return Colors.grey;
+      case 'POSTED': return Colors.blue;
+      default: return _secondary;
+    }
+  }
+
   Widget _buildInfoCard(String code, String date, String status, String warehouse) {
+    final statusText = _getStatusText(status);
+    final statusColor = _getStatusColor(status);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -100,7 +147,7 @@ class _InventoryHistoryDetailScreenState extends State<InventoryHistoryDetailScr
           const SizedBox(height: 8),
           _buildInfoRow('Ngày tạo', date),
           const SizedBox(height: 8),
-          _buildInfoRow('Trạng thái', status),
+          _buildInfoRow('Trạng thái', statusText, isBold: true, color: statusColor),
           const SizedBox(height: 8),
           _buildInfoRow('Kho ID', warehouse),
         ],
