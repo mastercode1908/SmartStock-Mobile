@@ -94,6 +94,7 @@ class InventorySession {
       'endDate': endDate?.toUtc().toIso8601String(),
       'createdBy': createdBy,
       'assignedTo': assignedTo,
+      'details': [],
     };
   }
 }

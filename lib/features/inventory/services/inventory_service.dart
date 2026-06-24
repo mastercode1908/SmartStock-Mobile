@@ -132,7 +132,8 @@ class InventoryService {
     );
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception('Failed to submit detail: ${response.body}');
+      final payloadStr = json.encode(detail.toJson());
+      throw Exception('Failed: ${response.body}\nPayload: $payloadStr');
     }
   }
 

@@ -54,15 +54,17 @@ class InventoryCountDetail {
       'countDetailID': countDetailId,
       'sessionID': sessionId,
       'variantID': variantId,
-      'lotNumber': lotNumber ?? '',
-      'serialNumber': serialNumber ?? '',
-      'unitID': unitId,
+      'batchID': null,
+      'serialID': null,
+      'locationID': 1, // Hardcoded for now
       'systemQuantity': systemQuantity,
-      'countedQuantity': countedQuantity,
-      'difference': difference,
-      'status': statusInt,
-      'notes': notes ?? '',
-      'imageUrl': '', // Fix SQL Exception for NULL ImageUrl
+      'actualQuantity': countedQuantity,
+      'differenceQuantity': difference,
+      'variance': 0,
+      'varianceReason': '',
+      'countedBy': 1, // Hardcoded for now
+      'note': notes ?? '',
+      'imageUrl': '',
     };
   }
 }

@@ -103,6 +103,7 @@ class InventoryProvider extends ChangeNotifier {
     } catch (e) {
       _error = e.toString();
       debugPrint('Error adding session: $e');
+      rethrow; // Throw error to prevent navigation
     } finally {
       _isLoading = false;
       notifyListeners();
