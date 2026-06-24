@@ -98,4 +98,23 @@ class AuthService {
       throw Exception('Upload failed: ${response.statusCode}');
     }
   }
+
+  Future<void> changePassword(String token, String oldPassword, String newPassword) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/Auth/change-password'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: json.encode({
+        'oldPassword': oldPassword,
+        'newPassword': newPassword,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      final jsonResponse = json.decode(response.body);
+      throw Exception(jsonResponse['message'] ?? 'Failed to change password');
+    }
+  }
 }

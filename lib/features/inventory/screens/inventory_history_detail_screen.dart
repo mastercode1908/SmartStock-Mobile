@@ -7,8 +7,9 @@ import 'inventory_detail_screen.dart';
 
 class InventoryHistoryDetailScreen extends StatefulWidget {
   final int sessionId;
+  final bool isFromHistory;
 
-  const InventoryHistoryDetailScreen({Key? key, required this.sessionId}) : super(key: key);
+  const InventoryHistoryDetailScreen({Key? key, required this.sessionId, this.isFromHistory = false}) : super(key: key);
 
   @override
   State<InventoryHistoryDetailScreen> createState() => _InventoryHistoryDetailScreenState();
@@ -81,7 +82,7 @@ class _InventoryHistoryDetailScreenState extends State<InventoryHistoryDetailScr
                 ],
               ),
             ),
-            floatingActionButton: (session.status == 'DRAFT' || session.status == 'REJECTED')
+            floatingActionButton: (!widget.isFromHistory && (session.status == 'DRAFT' || session.status == 'REJECTED'))
                 ? FloatingActionButton.extended(
                     onPressed: () async {
                       await provider.editSession(session);

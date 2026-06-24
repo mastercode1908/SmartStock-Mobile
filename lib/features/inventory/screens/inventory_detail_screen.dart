@@ -37,10 +37,18 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<InventoryProvider>();
+      final session = provider.selectedSession;
       final variants = provider.selectedVariants;
       for (var v in variants) {
-        _quantityControllers[v.variantId] = TextEditingController();
-        _imageUrl[v.variantId] = null;
+        InventoryCountDetail? detail;
+        try {
+          detail = session?.details?.firstWhere((d) => d.variantId == v.variantId);
+        } catch (_) {}
+        
+        _quantityControllers[v.variantId] = TextEditingController(
+          text: (detail != null && detail.countedQuantity > 0) ? detail.countedQuantity.toString() : ''
+        );
+        _imageUrl[v.variantId] = detail?.imageUrl;
         _isUploading[v.variantId] = false;
       }
       provider.loadSystemQuantities();

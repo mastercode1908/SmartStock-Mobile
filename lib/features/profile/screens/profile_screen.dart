@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../auth/screens/login_screen.dart';
+import 'change_password_screen.dart';
+import 'static_pages.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -205,6 +207,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Icons.lock_reset,
                   'Đổi mật khẩu',
                   hasArrow: true,
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ChangePasswordScreen()));
+                  },
                 ),
               ],
             ),
@@ -238,24 +243,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 24),
 
             _buildSection(
-              title: 'HỖ TRỢ & BẢO MẬT',
+              title: 'HỖ TRỢ',
               children: [
                 _buildSettingsItem(
-                  Icons.menu_book,
+                  Icons.help_outline,
                   'Hướng dẫn sử dụng',
                   hasArrow: true,
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const UserManualScreen()));
+                  },
                 ),
                 _buildDivider(),
                 _buildSettingsItem(
-                  Icons.shield,
+                  Icons.privacy_tip_outlined,
                   'Chính sách bảo mật',
                   hasArrow: true,
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const PrivacyPolicyScreen()));
+                  },
                 ),
                 _buildDivider(),
                 _buildSettingsItem(
-                  Icons.bug_report,
+                  Icons.bug_report_outlined,
                   'Phản hồi lỗi',
                   hasArrow: true,
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const BugReportScreen()));
+                  },
                 ),
               ],
             ),

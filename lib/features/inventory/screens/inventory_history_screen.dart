@@ -204,7 +204,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => InventoryHistoryDetailScreen(sessionId: session.id),
+                    builder: (context) => InventoryHistoryDetailScreen(sessionId: session.id, isFromHistory: true),
                   ),
                 );
               },
