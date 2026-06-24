@@ -2,16 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/product_variant.dart';
+import '../models/unit.dart';
 import '../providers/product_provider.dart';
 
 class VariantCreateScreen extends StatefulWidget {
   final int productId;
   final ProductVariant? variant; // If not null, we are in Edit mode
+  final Unit? baseUnit;
 
   const VariantCreateScreen({
     super.key,
     required this.productId,
     this.variant,
+    this.baseUnit,
   });
 
   @override
@@ -189,6 +192,26 @@ class _VariantCreateScreenState extends State<VariantCreateScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Base Unit (Inherited from Parent Product)
+                  const Text(
+                    'Đơn vị tính cơ bản',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    initialValue: widget.baseUnit != null
+                        ? '${widget.baseUnit!.unitName} (${widget.baseUnit!.symbol})'
+                        : 'Không rõ',
+                    enabled: false,
+                    decoration: InputDecoration(
+                      fillColor: Colors.grey[100],
+                      filled: true,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
                   // Variant Name
                   const Text(
                     'Tên biến thể *',
@@ -275,20 +298,14 @@ class _VariantCreateScreenState extends State<VariantCreateScreen> {
                             const SizedBox(height: 8),
                             TextFormField(
                               controller: _costPriceController,
-                              keyboardType: TextInputType.number,
+                              enabled: false, // Giá mua tự động là 0, xử lý ở chức năng khác
                               decoration: InputDecoration(
                                 hintText: '0',
+                                fillColor: Colors.grey[100],
+                                filled: true,
                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                               ),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) return null;
-                                final numValue = double.tryParse(value);
-                                if (numValue == null || numValue < 0) {
-                                  return 'Giá mua không được âm';
-                                }
-                                return null;
-                              },
                             ),
                           ],
                         ),

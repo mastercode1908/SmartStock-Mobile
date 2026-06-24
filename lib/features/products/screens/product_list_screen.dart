@@ -535,7 +535,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 children: [
                   Text(
                     product.category?.categoryName ?? 'Chưa phân loại',
-                    style: const TextStyle(fontSize: 12, color: Colors.black54),
+                    style: const TextStyle(fontSize: 12, color: Colors.black54, fontWeight: FontWeight.w500),
                   ),
                   if (product.brand != null) ...[
                     const SizedBox(width: 6),
@@ -543,7 +543,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     const SizedBox(width: 6),
                     Text(
                       product.brand!.brandName,
-                      style: const TextStyle(fontSize: 12, color: Colors.black54),
+                      style: const TextStyle(fontSize: 12, color: Colors.black54, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ],
@@ -551,11 +551,33 @@ class _ProductListScreenState extends State<ProductListScreen> {
               const SizedBox(height: 4),
               Row(
                 children: [
+                  const Icon(Icons.scale_outlined, size: 14, color: Colors.black45),
+                  const SizedBox(width: 4),
+                  Text(
+                    product.baseUnit != null
+                        ? '${product.baseUnit!.unitName} (${product.baseUnit!.symbol})'
+                        : 'ĐVT: Chưa có',
+                    style: const TextStyle(fontSize: 11, color: Colors.black54),
+                  ),
+                  const SizedBox(width: 12),
+                  _buildStatusBadge(product.status),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
                   _buildTrackingBadge(product.trackingMethod),
                   const SizedBox(width: 8),
-                  Text(
-                    '${product.productVariants.length} biến thể',
-                    style: TextStyle(fontSize: 11, color: _primary, fontWeight: FontWeight.bold),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: _primary.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      '${product.productVariants.length} biến thể',
+                      style: TextStyle(fontSize: 11, color: _primary, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),
@@ -692,6 +714,43 @@ class _ProductListScreenState extends State<ProductListScreen> {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 9,
+          fontWeight: FontWeight.bold,
+          color: color,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(int status) {
+    String label = 'Đang kinh doanh';
+    Color color = Colors.green[800]!;
+    Color bg = Colors.green[50]!;
+    
+    if (status == 0) {
+      label = 'Nháp';
+      color = Colors.orange[800]!;
+      bg = Colors.orange[50]!;
+    } else if (status == 2) {
+      label = 'Ngừng kinh doanh';
+      color = Colors.red[800]!;
+      bg = Colors.red[50]!;
+    } else if (status == 3) {
+      label = 'Không sản xuất';
+      color = Colors.grey[800]!;
+      bg = Colors.grey[200]!;
+    }
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withOpacity(0.1)),
       ),
       child: Text(
         label,

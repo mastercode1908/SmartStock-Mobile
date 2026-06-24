@@ -5,6 +5,7 @@ import '../models/category.dart';
 import '../models/brand.dart';
 import '../models/unit.dart';
 import '../models/product_variant.dart';
+import '../models/product_unit.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class ProductService {
@@ -241,6 +242,104 @@ class ProductService {
       return jsonResponse['url'] ?? '';
     } else {
       throw Exception('Image upload failed: ${response.statusCode}');
+    }
+  }
+
+  Future<Category> createCategory(Map<String, dynamic> categoryData) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/Categorys'),
+      headers: await _getHeaders(),
+      body: json.encode(categoryData),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return Category.fromJson(categoryData);
+    } else {
+      _handleErrorResponse(response);
+      throw Exception('Create category failed: ${response.statusCode}');
+    }
+  }
+
+  Future<Brand> createBrand(Map<String, dynamic> brandData) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/Brands'),
+      headers: await _getHeaders(),
+      body: json.encode(brandData),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return Brand.fromJson(brandData);
+    } else {
+      _handleErrorResponse(response);
+      throw Exception('Create brand failed: ${response.statusCode}');
+    }
+  }
+
+  Future<Unit> createUnit(Map<String, dynamic> unitData) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/Units'),
+      headers: await _getHeaders(),
+      body: json.encode(unitData),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final jsonResponse = json.decode(response.body);
+      if (jsonResponse['success'] == true && jsonResponse['data'] != null) {
+        return Unit.fromJson(jsonResponse['data']);
+      }
+      return Unit.fromJson(unitData);
+    } else {
+      _handleErrorResponse(response);
+      throw Exception('Create unit failed: ${response.statusCode}');
+    }
+  }
+
+  Future<List<ProductUnit>> fetchProductUnits(int variantId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/ProductUnits/variant/$variantId'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      if (jsonResponse['success'] == true && jsonResponse['data'] != null) {
+        final List<dynamic> data = jsonResponse['data'];
+        return data.map((item) => ProductUnit.fromJson(item)).toList();
+      }
+      throw Exception(jsonResponse['message'] ?? 'Failed to load variant units');
+    } else {
+      throw Exception('Load variant units failed: ${response.statusCode}');
+    }
+  }
+
+  Future<ProductUnit> createProductUnit(Map<String, dynamic> productUnitData) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/ProductUnits'),
+      headers: await _getHeaders(),
+      body: json.encode(productUnitData),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final jsonResponse = json.decode(response.body);
+      if (jsonResponse['success'] == true && jsonResponse['data'] != null) {
+        return ProductUnit.fromJson(jsonResponse['data']);
+      }
+      throw Exception(jsonResponse['message'] ?? 'Failed to create variant unit');
+    } else {
+      _handleErrorResponse(response);
+      throw Exception('Create variant unit failed: ${response.statusCode}');
+    }
+  }
+
+  Future<void> deleteProductUnit(int productUnitId) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/ProductUnits/$productUnitId'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode != 200) {
+      _handleErrorResponse(response);
+      throw Exception('Delete variant unit failed: ${response.statusCode}');
     }
   }
 

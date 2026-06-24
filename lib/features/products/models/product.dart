@@ -49,9 +49,33 @@ class Product {
       trackingMethod: json['trackingMethod'] ?? 0,
       description: json['description'] ?? '',
       status: json['status'] ?? 1,
-      category: json['category'] != null ? Category.fromJson(json['category']) : null,
-      brand: json['brand'] != null ? Brand.fromJson(json['brand']) : null,
-      baseUnit: json['baseUnit'] != null ? Unit.fromJson(json['baseUnit']) : null,
+      category: json['category'] != null
+          ? Category.fromJson(json['category'])
+          : (json['categoryName'] != null || json['categoryID'] != null || json['categoryId'] != null)
+              ? Category(
+                  categoryId: json['categoryID'] ?? json['categoryId'] ?? 0,
+                  categoryName: json['categoryName'] ?? '',
+                  description: '',
+                )
+              : null,
+      brand: json['brand'] != null
+          ? Brand.fromJson(json['brand'])
+          : (json['brandName'] != null || json['brandID'] != null || json['brandId'] != null)
+              ? Brand(
+                  brandId: json['brandID'] ?? json['brandId'] ?? 0,
+                  brandName: json['brandName'] ?? '',
+                  country: '',
+                )
+              : null,
+      baseUnit: json['baseUnit'] != null
+          ? Unit.fromJson(json['baseUnit'])
+          : (json['baseUnitName'] != null || json['baseUnitSymbol'] != null || json['baseUnitID'] != null || json['baseUnitId'] != null)
+              ? Unit(
+                  unitId: json['baseUnitID'] ?? json['baseUnitId'] ?? 0,
+                  unitName: json['baseUnitName'] ?? '',
+                  symbol: json['baseUnitSymbol'] ?? '',
+                )
+              : null,
       productVariants: variants,
     );
   }

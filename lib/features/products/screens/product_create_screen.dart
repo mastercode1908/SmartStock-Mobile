@@ -241,24 +241,39 @@ class _ProductCreateScreenState extends State<ProductCreateScreen> {
                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black87),
                   ),
                   const SizedBox(height: 8),
-                  DropdownButtonFormField<int>(
-                    value: _selectedCategoryId,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                    hint: const Text('Chọn danh mục'),
-                    items: provider.categories.map((cat) {
-                      return DropdownMenuItem<int>(
-                        value: cat.categoryId,
-                        child: Text(cat.categoryName),
-                      );
-                    }).toList(),
-                    onChanged: (val) {
-                      setState(() {
-                        _selectedCategoryId = val;
-                      });
-                    },
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<int>(
+                          value: _selectedCategoryId,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          ),
+                          hint: const Text('Chọn danh mục'),
+                          items: provider.categories.map((cat) {
+                            return DropdownMenuItem<int>(
+                              value: cat.categoryId,
+                              child: Text(cat.categoryName),
+                            );
+                          }).toList(),
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedCategoryId = val;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: () => _showCreateCategoryDialog(context, provider),
+                        icon: const Icon(Icons.add_box_rounded),
+                        color: _primary,
+                        iconSize: 36,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
 
@@ -268,24 +283,39 @@ class _ProductCreateScreenState extends State<ProductCreateScreen> {
                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black87),
                   ),
                   const SizedBox(height: 8),
-                  DropdownButtonFormField<int>(
-                    value: _selectedBrandId,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                    hint: const Text('Chọn thương hiệu (Mặc định: Brand 1)'),
-                    items: provider.brands.map((br) {
-                      return DropdownMenuItem<int>(
-                        value: br.brandId,
-                        child: Text(br.brandName),
-                      );
-                    }).toList(),
-                    onChanged: (val) {
-                      setState(() {
-                        _selectedBrandId = val;
-                      });
-                    },
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<int>(
+                          value: _selectedBrandId,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          ),
+                          hint: const Text('Chọn thương hiệu (Mặc định: Brand 1)'),
+                          items: provider.brands.map((br) {
+                            return DropdownMenuItem<int>(
+                              value: br.brandId,
+                              child: Text(br.brandName),
+                            );
+                          }).toList(),
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedBrandId = val;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: () => _showCreateBrandDialog(context, provider),
+                        icon: const Icon(Icons.add_box_rounded),
+                        color: _primary,
+                        iconSize: 36,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
 
@@ -295,24 +325,39 @@ class _ProductCreateScreenState extends State<ProductCreateScreen> {
                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black87),
                   ),
                   const SizedBox(height: 8),
-                  DropdownButtonFormField<int>(
-                    value: _selectedBaseUnitId,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                    hint: const Text('Chọn đơn vị tính cơ bản'),
-                    items: provider.units.map((unit) {
-                      return DropdownMenuItem<int>(
-                        value: unit.unitId,
-                        child: Text('${unit.unitName} (${unit.symbol})'),
-                      );
-                    }).toList(),
-                    onChanged: (val) {
-                      setState(() {
-                        _selectedBaseUnitId = val;
-                      });
-                    },
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<int>(
+                          value: _selectedBaseUnitId,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          ),
+                          hint: const Text('Chọn đơn vị tính cơ bản'),
+                          items: provider.units.map((unit) {
+                            return DropdownMenuItem<int>(
+                              value: unit.unitId,
+                              child: Text('${unit.unitName} (${unit.symbol})'),
+                            );
+                          }).toList(),
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedBaseUnitId = val;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: () => _showCreateUnitDialog(context, provider),
+                        icon: const Icon(Icons.add_box_rounded),
+                        color: _primary,
+                        iconSize: 36,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
 
@@ -479,4 +524,212 @@ class _ProductCreateScreenState extends State<ProductCreateScreen> {
       ),
     );
   }
+
+  Future<void> _showCreateCategoryDialog(BuildContext context, ProductProvider provider) async {
+    final formKey = GlobalKey<FormState>();
+    final controller = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Thêm danh mục mới', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Form(
+          key: formKey,
+          child: TextFormField(
+            controller: controller,
+            decoration: const InputDecoration(
+              labelText: 'Tên danh mục *',
+              hintText: 'Nhập tên danh mục',
+            ),
+            validator: (val) {
+              if (val == null || val.trim().isEmpty) {
+                return 'Tên danh mục không được để trống';
+              }
+              return null;
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (!formKey.currentState!.validate()) return;
+              final name = controller.text.trim();
+              Navigator.pop(ctx);
+
+              final newCat = await provider.createCategory(categoryName: name);
+              if (newCat != null) {
+                setState(() {
+                  _selectedCategoryId = newCat.categoryId;
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Đã tạo danh mục "$name"')),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(provider.error ?? 'Lỗi tạo danh mục')),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: _primary, foregroundColor: Colors.white),
+            child: const Text('Tạo'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showCreateBrandDialog(BuildContext context, ProductProvider provider) async {
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController();
+    final countryController = TextEditingController(text: 'Việt Nam');
+
+    await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Thêm thương hiệu mới', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Tên thương hiệu *',
+                  hintText: 'Nhập tên thương hiệu',
+                ),
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Tên thương hiệu không được để trống';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: countryController,
+                decoration: const InputDecoration(
+                  labelText: 'Quốc gia',
+                  hintText: 'Nhập quốc gia xuất xứ',
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (!formKey.currentState!.validate()) return;
+              final name = nameController.text.trim();
+              final country = countryController.text.trim();
+              Navigator.pop(ctx);
+
+              final newBrand = await provider.createBrand(brandName: name, country: country);
+              if (newBrand != null) {
+                setState(() {
+                  _selectedBrandId = newBrand.brandId;
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Đã tạo thương hiệu "$name"')),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(provider.error ?? 'Lỗi tạo thương hiệu')),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: _primary, foregroundColor: Colors.white),
+            child: const Text('Tạo'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showCreateUnitDialog(BuildContext context, ProductProvider provider) async {
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController();
+    final symbolController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Thêm đơn vị tính mới', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Tên đơn vị *',
+                  hintText: 'Ví dụ: Hộp, Lon, Thùng',
+                ),
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Tên đơn vị không được để trống';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: symbolController,
+                decoration: const InputDecoration(
+                  labelText: 'Ký hiệu *',
+                  hintText: 'Ví dụ: box, can, carton',
+                ),
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Ký hiệu đơn vị không được để trống';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (!formKey.currentState!.validate()) return;
+              final name = nameController.text.trim();
+              final symbol = symbolController.text.trim();
+              Navigator.pop(ctx);
+
+              final newUnit = await provider.createUnit(unitName: name, symbol: symbol);
+              if (newUnit != null) {
+                setState(() {
+                  _selectedBaseUnitId = newUnit.unitId;
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Đã tạo đơn vị tính "$name"')),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(provider.error ?? 'Lỗi tạo đơn vị tính')),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: _primary, foregroundColor: Colors.white),
+            child: const Text('Tạo'),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
