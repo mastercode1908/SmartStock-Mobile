@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../scanner/screens/scan_screen.dart';
 import 'confirm_sync_screen.dart';
+import '../providers/inventory_provider.dart';
+import '../models/inventory_count_detail.dart';
+import '../models/product_variant.dart';
 
-class InventoryDetailScreen extends StatelessWidget {
+class InventoryDetailScreen extends StatefulWidget {
   const InventoryDetailScreen({Key? key}) : super(key: key);
 
+  @override
+  State<InventoryDetailScreen> createState() => _InventoryDetailScreenState();
+}
+
+class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
   final Color _primary = const Color(0xFFB3272E);
   final Color _surfaceContainerLowest = const Color(0xFFFFFFFF);
   final Color _onSurfaceVariant = const Color(0xFF59413F);
@@ -15,6 +24,79 @@ class InventoryDetailScreen extends StatelessWidget {
   final Color _error = const Color(0xFFBA1A1A);
   final Color _errorContainer = const Color(0xFFFFDAD6);
   final Color _surfaceContainer = const Color(0xFFE4F0F4);
+
+  // Map to hold text controllers for each variant
+  final Map<int, TextEditingController> _quantityControllers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize controllers
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<InventoryProvider>();
+      final variants = provider.selectedVariants;
+      for (var v in variants) {
+        _quantityControllers[v.variantId] = TextEditingController();
+      }
+      provider.loadSystemQuantities();
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    for (var controller in _quantityControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void _submitCounts() async {
+    final provider = context.read<InventoryProvider>();
+    final sessionId = provider.activeSessionId ?? 0;
+    
+    List<InventoryCountDetail> details = [];
+    
+    for (var variant in provider.selectedVariants) {
+      final controller = _quantityControllers[variant.variantId];
+      final countedStr = controller?.text ?? '';
+      if (countedStr.isEmpty) continue; // Skip if not counted
+      
+      final countedQty = int.tryParse(countedStr) ?? 0;
+      final systemQty = provider.systemQuantities[variant.variantId] ?? 0;
+      final diff = countedQty - systemQty;
+      
+      String status = 'MATCHED';
+      if (diff != 0) status = 'DISCREPANCY';
+
+      details.add(InventoryCountDetail(
+        countDetailId: 0,
+        sessionId: sessionId,
+        variantId: variant.variantId,
+        unitId: variant.baseUnitId,
+        systemQuantity: systemQty,
+        countedQuantity: countedQty,
+        difference: diff,
+        status: status,
+      ));
+    }
+
+    if (details.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập ít nhất 1 số lượng đếm được')),
+      );
+      return;
+    }
+
+    await provider.submitCountDetails(details);
+
+    if (mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ConfirmSyncScreen()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,25 +143,32 @@ class InventoryDetailScreen extends StatelessWidget {
   }
 
   Widget _buildInfoCard() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: _surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _surfaceContainerHigh.withOpacity(0.5)),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 4)),
-        ],
-      ),
-      child: Column(
-        children: [
-          _buildInfoRow('Mã phiếu', 'INV-2023-001', isValueBold: true, valueColor: _primary),
-          const SizedBox(height: 8),
-          _buildInfoRow('Kho', 'Kho Chính - Tầng 1'),
-          const SizedBox(height: 8),
-          _buildInfoRow('Ngày tạo', '24/10/2023'),
-        ],
-      ),
+    return Consumer<InventoryProvider>(
+      builder: (context, provider, child) {
+        final activeSession = provider.sessions.firstWhere(
+          (s) => s.id == provider.activeSessionId,
+          orElse: () => provider.sessions.isNotEmpty ? provider.sessions.first : throw Exception('No session'),
+        );
+
+        return Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: _surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: _surfaceContainerHigh.withOpacity(0.5)),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 4)),
+            ],
+          ),
+          child: Column(
+            children: [
+              _buildInfoRow('Mã phiếu', activeSession.sessionCode, isValueBold: true, valueColor: _primary),
+              const SizedBox(height: 8),
+              _buildInfoRow('Ngày tạo', activeSession.startDate.toLocal().toString().split(' ')[0]),
+            ],
+          ),
+        );
+      }
     );
   }
 
@@ -131,92 +220,52 @@ class InventoryDetailScreen extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 16),
-        Container(
-          height: 40,
-          width: 40,
-          decoration: BoxDecoration(
-            color: _surfaceContainerLowest,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: _outlineVariant),
-          ),
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            icon: Icon(Icons.tune, color: _onSurfaceVariant, size: 20),
-            onPressed: () {},
-          ),
-        ),
       ],
     );
   }
 
   Widget _buildProductList() {
-    return Column(
-      children: [
-        _buildListItem(
-          title: 'Cáp sạc USB-C',
-          sku: 'CAB-USBC-01',
-          shelf: 'Kệ A1',
-          lot: 'B-202310',
-          serial: 'N/A',
-          channel: 'Số lượng',
-          systemQty: 150,
-          actualQty: 150,
-          statusIcon: Icons.check_circle,
-          statusColor: _tertiary,
-          borderColor: _surfaceContainerHigh.withOpacity(0.5),
-        ),
-        const SizedBox(height: 8),
-        _buildListItem(
-          title: 'Tai nghe Bluetooth',
-          sku: 'AUD-BT-02',
-          shelf: 'Kệ B3',
-          lot: 'N/A',
-          serial: 'SN-29384',
-          channel: 'Serial',
-          systemQty: 45,
-          actualQty: 42,
-          statusIcon: Icons.warning,
-          statusColor: _error,
-          borderColor: _error.withOpacity(0.2),
-          actualBg: _errorContainer.withOpacity(0.2),
-          actualColor: _error,
-        ),
-        const SizedBox(height: 8),
-        Opacity(
-          opacity: 0.8,
-          child: _buildListItem(
-            title: 'Bàn phím cơ',
-            sku: 'KBD-MEC-05',
-            shelf: 'Kệ C2',
-            lot: 'N/A',
-            serial: 'KBD-0912',
-            channel: 'Serial',
-            systemQty: 12,
-            actualQty: null,
-            statusIcon: Icons.help_outline,
-            statusColor: _outlineVariant,
-            borderColor: _surfaceContainerHigh.withOpacity(0.5),
-          ),
-        ),
-      ],
+    return Consumer<InventoryProvider>(
+      builder: (context, provider, child) {
+        if (provider.selectedVariants.isEmpty) {
+          return const Center(child: Padding(padding: EdgeInsets.all(20), child: Text("Chưa có sản phẩm nào được chọn.")));
+        }
+
+        return Column(
+          children: provider.selectedVariants.map((variant) {
+            final controller = _quantityControllers[variant.variantId];
+            String trackingStr = 'NONE';
+            if (variant.trackingMethod == 1) trackingStr = 'LOT';
+            if (variant.trackingMethod == 2) trackingStr = 'SERIAL';
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: _buildListItem(
+                title: variant.variantName.isNotEmpty ? variant.variantName : variant.productName,
+                sku: variant.sku,
+                channel: trackingStr,
+                systemQty: provider.systemQuantities[variant.variantId] ?? 0,
+                controller: controller,
+                statusIcon: Icons.help_outline,
+                statusColor: _outlineVariant,
+                borderColor: _surfaceContainerHigh.withOpacity(0.5),
+              ),
+            );
+          }).toList(),
+        );
+      }
     );
   }
 
   Widget _buildListItem({
     required String title,
     required String sku,
-    required String shelf,
-    required String lot,
-    required String serial,
     required String channel,
     required int systemQty,
-    required int? actualQty,
+    TextEditingController? controller,
     required IconData statusIcon,
     required Color statusColor,
     required Color borderColor,
-    Color? actualBg,
-    Color? actualColor,
   }) {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -234,42 +283,16 @@ class InventoryDetailScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: _onSurface)),
-                  Text('SKU: $sku', style: TextStyle(fontSize: 10, color: _onSurfaceVariant)),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: _onSurface)),
+                    Text('SKU: $sku', style: TextStyle(fontSize: 10, color: _onSurfaceVariant)),
+                  ],
+                ),
               ),
               Icon(statusIcon, color: statusColor, size: 18),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Wrap(
-            spacing: 12,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.location_on, size: 12),
-                  const SizedBox(width: 4),
-                  Text(shelf, style: const TextStyle(fontSize: 10)),
-                ],
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('LÔ: ', style: TextStyle(fontSize: 10, color: _onSurfaceVariant.withOpacity(0.6))),
-                  Text(lot, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500)),
-                ],
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('SERIAL: ', style: TextStyle(fontSize: 10, color: _onSurfaceVariant.withOpacity(0.6))),
-                  Text(serial, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500)),
-                ],
-              ),
             ],
           ),
           const SizedBox(height: 8),
@@ -290,16 +313,17 @@ class InventoryDetailScreen extends StatelessWidget {
                     width: 60,
                     height: 28,
                     decoration: BoxDecoration(
-                      color: actualBg ?? _surfaceContainer,
+                      color: _surfaceContainer,
                       borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: actualColor ?? _outlineVariant),
+                      border: Border.all(color: _outlineVariant),
                     ),
                     alignment: Alignment.center,
                     child: TextField(
+                      controller: controller,
                       textAlign: TextAlign.center,
                       keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        hintText: actualQty != null ? '$actualQty' : '--',
+                      decoration: const InputDecoration(
+                        hintText: '--',
                         border: InputBorder.none,
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
@@ -307,16 +331,9 @@ class InventoryDetailScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
-                        color: actualColor ?? _onSurface,
+                        color: _onSurface,
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  IconButton(
-                    icon: Icon(Icons.rate_review, color: _primary, size: 18),
-                    onPressed: () {},
-                    constraints: const BoxConstraints(),
-                    padding: const EdgeInsets.all(4),
                   ),
                 ],
               ),
@@ -359,8 +376,8 @@ class InventoryDetailScreen extends StatelessWidget {
               Expanded(
                 flex: 1,
                 child: OutlinedButton(
-                  onPressed: () {},
-                  child: const Text('Lưu tạm', style: TextStyle(fontSize: 16)),
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Hủy', style: TextStyle(fontSize: 16)),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: _primary,
                     side: BorderSide(color: _primary),
@@ -373,12 +390,7 @@ class InventoryDetailScreen extends StatelessWidget {
               Expanded(
                 flex: 2,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const ConfirmSyncScreen()),
-                    );
-                  },
+                  onPressed: _submitCounts,
                   child: const Text('Hoàn thành', style: TextStyle(fontSize: 16)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _primary,

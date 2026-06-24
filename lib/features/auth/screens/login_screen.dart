@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../../home/screens/employee_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -10,6 +12,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _isPasswordVisible = false;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   // Colors from the HTML design
   final Color _primaryColor = const Color(0xFFB02528);
@@ -21,26 +25,57 @@ class _LoginScreenState extends State<LoginScreen> {
   final Color _outlineVariantColor = const Color(0xFFE2BEBB);
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _handleLogin() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập email và mật khẩu')),
+      );
+      return;
+    }
+
+    final authProvider = context.read<AuthProvider>();
+    final success = await authProvider.login(email, password);
+
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const EmployeeDashboardScreen()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(authProvider.error ?? 'Đăng nhập thất bại')),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _backgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: _onSurfaceColor),
-          onPressed: () => Navigator.pop(context),
-        ),
       ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Container(
             width: double.infinity,
-            constraints: const BoxConstraints(maxWidth: 450), // To mimic max-w-md
+            constraints: const BoxConstraints(maxWidth: 450),
             decoration: BoxDecoration(
               color: _surfaceColor,
-              borderRadius: BorderRadius.circular(24.0), // rounded-xl
+              borderRadius: BorderRadius.circular(24.0),
               border: Border.all(color: _outlineVariantColor),
               boxShadow: [
                 BoxShadow(
@@ -102,10 +137,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                // Form
-                // Username field
+                // Email field
                 Text(
-                  'Mã nhân viên / Email',
+                  'Email',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -114,8 +148,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
+                  controller: _emailController,
                   decoration: InputDecoration(
-                    hintText: 'Nhập mã nhân viên hoặc email',
+                    hintText: 'Nhập email',
                     prefixIcon: Icon(Icons.person_outline, color: _outlineColor),
                     filled: true,
                     fillColor: _backgroundColor,
@@ -165,6 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
+                  controller: _passwordController,
                   obscureText: !_isPasswordVisible,
                   decoration: InputDecoration(
                     hintText: 'Nhập mật khẩu',
@@ -197,83 +233,38 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 24),
 
                 // Login Button
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const EmployeeDashboardScreen()),
+                Consumer<AuthProvider>(
+                  builder: (context, auth, child) {
+                    return ElevatedButton(
+                      onPressed: auth.isLoading ? null : _handleLogin,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _primaryColor,
+                        foregroundColor: Colors.white,
+                        elevation: 1,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: auth.isLoading 
+                        ? const SizedBox(
+                            width: 24, 
+                            height: 24, 
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                          )
+                        : const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Đăng nhập',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                              ),
+                              SizedBox(width: 8),
+                              Icon(Icons.login, size: 20),
+                            ],
+                          ),
                     );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _primaryColor,
-                    foregroundColor: Colors.white,
-                    elevation: 1,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Đăng nhập',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                      ),
-                      SizedBox(width: 8),
-                      Icon(Icons.login, size: 20),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                // Divider
-                Row(
-                  children: [
-                    Expanded(child: Divider(color: _outlineVariantColor)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text(
-                        'hoặc',
-                        style: TextStyle(color: _outlineColor, fontSize: 14),
-                      ),
-                    ),
-                    Expanded(child: Divider(color: _outlineVariantColor)),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                // Google Login
-                OutlinedButton(
-                  onPressed: () {},
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: _surfaceColor,
-                    foregroundColor: _onSurfaceColor,
-                    side: BorderSide(color: _outlineVariantColor),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.network(
-                        'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
-                        width: 20,
-                        height: 20,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.g_mobiledata, size: 24),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Đăng nhập bằng Google',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                      ),
-                    ],
-                  ),
+                  }
                 ),
               ],
             ),

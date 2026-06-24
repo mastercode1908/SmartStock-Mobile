@@ -7,6 +7,8 @@ import '../../inventory/screens/incident_report_screen.dart';
 import '../../scanner/screens/scan_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 import '../../inventory/screens/create_inventory_screen.dart';
+import 'package:provider/provider.dart';
+import '../../auth/providers/auth_provider.dart';
 
 class EmployeeDashboardScreen extends StatelessWidget {
   const EmployeeDashboardScreen({Key? key}) : super(key: key);
@@ -46,7 +48,7 @@ class EmployeeDashboardScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildWelcomeSection(),
+            _buildWelcomeSection(context),
             const SizedBox(height: 24),
             _buildSummaryCards(),
             const SizedBox(height: 24),
@@ -102,7 +104,10 @@ class EmployeeDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildWelcomeSection() {
+  Widget _buildWelcomeSection(BuildContext context) {
+    final user = context.watch<AuthProvider>().currentUser;
+    final displayName = user?.fullName.isNotEmpty == true ? user!.fullName : 'Nhân viên';
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -125,7 +130,7 @@ class EmployeeDashboardScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Chào, Nguyễn Văn A',
+                  'Chào, $displayName',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
