@@ -46,7 +46,7 @@ class Product {
       baseUnitId: json['baseUnitID'] ?? json['baseUnitId'] ?? 0,
       imageUrl: json['imageUrl'] ?? '',
       productName: json['productName'] ?? '',
-      trackingMethod: json['trackingMethod'] ?? 0,
+      trackingMethod: json['trackingMethod'] ?? json['TrackingMethod'] ?? 0,
       description: json['description'] ?? '',
       status: json['status'] ?? 1,
       category: json['category'] != null

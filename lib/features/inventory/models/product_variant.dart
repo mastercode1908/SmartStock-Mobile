@@ -32,7 +32,7 @@ class ProductVariant {
       sku: json['sku'] ?? '',
       barcode: json['barcode'] ?? '',
       imageUrl: json['imageUrl'] ?? '',
-      trackingMethod: json['trackingMethod'] ?? 0,
+      trackingMethod: json['trackingMethod'] ?? json['TrackingMethod'] ?? 0,
       baseUnitId: json['baseUnitID'] ?? json['baseUnitId'] ?? 0,
       baseUnitSymbol: json['baseUnitSymbol'] ?? '',
     );

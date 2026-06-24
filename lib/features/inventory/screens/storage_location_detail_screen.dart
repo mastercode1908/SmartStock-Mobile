@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/storage_location_provider.dart';
 import 'storage_location_form_screen.dart';
+import '../models/stock_balance.dart';
 
 class StorageLocationDetailScreen extends StatefulWidget {
   final int locationId;
@@ -114,10 +115,10 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
     }).toList();
 
     // Statistics calculations
-    final totalQuantity = loc.stockBalances.fold<int>(0, (sum, item) => sum + item.quantity);
-    final lotQuantity = loc.stockBalances.where((item) => item.trackingMethod == 1).fold<int>(0, (sum, item) => sum + item.quantity);
-    final serialQuantity = loc.stockBalances.where((item) => item.trackingMethod == 2).fold<int>(0, (sum, item) => sum + item.quantity);
-    final basicQuantity = loc.stockBalances.where((item) => item.trackingMethod == 0).fold<int>(0, (sum, item) => sum + item.quantity);
+    final totalQuantity = loc.stockBalances.length;
+    final lotQuantity = loc.stockBalances.where((item) => item.trackingMethod == 1).length;
+    final serialQuantity = loc.stockBalances.where((item) => item.trackingMethod == 2).length;
+    final basicQuantity = loc.stockBalances.where((item) => item.trackingMethod == 0).length;
 
     return Scaffold(
       backgroundColor: const Color(0xfff8f9fa),
@@ -317,130 +318,16 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
               const SizedBox(height: 12),
 
               // Stored Items List
-              filteredBalances.isEmpty
-                  ? Card(
-                      color: Colors.white,
-                      elevation: 0.5,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: Colors.grey[200]!),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(32.0),
-                        child: Center(
-                          child: Column(
-                            children: [
-                              Icon(Icons.inventory_outlined, size: 48, color: Colors.grey[300]),
-                              const SizedBox(height: 12),
-                              const Text(
-                                'Không có mặt hàng nào lưu tại đây',
-                                style: TextStyle(color: Colors.black45, fontSize: 14),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: filteredBalances.length,
-                      itemBuilder: (context, index) {
-                        final item = filteredBalances[index];
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          color: Colors.white,
-                          elevation: 0.5,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(color: Colors.grey[100]!),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Title product/variant
-                                Text(
-                                  item.productName,
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                if (item.variantName.isNotEmpty && item.variantName != item.productName) ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Biến thể: ${item.variantName}',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.grey[600],
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                                const SizedBox(height: 10),
-                                
-                                // SKU / Barcode
-                                Row(
-                                  children: [
-                                    _buildLabelValueChip('SKU', item.sku),
-                                    const SizedBox(width: 8),
-                                    _buildLabelValueChip('Barcode', item.barcode),
-                                  ],
-                                ),
-                                const Divider(height: 20),
-                                
-                                // Batch / Expiration
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Lô: ${item.batchNumber ?? "N/A"}',
-                                          style: const TextStyle(fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w500),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          'Hạn dùng: ${_formatDate(item.expiryDate)}',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: _isExpired(item.expiryDate)
-                                                ? Colors.red
-                                                : Colors.black54,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    
-                                    // Quantity
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xffb3272e).withOpacity(0.08),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Text(
-                                        'SL: ${item.quantity}',
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xffb3272e),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+              ...(() {
+                final basicItems = filteredBalances.where((item) => item.trackingMethod == 0).toList();
+                final lotItems = filteredBalances.where((item) => item.trackingMethod == 1).toList();
+                final serialItems = filteredBalances.where((item) => item.trackingMethod == 2).toList();
+                return [
+                  _buildCategorySection('Hàng Thường (Basic)', basicItems, Icons.widgets_outlined, const Color(0xffe67e22)),
+                  _buildCategorySection('Hàng Theo Lô (Batch)', lotItems, Icons.receipt_long_outlined, const Color(0xff006a67)),
+                  _buildCategorySection('Hàng Theo Serial', serialItems, Icons.qr_code_outlined, const Color(0xff005faf)),
+                ];
+              })(),
             ],
           ),
         ),
@@ -544,6 +431,205 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildMethodBadge(int trackingMethod) {
+    String text = '';
+    Color bgColor = Colors.grey;
+    Color textColor = Colors.white;
+    switch (trackingMethod) {
+      case 0:
+        text = 'Hàng thường';
+        bgColor = Colors.blue.shade50;
+        textColor = Colors.blue.shade800;
+        break;
+      case 1:
+        text = 'Hàng lô';
+        bgColor = Colors.teal.shade50;
+        textColor = Colors.teal.shade800;
+        break;
+      case 2:
+        text = 'Hàng serial';
+        bgColor = Colors.purple.shade50;
+        textColor = Colors.purple.shade800;
+        break;
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(fontSize: 11, color: textColor, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildCategorySection(String title, List<StockBalance> items, IconData icon, Color headerColor) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
+          child: Row(
+            children: [
+              Icon(icon, size: 18, color: headerColor),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: headerColor,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: headerColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '${items.length}',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: headerColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (items.isEmpty)
+          Card(
+            color: Colors.white,
+            elevation: 0.5,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: Colors.grey[200]!),
+            ),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(vertical: 20.0),
+              child: Center(
+                child: Text(
+                  'Không có',
+                  style: TextStyle(color: Colors.black38, fontSize: 13, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ),
+          )
+        else
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                color: Colors.white,
+                elevation: 0.5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Colors.grey[100]!),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              item.productName,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildMethodBadge(item.trackingMethod),
+                        ],
+                      ),
+                      if (item.variantName.isNotEmpty && item.variantName != item.productName) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          'Biến thể: ${item.variantName}',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 10),
+                      
+                      Row(
+                        children: [
+                          _buildLabelValueChip('SKU', item.sku),
+                          const SizedBox(width: 8),
+                          _buildLabelValueChip('Barcode', item.barcode),
+                        ],
+                      ),
+                      const Divider(height: 20),
+                      
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Lô: ${item.batchNumber ?? "N/A"}',
+                                style: const TextStyle(fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w500),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Hạn dùng: ${_formatDate(item.expiryDate)}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: _isExpired(item.expiryDate)
+                                      ? Colors.red
+                                      : Colors.black54,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xffb3272e).withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              'SL: ${item.quantity}',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xffb3272e),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+      ],
     );
   }
 }

@@ -401,7 +401,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                 MaterialPageRoute(builder: (context) => const CreateInventoryScreen()),
               );
             }),
-            _buildQuickAccessButton(context, Icons.location_on, 'Vị trí kho', () {
+            _buildQuickAccessButton(context, Icons.location_on, 'Vị trí lưu trữ', () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const WarehouseLocationScreen()),

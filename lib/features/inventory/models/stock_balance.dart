@@ -40,7 +40,7 @@ class StockBalance {
       expiryDate: json['expiryDate'] != null ? DateTime.tryParse(json['expiryDate']) : null,
       quantity: json['quantity'] ?? 0,
       lastUpdated: json['lastUpdated'] != null ? DateTime.tryParse(json['lastUpdated']) : null,
-      trackingMethod: json['trackingMethod'] ?? 0,
+      trackingMethod: json['trackingMethod'] ?? json['TrackingMethod'] ?? 0,
     );
   }
 
