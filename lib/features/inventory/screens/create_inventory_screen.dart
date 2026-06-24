@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 import 'choose_product_screen.dart';
+import '../providers/inventory_provider.dart';
+import '../models/inventory_session.dart';
 
-class CreateInventoryScreen extends StatelessWidget {
+class CreateInventoryScreen extends StatefulWidget {
   const CreateInventoryScreen({Key? key}) : super(key: key);
 
+  @override
+  State<CreateInventoryScreen> createState() => _CreateInventoryScreenState();
+}
+
+class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
   // Define Colors from Tailwind Config
   final Color _primary = const Color(0xFFB3272E);
   final Color _surface = const Color(0xFFF1FBFF);
@@ -14,6 +23,54 @@ class CreateInventoryScreen extends StatelessWidget {
   final Color _onSurface = const Color(0xFF131D21);
   final Color _onSurfaceVariant = const Color(0xFF59413F);
   final Color _primaryContainer = const Color(0xFFFF5F5F);
+
+  int? _selectedWarehouseId;
+  int? _selectedLocationId;
+  final TextEditingController _notesController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<InventoryProvider>().loadWarehouses();
+    });
+  }
+
+  @override
+  void dispose() {
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  void _submitForm() async {
+    if (_selectedWarehouseId == null || _selectedLocationId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng chọn kho và vị trí')),
+      );
+      return;
+    }
+
+    final provider = context.read<InventoryProvider>();
+    final newSession = InventorySession(
+      id: 0, // Server will generate the ID
+      warehouseId: _selectedWarehouseId!,
+      sessionCode: 'INV-${DateTime.now().millisecondsSinceEpoch}',
+      countType: 'FULL',
+      status: 'DRAFT', // Trạng thái nháp để hỗ trợ offline sync
+      description: 'Location ID: $_selectedLocationId - ${_notesController.text}',
+      startDate: DateTime.now(),
+      createdBy: 1, // Mock user ID
+    );
+
+    await provider.addSession(newSession);
+
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const ChooseProductScreen()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,55 +150,124 @@ class CreateInventoryScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildDropdownField('TÊN KHO', Icons.warehouse, 'Chọn kho cần kiểm kê...'),
+          _buildWarehouseDropdown(),
           const SizedBox(height: 24),
-          _buildTextField('VỊ TRÍ', Icons.location_on, 'VD: Kệ A-12, Khu vực 1'),
+          _buildLocationDropdown(),
           const SizedBox(height: 24),
-          _buildTextField('NGÀY KIỂM KÊ', Icons.calendar_today, '2023-10-27'),
+          _buildReadOnlyField('NGÀY KIỂM KÊ', Icons.calendar_today, DateTime.now().toString().split(' ')[0]),
           const SizedBox(height: 24),
           _buildReadOnlyField('NGƯỜI THỰC HIỆN', Icons.person, 'Nguyễn Văn A'),
           const SizedBox(height: 24),
-          _buildTextArea('GHI CHÚ', 'Nhập ghi chú hoặc lý do kiểm kê...'),
+          _buildTextArea('GHI CHÚ', 'Nhập ghi chú hoặc lý do kiểm kê...', _notesController),
         ],
       ),
     );
   }
 
-  Widget _buildDropdownField(String label, IconData icon, String hint) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 12, color: _onSurfaceVariant, fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 4),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: _surfaceVariant),
-          ),
-          child: DropdownButtonFormField<String>(
-            decoration: InputDecoration(
-              prefixIcon: Icon(icon, color: _onSurfaceVariant.withOpacity(0.6)),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  Widget _buildWarehouseDropdown() {
+    return Consumer<InventoryProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoading && provider.warehouses.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'TÊN KHO',
+              style: TextStyle(fontSize: 12, color: _onSurfaceVariant, fontWeight: FontWeight.w500),
             ),
-            hint: Text(hint),
-            items: const [
-              DropdownMenuItem(value: 'main', child: Text('Kho Chính')),
-              DropdownMenuItem(value: 'parts_a', child: Text('Kho Linh Kiện A')),
-              DropdownMenuItem(value: 'export_b', child: Text('Kho Xuất B')),
-            ],
-            onChanged: (value) {},
-          ),
-        ),
-      ],
+            const SizedBox(height: 4),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: _surfaceVariant),
+              ),
+              child: DropdownButtonFormField<int>(
+                value: _selectedWarehouseId,
+                isExpanded: true,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.warehouse, color: _onSurfaceVariant.withOpacity(0.6)),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+                hint: const Text('Chọn kho cần kiểm kê...'),
+                items: provider.warehouses.map((w) {
+                  return DropdownMenuItem<int>(
+                    value: w.id,
+                    child: Text(w.warehouseName),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedWarehouseId = value;
+                    _selectedLocationId = null; // reset location
+                  });
+                },
+              ),
+            ),
+          ],
+        );
+      }
     );
   }
 
-  Widget _buildTextField(String label, IconData icon, String hint) {
+  Widget _buildLocationDropdown() {
+    return Consumer<InventoryProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoading && provider.locations.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final filteredLocations = provider.locations
+            .where((l) => l.warehouseId == _selectedWarehouseId)
+            .toList();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'VỊ TRÍ',
+              style: TextStyle(fontSize: 12, color: _onSurfaceVariant, fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 4),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: _surfaceVariant),
+              ),
+              child: DropdownButtonFormField<int>(
+                value: _selectedLocationId,
+                isExpanded: true,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.location_on, color: _onSurfaceVariant.withOpacity(0.6)),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+                hint: const Text('Chọn vị trí...'),
+                items: filteredLocations.map((l) {
+                  return DropdownMenuItem<int>(
+                    value: l.locationId,
+                    child: Text(l.locationCode),
+                  );
+                }).toList(),
+                onChanged: _selectedWarehouseId == null ? null : (value) {
+                  setState(() {
+                    _selectedLocationId = value;
+                  });
+                },
+              ),
+            ),
+          ],
+        );
+      }
+    );
+  }
+
+  Widget _buildTextField(String label, IconData icon, String hint, TextEditingController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -151,6 +277,7 @@ class CreateInventoryScreen extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         TextField(
+          controller: controller,
           decoration: InputDecoration(
             prefixIcon: Icon(icon, color: _onSurfaceVariant.withOpacity(0.6)),
             hintText: hint,
@@ -203,7 +330,7 @@ class CreateInventoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTextArea(String label, String hint) {
+  Widget _buildTextArea(String label, String hint, TextEditingController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -213,6 +340,7 @@ class CreateInventoryScreen extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         TextField(
+          controller: controller,
           maxLines: 3,
           decoration: InputDecoration(
             hintText: hint,
@@ -237,12 +365,7 @@ class CreateInventoryScreen extends StatelessWidget {
     return Align(
       alignment: Alignment.centerRight,
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const ChooseProductScreen()),
-          );
-        },
+        onPressed: _submitForm,
         style: ElevatedButton.styleFrom(
           backgroundColor: _primary,
           foregroundColor: Colors.white,

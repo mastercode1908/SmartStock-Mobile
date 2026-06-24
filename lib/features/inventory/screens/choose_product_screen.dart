@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'inventory_detail_screen.dart';
+import '../providers/inventory_provider.dart';
+import '../models/product_variant.dart';
 
 class ChooseProductScreen extends StatefulWidget {
   const ChooseProductScreen({Key? key}) : super(key: key);
@@ -20,6 +23,14 @@ class _ChooseProductScreenState extends State<ChooseProductScreen> {
   final Color _secondary = const Color(0xFF586062);
   final Color _secondaryContainer = const Color(0xFFDAE1E3);
   final Color _background = const Color(0xFFF1FBFF);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<InventoryProvider>().loadProductVariants();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,11 +133,9 @@ class _ChooseProductScreenState extends State<ChooseProductScreen> {
         children: [
           _buildChip('Tất cả', true),
           const SizedBox(width: 8),
-          _buildChip('Kệ A1', false),
+          _buildChip('Đang theo dõi', false),
           const SizedBox(width: 8),
-          _buildChip('Kệ B2', false),
-          const SizedBox(width: 8),
-          _buildChip('S/N Tracking', false),
+          _buildChip('Lot/Serial', false),
         ],
       ),
     );
@@ -151,157 +160,200 @@ class _ChooseProductScreenState extends State<ChooseProductScreen> {
   }
 
   Widget _buildProductList() {
-    return Column(
-      children: [
-        _buildProductCard('Laptop Dell XPS 15', 'DEL-XPS-15', 'Kệ A1', 'S/N Tracking', 1, true),
-        const SizedBox(height: 8),
-        _buildProductCard('Màn hình LG 27UL850', 'LG-27UL', 'Kệ B2', 'Lot Tracking', 1, true),
-        const SizedBox(height: 8),
-        _buildProductCard('Bàn phím cơ Keychron K2', 'KCH-K2V2', 'Kệ C3', 'No Tracking', 0, false),
-        const SizedBox(height: 8),
-        _buildProductCard('Chuột Logitech MX Master 3', 'LOG-MX3', 'Kệ A2', 'S/N Tracking', 0, false),
-      ],
+    return Consumer<InventoryProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoading && provider.productVariants.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (provider.productVariants.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(32.0),
+              child: Text('Không có sản phẩm nào.'),
+            ),
+          );
+        }
+
+        return ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: provider.productVariants.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 8),
+          itemBuilder: (context, index) {
+            final variant = provider.productVariants[index];
+            final isChecked = provider.selectedVariants.any((v) => v.variantId == variant.variantId);
+            
+            String trackingStr = 'NONE';
+            if (variant.trackingMethod == 1) trackingStr = 'LOT';
+            if (variant.trackingMethod == 2) trackingStr = 'SERIAL';
+
+            return _buildProductCard(
+              variant: variant,
+              tracking: trackingStr,
+              isChecked: isChecked,
+              onToggle: () => provider.toggleVariantSelection(variant),
+            );
+          },
+        );
+      },
     );
   }
 
-  Widget _buildProductCard(String title, String sku, String shelf, String tracking, int qty, bool isChecked) {
-    return StatefulBuilder(
-      builder: (context, setState) {
+  Widget _buildProductCard({
+    required ProductVariant variant,
+    required String tracking,
+    required bool isChecked,
+    required VoidCallback onToggle,
+  }) {
+    return InkWell(
+      onTap: onToggle,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: _surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: _surfaceContainerHighest.withOpacity(0.5)),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 2)),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: _surfaceContainerLow,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: variant.imageUrl.isNotEmpty 
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(variant.imageUrl, fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Icon(Icons.inventory_2, color: _primaryContainer),
+                    )
+                  )
+                : Icon(Icons.inventory_2, color: _primaryContainer),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    variant.variantName.isNotEmpty ? variant.variantName : variant.productName,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _onSurface),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Text('SKU: ${variant.sku}', style: TextStyle(fontSize: 11, color: _onSurfaceVariant)),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: _secondaryContainer.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(variant.baseUnitSymbol, style: TextStyle(fontSize: 11, color: _onSurfaceVariant)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(tracking.toUpperCase(), style: TextStyle(fontSize: 11, color: _secondary)),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: _surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: _outlineVariant.withOpacity(0.3)),
+                        ),
+                        child: Row(
+                          children: [
+                            Text('Barcode: ', style: TextStyle(fontSize: 11, color: _onSurfaceVariant.withOpacity(0.7))),
+                            Text(variant.barcode, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF91081A))),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Checkbox(
+              value: isChecked,
+              onChanged: (val) => onToggle(),
+              activeColor: _primaryContainer,
+              shape: const CircleBorder(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomBar() {
+    return Consumer<InventoryProvider>(
+      builder: (context, provider, child) {
         return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           decoration: BoxDecoration(
             color: _surfaceContainerLowest,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: _surfaceContainerHighest.withOpacity(0.5)),
             boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 2)),
+              BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, -4)),
             ],
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: _surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(Icons.inventory_2, color: _primaryContainer),
-              ),
-              const SizedBox(width: 12),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _onSurface),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Text('SKU: $sku', style: TextStyle(fontSize: 11, color: _onSurfaceVariant)),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: _secondaryContainer.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Text(shelf, style: TextStyle(fontSize: 11, color: _onSurfaceVariant)),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(tracking.toUpperCase(), style: TextStyle(fontSize: 11, color: _secondary)),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: _surfaceContainerLow,
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: _outlineVariant.withOpacity(0.3)),
-                          ),
-                          child: Row(
-                            children: [
-                              Text('Thực tế: ', style: TextStyle(fontSize: 11, color: _onSurfaceVariant.withOpacity(0.7))),
-                              Text('$qty', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF91081A))),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                flex: 1,
+                child: TextButton.icon(
+                  onPressed: () => Navigator.pop(context),
+                  icon: Icon(Icons.close, color: _onSurfaceVariant),
+                  label: Text('Hủy', style: TextStyle(color: _onSurfaceVariant, fontSize: 16)),
+                  style: TextButton.styleFrom(
+                    backgroundColor: _surfaceContainerLow,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
                 ),
               ),
-              Checkbox(
-                value: isChecked,
-                onChanged: (val) {
-                  setState(() {
-                    isChecked = val ?? false;
-                  });
-                },
-                activeColor: _primaryContainer,
-                shape: const CircleBorder(),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 2,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    if (provider.selectedVariants.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Vui lòng chọn ít nhất 1 sản phẩm')),
+                      );
+                      return;
+                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const InventoryDetailScreen()),
+                    );
+                  },
+                  icon: const Icon(Icons.check_circle),
+                  label: Text('Xác nhận chọn (${provider.selectedVariants.length})', style: const TextStyle(fontSize: 16)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _primaryContainer,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
               ),
             ],
           ),
         );
       }
-    );
-  }
-
-  Widget _buildBottomBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      decoration: BoxDecoration(
-        color: _surfaceContainerLowest,
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, -4)),
-        ],
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child: TextButton.icon(
-              onPressed: () => Navigator.pop(context),
-              icon: Icon(Icons.close, color: _onSurfaceVariant),
-              label: Text('Hủy', style: TextStyle(color: _onSurfaceVariant, fontSize: 16)),
-              style: TextButton.styleFrom(
-                backgroundColor: _surfaceContainerLow,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            flex: 2,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const InventoryDetailScreen()),
-                );
-              },
-              icon: const Icon(Icons.check_circle),
-              label: const Text('Xác nhận chọn (2)', style: TextStyle(fontSize: 16)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _primaryContainer,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

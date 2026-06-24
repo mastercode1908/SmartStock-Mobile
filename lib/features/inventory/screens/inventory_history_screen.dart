@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../home/screens/employee_dashboard_screen.dart';
 import 'inventory_list_screen.dart';
 import '../../scanner/screens/scan_screen.dart';
 import '../../profile/screens/profile_screen.dart';
+import '../providers/inventory_provider.dart';
+import '../models/inventory_session.dart';
 
-class InventoryHistoryScreen extends StatelessWidget {
+class InventoryHistoryScreen extends StatefulWidget {
   const InventoryHistoryScreen({Key? key}) : super(key: key);
 
+  @override
+  State<InventoryHistoryScreen> createState() => _InventoryHistoryScreenState();
+}
+
+class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
   final Color _primary = const Color(0xFFB3272E);
   final Color _surfaceContainerLowest = const Color(0xFFFFFFFF);
   final Color _onSurfaceVariant = const Color(0xFF59413F);
@@ -19,6 +28,14 @@ class InventoryHistoryScreen extends StatelessWidget {
   final Color _onSecondaryContainer = const Color(0xFF5D6466);
   final Color _surfaceContainerHigh = const Color(0xFFDFEAEF);
   final Color _background = const Color(0xFFF1FBFF);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<InventoryProvider>().loadSessions();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,82 +158,50 @@ class InventoryHistoryScreen extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              _buildChip('Tất Cả', true),
-              const SizedBox(width: 8),
-              _buildChip('Khu A (Thô)', false),
-              const SizedBox(width: 8),
-              _buildChip('Khu B (Thành Phẩm)', false),
-              const SizedBox(width: 8),
-              _buildChip('Kho Lạnh', false),
-            ],
-          ),
-        ),
       ],
-    );
-  }
-
-  Widget _buildChip(String label, bool isSelected) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      decoration: BoxDecoration(
-        color: isSelected ? _primary : _surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isSelected ? Colors.transparent : _outlineVariant,
-        ),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: isSelected ? Colors.white : _onSurfaceVariant,
-        ),
-      ),
     );
   }
 
   Widget _buildHistoryList() {
-    return Column(
-      children: [
-        _buildHistoryCard(
-          id: '#INV-2310-04',
-          name: 'Sarah Jenkins',
-          zone: 'Khu A',
-          date: '24/10/2023',
-          accuracy: '99.8%',
-          accColor: _primary,
-          diff: '1',
-          diffColor: _onSurface,
-        ),
-        const SizedBox(height: 12),
-        _buildHistoryCard(
-          id: '#INV-2310-03',
-          name: 'Marcus Reed',
-          zone: 'Kho Lạnh',
-          date: '20/10/2023',
-          accuracy: '94.2%',
-          accColor: _error,
-          diff: '12',
-          diffColor: _error,
-        ),
-        const SizedBox(height: 12),
-        _buildHistoryCard(
-          id: '#INV-2310-02',
-          name: 'Elena Lopez',
-          zone: 'Khu B',
-          date: '15/10/2023',
-          accuracy: '100%',
-          accColor: _onSurface,
-          diff: '0',
-          diffColor: _onSurface,
-        ),
-      ],
+    return Consumer<InventoryProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoading && provider.sessions.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final completedSessions = provider.sessions.where((s) => s.status == 'COMPLETED').toList();
+
+        if (completedSessions.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(32.0),
+              child: Text('Chưa có phiếu kiểm kê hoàn thành nào.'),
+            ),
+          );
+        }
+
+        return ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: completedSessions.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final session = completedSessions[index];
+            final dateStr = DateFormat('dd/MM/yyyy').format(session.startDate);
+
+            return _buildHistoryCard(
+              id: '#${session.sessionCode}',
+              name: 'NV-${session.createdBy}', // placeholder user info
+              zone: 'Kho ${session.warehouseId}',
+              date: dateStr,
+              accuracy: 'N/A',
+              accColor: _onSurface,
+              diff: 'N/A',
+              diffColor: _onSurface,
+            );
+          },
+        );
+      },
     );
   }
 

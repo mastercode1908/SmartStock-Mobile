@@ -1,8 +1,29 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'navigation_menu_screen.dart';
+import 'package:provider/provider.dart';
+import 'features/inventory/providers/inventory_provider.dart';
+import 'features/auth/providers/auth_provider.dart';
+import 'features/auth/screens/splash_screen.dart';
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+  }
+}
 
 void main() {
-  runApp(const MyApp());
+  HttpOverrides.global = MyHttpOverrides();
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => InventoryProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -17,7 +38,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFB3272E)),
         useMaterial3: true,
       ),
-      home: const NavigationMenuScreen(),
+      home: const SplashScreen(),
     );
   }
 }

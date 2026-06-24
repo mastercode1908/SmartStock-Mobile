@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../home/screens/employee_dashboard_screen.dart';
+import '../providers/inventory_provider.dart';
 
-class ConfirmSyncScreen extends StatelessWidget {
+class ConfirmSyncScreen extends StatefulWidget {
   const ConfirmSyncScreen({Key? key}) : super(key: key);
+
+  @override
+  State<ConfirmSyncScreen> createState() => _ConfirmSyncScreenState();
+}
+
+class _ConfirmSyncScreenState extends State<ConfirmSyncScreen> {
 
   final Color _primary = const Color(0xFFB3272E);
   final Color _surfaceContainerLowest = const Color(0xFFFFFFFF);
@@ -321,17 +329,46 @@ class ConfirmSyncScreen extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ElevatedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.sync),
-            label: const Text('ĐỒNG BỘ NGAY', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _primary,
-              foregroundColor: Colors.white,
-              minimumSize: const Size(double.infinity, 56),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              elevation: 4,
-            ),
+          Consumer<InventoryProvider>(
+            builder: (context, provider, child) {
+              return ElevatedButton.icon(
+                onPressed: provider.isLoading ? null : () async {
+                  final sessionId = provider.lastSubmittedSessionId;
+                  if (sessionId != null) {
+                    final success = await provider.syncSession(sessionId);
+                    if (success && mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Đồng bộ thành công!')),
+                      );
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const EmployeeDashboardScreen()),
+                        (route) => false,
+                      );
+                    } else if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Đồng bộ lỗi: ${provider.error}')),
+                      );
+                    }
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Không tìm thấy phiên kiểm kê cần đồng bộ.')),
+                    );
+                  }
+                },
+                icon: provider.isLoading 
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : const Icon(Icons.sync),
+                label: Text(provider.isLoading ? 'ĐANG ĐỒNG BỘ...' : 'ĐỒNG BỘ NGAY', style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _primary,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 56),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 4,
+                ),
+              );
+            }
           ),
           const SizedBox(height: 8),
           TextButton.icon(

@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../home/screens/employee_dashboard_screen.dart';
 import 'inventory_history_screen.dart';
 import 'create_inventory_screen.dart';
 import '../../scanner/screens/scan_screen.dart';
 import '../../profile/screens/profile_screen.dart';
+import '../providers/inventory_provider.dart';
+import '../models/inventory_session.dart';
 
-class InventoryListScreen extends StatelessWidget {
+class InventoryListScreen extends StatefulWidget {
   const InventoryListScreen({Key? key}) : super(key: key);
 
+  @override
+  State<InventoryListScreen> createState() => _InventoryListScreenState();
+}
+
+class _InventoryListScreenState extends State<InventoryListScreen> {
   // Define Colors from Tailwind Config
   final Color _primary = const Color(0xFFB02528);
   final Color _secondary = const Color(0xFF546067);
@@ -22,6 +31,16 @@ class InventoryListScreen extends StatelessWidget {
   final Color _outlineVariant = const Color(0xFFE2BEBB);
   final Color _secondaryContainer = const Color(0xFFF0F0F0);
   final Color _background = const Color(0xFFFFFFFF);
+
+  String _currentFilter = 'TẤT CẢ';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<InventoryProvider>().loadSessions();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -165,106 +184,156 @@ class InventoryListScreen extends StatelessWidget {
   }
 
   Widget _buildFilterChips() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          _buildChip('TẤT CẢ (12)', true),
-          const SizedBox(width: 8),
-          _buildChip('ĐANG THỰC HIỆN (3)', false),
-          const SizedBox(width: 8),
-          _buildChip('CHỜ XỬ LÝ (2)', false),
-          const SizedBox(width: 8),
-          _buildChip('HOÀN THÀNH (7)', false),
-        ],
-      ),
+    return Consumer<InventoryProvider>(
+      builder: (context, provider, child) {
+        final sessions = provider.sessions;
+        int allCount = sessions.length;
+        int inProgressCount = sessions.where((s) => s.status == 'IN_PROGRESS').length;
+        int draftCount = sessions.where((s) => s.status == 'DRAFT').length;
+        int completedCount = sessions.where((s) => s.status == 'COMPLETED').length;
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              _buildChip('TẤT CẢ ($allCount)', 'TẤT CẢ'),
+              const SizedBox(width: 8),
+              _buildChip('ĐANG THỰC HIỆN ($inProgressCount)', 'IN_PROGRESS'),
+              const SizedBox(width: 8),
+              _buildChip('CHỜ XỬ LÝ ($draftCount)', 'DRAFT'),
+              const SizedBox(width: 8),
+              _buildChip('HOÀN THÀNH ($completedCount)', 'COMPLETED'),
+            ],
+          ),
+        );
+      }
     );
   }
 
-  Widget _buildChip(String label, bool isSelected) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? _primary.withOpacity(0.1) : _surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: isSelected ? _primary.withOpacity(0.3) : _outlineVariant.withOpacity(0.3),
+  Widget _buildChip(String label, String filterValue) {
+    bool isSelected = _currentFilter == filterValue;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _currentFilter = filterValue;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? _primary.withOpacity(0.1) : _surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: isSelected ? _primary.withOpacity(0.3) : _outlineVariant.withOpacity(0.3),
+          ),
         ),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: isSelected ? _primary : _secondary,
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: isSelected ? _primary : _secondary,
+          ),
         ),
       ),
     );
   }
 
   Widget _buildInventoryList() {
-    return Column(
-      children: [
-        _buildInventoryCard(
-          icon: Icons.inventory,
-          iconColor: _tertiary,
-          iconBg: _tertiary.withOpacity(0.1),
-          title: 'INV-2023-001',
-          date: '24/10/2023',
-          progress: 0.65,
-          statusWidget: Row(
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: 0.65,
-                    backgroundColor: _surfaceContainerLow,
-                    valueColor: AlwaysStoppedAnimation<Color>(_tertiary),
-                    minHeight: 8,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Text('65%', style: TextStyle(fontSize: 12)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        _buildInventoryCard(
-          icon: Icons.pending_actions,
-          iconColor: _primary,
-          iconBg: _primary.withOpacity(0.1),
-          title: 'INV-2023-002',
-          date: '26/10/2023',
-          statusWidget: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Chờ xử lý', style: TextStyle(color: _primary, fontSize: 12, fontWeight: FontWeight.bold)),
-              Text('BẮT ĐẦU', style: TextStyle(color: _primary, fontSize: 12, fontWeight: FontWeight.bold)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        Opacity(
-          opacity: 0.8,
-          child: _buildInventoryCard(
-            icon: Icons.check_circle,
-            iconColor: _secondary,
-            iconBg: _secondaryContainer,
-            title: 'INV-2023-000',
-            isCompleted: true,
-            date: '15/10/2023',
-            statusWidget: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Hoàn thành', style: TextStyle(color: _secondary, fontSize: 12, fontWeight: FontWeight.w500)),
-                Text('XEM BÁO CÁO', style: TextStyle(color: _secondary, fontSize: 12, fontWeight: FontWeight.bold)),
-              ],
+    return Consumer<InventoryProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoading && provider.sessions.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        List<InventorySession> filteredSessions = provider.sessions;
+        if (_currentFilter != 'TẤT CẢ') {
+          filteredSessions = filteredSessions.where((s) => s.status == _currentFilter).toList();
+        }
+
+        if (filteredSessions.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(32.0),
+              child: Text('Chưa có phiếu kiểm kê nào.'),
             ),
-          ),
-        ),
-      ],
+          );
+        }
+
+        return ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: filteredSessions.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 16),
+          itemBuilder: (context, index) {
+            final session = filteredSessions[index];
+            final dateStr = DateFormat('dd/MM/yyyy').format(session.startDate);
+
+            Widget statusWidget;
+            IconData icon;
+            Color iconColor;
+            Color iconBg;
+            bool isCompleted = false;
+
+            if (session.status == 'COMPLETED') {
+              icon = Icons.check_circle;
+              iconColor = _secondary;
+              iconBg = _secondaryContainer;
+              isCompleted = true;
+              statusWidget = Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Hoàn thành', style: TextStyle(color: _secondary, fontSize: 12, fontWeight: FontWeight.w500)),
+                  Text('XEM BÁO CÁO', style: TextStyle(color: _secondary, fontSize: 12, fontWeight: FontWeight.bold)),
+                ],
+              );
+            } else if (session.status == 'DRAFT') {
+              icon = Icons.pending_actions;
+              iconColor = _primary;
+              iconBg = _primary.withOpacity(0.1);
+              statusWidget = Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Chờ xử lý (Nháp)', style: TextStyle(color: _primary, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('TIẾP TỤC', style: TextStyle(color: _primary, fontSize: 12, fontWeight: FontWeight.bold)),
+                ],
+              );
+            } else {
+              // IN_PROGRESS
+              icon = Icons.inventory;
+              iconColor = _tertiary;
+              iconBg = _tertiary.withOpacity(0.1);
+              statusWidget = Row(
+                children: [
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: 0.5, // Dummy progress
+                        backgroundColor: _surfaceContainerLow,
+                        valueColor: AlwaysStoppedAnimation<Color>(_tertiary),
+                        minHeight: 8,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text('Đang xử lý', style: TextStyle(fontSize: 12)),
+                ],
+              );
+            }
+
+            return _buildInventoryCard(
+              icon: icon,
+              iconColor: iconColor,
+              iconBg: iconBg,
+              title: session.sessionCode,
+              date: dateStr,
+              statusWidget: statusWidget,
+              isCompleted: isCompleted,
+            );
+          },
+        );
+      },
     );
   }
 
@@ -276,7 +345,6 @@ class InventoryListScreen extends StatelessWidget {
     required String date,
     required Widget statusWidget,
     bool isCompleted = false,
-    double? progress,
   }) {
     return Container(
       padding: const EdgeInsets.all(16),
