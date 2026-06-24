@@ -2,6 +2,8 @@ class InventoryCountDetail {
   final int countDetailId;
   final int sessionId;
   final int variantId;
+  final String? variantName;
+  final String? sku;
   final String? lotNumber;
   final String? serialNumber;
   final int unitId;
@@ -10,11 +12,14 @@ class InventoryCountDetail {
   final int difference;
   final String status; // MATCHED, DISCREPANCY, REQUIRES_RECOUNT
   final String? notes;
+  final String? locationCode;
 
   InventoryCountDetail({
     required this.countDetailId,
     required this.sessionId,
     required this.variantId,
+    this.variantName,
+    this.sku,
     this.lotNumber,
     this.serialNumber,
     required this.unitId,
@@ -23,25 +28,40 @@ class InventoryCountDetail {
     required this.difference,
     required this.status,
     this.notes,
+    this.locationCode,
   });
 
   factory InventoryCountDetail.fromJson(Map<String, dynamic> json) {
-    String statusStr = 'MATCHED';
-    if (json['status'] == 1) statusStr = 'DISCREPANCY';
-    if (json['status'] == 2) statusStr = 'REQUIRES_RECOUNT';
+    int diff = json['differenceQuantity'] ?? json['difference'] ?? 0;
+    String statusStr = diff == 0 ? 'MATCHED' : 'DISCREPANCY';
+
+    String? vName;
+    String? vSku;
+    if (json['productVariant'] != null) {
+      vName = json['productVariant']['variantName'];
+      vSku = json['productVariant']['sku'];
+    }
+
+    String? locCode;
+    if (json['storageLocation'] != null) {
+      locCode = json['storageLocation']['locationCode'];
+    }
 
     return InventoryCountDetail(
       countDetailId: json['countDetailID'] ?? json['countDetailId'] ?? 0,
       sessionId: json['sessionID'] ?? json['sessionId'] ?? 0,
       variantId: json['variantID'] ?? json['variantId'] ?? 0,
+      variantName: vName,
+      sku: vSku,
       lotNumber: json['lotNumber'],
       serialNumber: json['serialNumber'],
-      unitId: json['unitID'] ?? json['unitId'] ?? 0,
+      unitId: json['unitID'] ?? json['unitId'] ?? json['locationID'] ?? 0,
       systemQuantity: json['systemQuantity'] ?? 0,
-      countedQuantity: json['countedQuantity'] ?? 0,
-      difference: json['difference'] ?? 0,
+      countedQuantity: json['actualQuantity'] ?? json['countedQuantity'] ?? 0,
+      difference: diff,
       status: statusStr,
-      notes: json['notes'],
+      notes: json['note'] ?? json['notes'],
+      locationCode: locCode,
     );
   }
 

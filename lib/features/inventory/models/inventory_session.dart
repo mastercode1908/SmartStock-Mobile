@@ -67,7 +67,7 @@ class InventorySession {
       endDate: json['endDate'] != null ? DateTime.parse(json['endDate']) : null,
       createdBy: json['createdBy'] ?? 0,
       assignedTo: json['assignedTo'],
-      details: (json['inventoryCountDetails'] as List?)?.map((e) => InventoryCountDetail.fromJson(e as Map<String, dynamic>)).toList(),
+      details: (json['details'] as List?)?.map((e) => InventoryCountDetail.fromJson(e as Map<String, dynamic>)).toList(),
     );
   }
 

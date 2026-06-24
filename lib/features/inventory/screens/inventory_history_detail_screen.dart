@@ -128,7 +128,6 @@ class _InventoryHistoryDetailScreenState extends State<InventoryHistoryDetailScr
   Widget _buildDetailItem(dynamic detail) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: _surfaceContainerLowest,
         borderRadius: BorderRadius.circular(8),
@@ -137,26 +136,88 @@ class _InventoryHistoryDetailScreenState extends State<InventoryHistoryDetailScr
           BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2)),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Variant ID: ${detail.variantId}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: _onSurface)),
-              Text(detail.status, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: detail.status == 'MATCHED' ? Colors.green : _primary)),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      detail.variantName ?? 'Variant ID: ${detail.variantId}',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: _onSurface),
+                    ),
+                    if (detail.sku != null) ...[
+                      const SizedBox(height: 2),
+                      Text('SKU: ${detail.sku}', style: TextStyle(fontSize: 12, color: _secondary)),
+                    ],
+                    if (detail.locationCode != null) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Icon(Icons.location_on_outlined, size: 12, color: _primary),
+                          const SizedBox(width: 4),
+                          Text('Vị trí: ${detail.locationCode}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _onSurfaceVariant)),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: detail.status == 'MATCHED' ? Colors.green.withOpacity(0.1) : _primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  detail.status,
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: detail.status == 'MATCHED' ? Colors.green : _primary),
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildValueCol('Hệ thống', detail.systemQuantity.toString()),
-              _buildValueCol('Thực tế', detail.countedQuantity.toString()),
-              _buildValueCol('Chênh lệch', detail.difference.toString(), isHighlight: detail.difference != 0),
-            ],
-          )
-        ],
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildValueCol('Hệ thống', detail.systemQuantity.toString()),
+                _buildValueCol('Thực tế', detail.countedQuantity.toString()),
+                _buildValueCol('Chênh lệch', detail.difference.toString(), isHighlight: detail.difference != 0),
+              ],
+            ),
+          ),
+          children: [
+            const Divider(),
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.notes, size: 16, color: _secondary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Ghi chú', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _onSurfaceVariant)),
+                      const SizedBox(height: 4),
+                      Text(
+                        (detail.notes == null || detail.notes!.isEmpty) ? 'Không có ghi chú' : detail.notes!,
+                        style: TextStyle(fontSize: 13, color: _onSurface),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

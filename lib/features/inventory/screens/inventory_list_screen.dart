@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../home/screens/employee_dashboard_screen.dart';
 import 'inventory_history_screen.dart';
 import 'create_inventory_screen.dart';
+import 'inventory_history_detail_screen.dart';
 import '../../scanner/screens/scan_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 import '../providers/inventory_provider.dart';
@@ -322,14 +323,25 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
               );
             }
 
-            return _buildInventoryCard(
-              icon: icon,
-              iconColor: iconColor,
-              iconBg: iconBg,
-              title: session.sessionCode,
-              date: dateStr,
-              statusWidget: statusWidget,
-              isCompleted: isCompleted,
+            return InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InventoryHistoryDetailScreen(sessionId: session.id),
+                  ),
+                );
+              },
+              borderRadius: BorderRadius.circular(16),
+              child: _buildInventoryCard(
+                icon: icon,
+                iconColor: iconColor,
+                iconBg: iconBg,
+                title: session.sessionCode,
+                date: dateStr,
+                statusWidget: statusWidget,
+                isCompleted: isCompleted,
+              ),
             );
           },
         );
