@@ -67,6 +67,23 @@ class InventoryService {
     }
   }
 
+  Future<InventorySession> fetchSessionDetails(int sessionId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/inventory-counts/$sessionId'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      if (jsonResponse is Map && jsonResponse.containsKey('data')) {
+        return InventorySession.fromJson(jsonResponse['data']);
+      }
+      return InventorySession.fromJson(jsonResponse);
+    } else {
+      throw Exception('Failed to fetch session details: ${response.body}');
+    }
+  }
+
   Future<InventorySession> createInventorySession(InventorySession draft) async {
     final response = await http.post(
       Uri.parse('$baseUrl/inventory-counts'),

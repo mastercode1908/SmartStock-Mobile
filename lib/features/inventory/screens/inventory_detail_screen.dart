@@ -88,13 +88,22 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
       return;
     }
 
-    await provider.submitCountDetails(details);
+    final success = await provider.submitCountDetails(details);
 
     if (mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const ConfirmSyncScreen()),
-      );
+      if (!success && provider.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi: ${provider.error}'),
+            backgroundColor: _error,
+          ),
+        );
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ConfirmSyncScreen()),
+        );
+      }
     }
   }
 

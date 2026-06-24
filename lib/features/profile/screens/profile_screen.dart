@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../auth/screens/login_screen.dart';
 
@@ -401,6 +403,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   ) {
     final nameController = TextEditingController(text: currentName);
     final phoneController = TextEditingController(text: currentPhone);
+    File? selectedImage;
     bool isLoading = false;
 
     showDialog(
@@ -415,25 +418,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'Cập nhật thông tin',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
               ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: nameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Họ và tên',
-                      border: OutlineInputBorder(),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        final ImagePicker picker = ImagePicker();
+                        final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+                        if (image != null) {
+                          setState(() {
+                            selectedImage = File(image.path);
+                          });
+                        }
+                      },
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.grey[300]!),
+                              image: DecorationImage(
+                                image: selectedImage != null 
+                                  ? FileImage(selectedImage!) as ImageProvider
+                                  : NetworkImage(
+                                      currentAvatar.isNotEmpty
+                                          ? currentAvatar
+                                          : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+                                    ),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Color(0xffb3272e),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                color: Colors.white,
+                                size: 14,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: phoneController,
-                    decoration: const InputDecoration(
-                      labelText: 'Số điện thoại',
-                      border: OutlineInputBorder(),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Họ và tên',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: phoneController,
+                      decoration: const InputDecoration(
+                        labelText: 'Số điện thoại',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               actions: [
                 TextButton(
@@ -448,10 +503,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ? null
                       : () async {
                           setState(() => isLoading = true);
+                          
+                          String avatarToSave = currentAvatar;
+                          if (selectedImage != null) {
+                            final uploadedUrl = await provider.uploadAvatar(selectedImage!.path);
+                            if (uploadedUrl != null) {
+                              avatarToSave = uploadedUrl;
+                            } else {
+                              setState(() => isLoading = false);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Lỗi upload ảnh: ${provider.error}')),
+                                );
+                              }
+                              return;
+                            }
+                          }
+
                           final success = await provider.updateUserProfile(
                             nameController.text.trim(),
                             phoneController.text.trim(),
-                            currentAvatar,
+                            avatarToSave,
                           );
                           setState(() => isLoading = false);
 

@@ -1,3 +1,5 @@
+import 'inventory_count_detail.dart';
+
 class InventorySession {
   final int id; // Backend usually returns int ID
   final int warehouseId;
@@ -9,6 +11,7 @@ class InventorySession {
   final DateTime? endDate;
   final int createdBy;
   final int? assignedTo;
+  final List<InventoryCountDetail>? details;
 
   InventorySession({
     required this.id,
@@ -21,6 +24,7 @@ class InventorySession {
     this.endDate,
     required this.createdBy,
     this.assignedTo,
+    this.details,
   });
 
   static String _parseStatus(dynamic value) {
@@ -63,6 +67,7 @@ class InventorySession {
       endDate: json['endDate'] != null ? DateTime.parse(json['endDate']) : null,
       createdBy: json['createdBy'] ?? 0,
       assignedTo: json['assignedTo'],
+      details: (json['inventoryCountDetails'] as List?)?.map((e) => InventoryCountDetail.fromJson(e as Map<String, dynamic>)).toList(),
     );
   }
 
