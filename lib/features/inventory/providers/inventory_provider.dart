@@ -18,6 +18,7 @@ class InventoryProvider extends ChangeNotifier {
   
   int? _activeSessionId;
   int? _lastSubmittedSessionId;
+  InventorySession? _selectedSession;
 
   bool _isLoading = false;
   String? _error;
@@ -30,6 +31,7 @@ class InventoryProvider extends ChangeNotifier {
   Map<int, int> get systemQuantities => _systemQuantities;
   int? get activeSessionId => _activeSessionId;
   int? get lastSubmittedSessionId => _lastSubmittedSessionId;
+  InventorySession? get selectedSession => _selectedSession;
   
   bool get isLoading => _isLoading;
   String? get error => _error;
@@ -77,6 +79,20 @@ class InventoryProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> loadSessionDetails(int sessionId) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      _selectedSession = await _service.fetchSessionDetails(sessionId);
+    } catch (e) {
+      _error = e.toString();
+      debugPrint('Error loading session details: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> addSession(InventorySession draft) async {
     try {
       _isLoading = true;
@@ -107,9 +123,10 @@ class InventoryProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> submitCountDetails(List<InventoryCountDetail> details) async {
+  Future<bool> submitCountDetails(List<InventoryCountDetail> details) async {
     try {
       _isLoading = true;
+      _error = null;
       notifyListeners();
       for (var detail in details) {
         await _service.submitInventoryDetail(detail);
@@ -120,9 +137,11 @@ class InventoryProvider extends ChangeNotifier {
       _selectedVariants.clear();
       _systemQuantities.clear();
       _activeSessionId = null;
+      return true;
     } catch (e) {
       _error = e.toString();
       debugPrint('Error submitting details: $e');
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();

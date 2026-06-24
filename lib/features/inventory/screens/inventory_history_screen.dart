@@ -7,6 +7,7 @@ import '../../scanner/screens/scan_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 import '../providers/inventory_provider.dart';
 import '../models/inventory_session.dart';
+import 'inventory_history_detail_screen.dart';
 
 class InventoryHistoryScreen extends StatefulWidget {
   const InventoryHistoryScreen({Key? key}) : super(key: key);
@@ -189,15 +190,25 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
             final session = completedSessions[index];
             final dateStr = DateFormat('dd/MM/yyyy').format(session.startDate);
 
-            return _buildHistoryCard(
-              id: '#${session.sessionCode}',
-              name: 'NV-${session.createdBy}', // placeholder user info
-              zone: 'Kho ${session.warehouseId}',
-              date: dateStr,
-              accuracy: 'N/A',
-              accColor: _onSurface,
-              diff: 'N/A',
-              diffColor: _onSurface,
+            return InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InventoryHistoryDetailScreen(sessionId: session.id),
+                  ),
+                );
+              },
+              child: _buildHistoryCard(
+                id: '#${session.sessionCode}',
+                name: 'NV-${session.createdBy}', // placeholder user info
+                zone: 'Kho ${session.warehouseId}',
+                date: dateStr,
+                accuracy: 'N/A',
+                accColor: _onSurface,
+                diff: 'N/A',
+                diffColor: _onSurface,
+              ),
             );
           },
         );

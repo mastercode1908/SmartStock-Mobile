@@ -79,6 +79,20 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<String?> uploadAvatar(String imagePath) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      return await _authService.uploadAvatar(imagePath);
+    } catch (e) {
+      _error = e.toString().replaceAll('Exception: ', '');
+      return null;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<bool> tryAutoLogin() async {
     final prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey('user_data')) return false;

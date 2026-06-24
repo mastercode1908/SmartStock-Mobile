@@ -68,4 +68,21 @@ class AuthService {
       throw Exception('Cập nhật thất bại: ${response.statusCode}');
     }
   }
+
+  Future<String> uploadAvatar(String imagePath) async {
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse('$baseUrl/Cloudinary/upload'),
+    );
+    request.files.add(await http.MultipartFile.fromPath('file', imagePath));
+
+    final response = await request.send();
+    if (response.statusCode == 200) {
+      final responseBody = await response.stream.bytesToString();
+      final jsonResponse = json.decode(responseBody);
+      return jsonResponse['url'];
+    } else {
+      throw Exception('Upload failed: ${response.statusCode}');
+    }
+  }
 }

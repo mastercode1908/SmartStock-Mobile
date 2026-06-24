@@ -25,6 +25,26 @@ class InventoryCountDetail {
     this.notes,
   });
 
+  factory InventoryCountDetail.fromJson(Map<String, dynamic> json) {
+    String statusStr = 'MATCHED';
+    if (json['status'] == 1) statusStr = 'DISCREPANCY';
+    if (json['status'] == 2) statusStr = 'REQUIRES_RECOUNT';
+
+    return InventoryCountDetail(
+      countDetailId: json['countDetailID'] ?? json['countDetailId'] ?? 0,
+      sessionId: json['sessionID'] ?? json['sessionId'] ?? 0,
+      variantId: json['variantID'] ?? json['variantId'] ?? 0,
+      lotNumber: json['lotNumber'],
+      serialNumber: json['serialNumber'],
+      unitId: json['unitID'] ?? json['unitId'] ?? 0,
+      systemQuantity: json['systemQuantity'] ?? 0,
+      countedQuantity: json['countedQuantity'] ?? 0,
+      difference: json['difference'] ?? 0,
+      status: statusStr,
+      notes: json['notes'],
+    );
+  }
+
   Map<String, dynamic> toJson() {
     int statusInt = 0;
     if (status == 'DISCREPANCY') statusInt = 1;
