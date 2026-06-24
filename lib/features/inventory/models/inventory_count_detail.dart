@@ -13,6 +13,7 @@ class InventoryCountDetail {
   final String status; // MATCHED, DISCREPANCY, REQUIRES_RECOUNT
   final String? notes;
   final String? locationCode;
+  final String? imageUrl;
 
   InventoryCountDetail({
     required this.countDetailId,
@@ -29,6 +30,7 @@ class InventoryCountDetail {
     required this.status,
     this.notes,
     this.locationCode,
+    this.imageUrl,
   });
 
   factory InventoryCountDetail.fromJson(Map<String, dynamic> json) {
@@ -62,6 +64,7 @@ class InventoryCountDetail {
       status: statusStr,
       notes: json['note'] ?? json['notes'],
       locationCode: locCode,
+      imageUrl: json['imageUrl'],
     );
   }
 
@@ -84,7 +87,7 @@ class InventoryCountDetail {
       'varianceReason': '',
       'countedBy': 1, // Hardcoded for now
       'note': notes ?? '',
-      'imageUrl': '',
+      'imageUrl': imageUrl ?? '',
     };
   }
 }

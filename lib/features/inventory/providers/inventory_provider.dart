@@ -165,9 +165,11 @@ class InventoryProvider extends ChangeNotifier {
       _isLoading = true;
       _error = null;
       notifyListeners();
+
       for (var detail in details) {
         await _service.submitInventoryDetail(detail);
       }
+
       // Save for sync screen
       _lastSubmittedSessionId = _activeSessionId;
       // Clear selection after submit

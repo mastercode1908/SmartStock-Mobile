@@ -161,6 +161,35 @@ class InventoryService {
     }
   }
 
+  Future<String?> uploadImage(String filePath) async {
+    try {
+      final uri = Uri.parse('$baseUrl/Cloudinary/upload');
+      final request = http.MultipartRequest('POST', uri);
+      
+      final token = await AuthProvider.getToken();
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+
+      request.files.add(await http.MultipartFile.fromPath('file', filePath));
+      
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['url'] != null) {
+          return jsonResponse['url'] as String;
+        }
+        throw Exception("Không tìm thấy dữ liệu ảnh trả về");
+      }
+      
+      throw Exception(_parseError(response));
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
   Future<void> submitSession(int sessionId) async {
     final response = await http.post(
       Uri.parse('$baseUrl/inventory-counts/$sessionId/submit'),
