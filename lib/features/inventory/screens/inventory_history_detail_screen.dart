@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/inventory_provider.dart';
+import '../../scanner/screens/scan_screen.dart';
+import 'inventory_detail_screen.dart';
 
 class InventoryHistoryDetailScreen extends StatefulWidget {
   final int sessionId;
+  final bool isFromHistory;
 
-  const InventoryHistoryDetailScreen({Key? key, required this.sessionId}) : super(key: key);
+  const InventoryHistoryDetailScreen({Key? key, required this.sessionId, this.isFromHistory = false}) : super(key: key);
 
   @override
   State<InventoryHistoryDetailScreen> createState() => _InventoryHistoryDetailScreenState();
@@ -59,31 +62,77 @@ class _InventoryHistoryDetailScreenState extends State<InventoryHistoryDetailScr
           final dateStr = DateFormat('dd/MM/yyyy HH:mm').format(session.startDate.toLocal());
           final details = session.details ?? [];
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildInfoCard(session.sessionCode, dateStr, session.status, session.warehouseId.toString()),
-                const SizedBox(height: 24),
-                Text(
-                  'Danh sách sản phẩm',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: _onSurface),
-                ),
-                const SizedBox(height: 16),
-                if (details.isEmpty)
-                  const Text('Chưa có chi tiết sản phẩm nào.')
-                else
-                  ...details.map((d) => _buildDetailItem(d)).toList(),
-              ],
+          return Scaffold(
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildInfoCard(session.sessionCode, dateStr, session.status, session.warehouseId.toString()),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Danh sách sản phẩm',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: _onSurface),
+                  ),
+                  const SizedBox(height: 16),
+                  if (details.isEmpty)
+                    const Text('Chưa có chi tiết sản phẩm nào.')
+                  else
+                    ...details.map((d) => _buildDetailItem(d)).toList(),
+                ],
+              ),
             ),
+            floatingActionButton: (!widget.isFromHistory && (session.status == 'DRAFT' || session.status == 'REJECTED'))
+                ? FloatingActionButton.extended(
+                    onPressed: () async {
+                      await provider.editSession(session);
+                      if (context.mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const InventoryDetailScreen()),
+                        );
+                      }
+                    },
+                    backgroundColor: _primary,
+                    foregroundColor: Colors.white,
+                    icon: const Icon(Icons.edit),
+                    label: const Text('Tiếp tục / Chỉnh sửa'),
+                  )
+                : null,
           );
         },
       ),
     );
   }
 
+  String _getStatusText(String status) {
+    switch (status) {
+      case 'DRAFT': return 'Đang kiểm đếm (Nháp)';
+      case 'PENDING': return 'Chờ quản lý duyệt';
+      case 'APPROVED': return 'Đã duyệt';
+      case 'REJECTED': return 'Bị từ chối';
+      case 'CANCELLED': return 'Đã hủy';
+      case 'POSTED': return 'Đã đồng bộ (Hoàn thành)';
+      default: return status;
+    }
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'DRAFT': return _primary;
+      case 'PENDING': return Colors.orange;
+      case 'APPROVED': return Colors.green;
+      case 'REJECTED': return _primary;
+      case 'CANCELLED': return Colors.grey;
+      case 'POSTED': return Colors.blue;
+      default: return _secondary;
+    }
+  }
+
   Widget _buildInfoCard(String code, String date, String status, String warehouse) {
+    final statusText = _getStatusText(status);
+    final statusColor = _getStatusColor(status);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -100,7 +149,7 @@ class _InventoryHistoryDetailScreenState extends State<InventoryHistoryDetailScr
           const SizedBox(height: 8),
           _buildInfoRow('Ngày tạo', date),
           const SizedBox(height: 8),
-          _buildInfoRow('Trạng thái', status),
+          _buildInfoRow('Trạng thái', statusText, isBold: true, color: statusColor),
           const SizedBox(height: 8),
           _buildInfoRow('Kho ID', warehouse),
         ],
@@ -128,7 +177,6 @@ class _InventoryHistoryDetailScreenState extends State<InventoryHistoryDetailScr
   Widget _buildDetailItem(dynamic detail) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: _surfaceContainerLowest,
         borderRadius: BorderRadius.circular(8),
@@ -137,26 +185,88 @@ class _InventoryHistoryDetailScreenState extends State<InventoryHistoryDetailScr
           BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2)),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Variant ID: ${detail.variantId}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: _onSurface)),
-              Text(detail.status, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: detail.status == 'MATCHED' ? Colors.green : _primary)),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      detail.variantName ?? 'Variant ID: ${detail.variantId}',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: _onSurface),
+                    ),
+                    if (detail.sku != null) ...[
+                      const SizedBox(height: 2),
+                      Text('SKU: ${detail.sku}', style: TextStyle(fontSize: 12, color: _secondary)),
+                    ],
+                    if (detail.locationCode != null) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Icon(Icons.location_on_outlined, size: 12, color: _primary),
+                          const SizedBox(width: 4),
+                          Text('Vị trí: ${detail.locationCode}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _onSurfaceVariant)),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: detail.status == 'MATCHED' ? Colors.green.withOpacity(0.1) : _primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  detail.status,
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: detail.status == 'MATCHED' ? Colors.green : _primary),
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildValueCol('Hệ thống', detail.systemQuantity.toString()),
-              _buildValueCol('Thực tế', detail.countedQuantity.toString()),
-              _buildValueCol('Chênh lệch', detail.difference.toString(), isHighlight: detail.difference != 0),
-            ],
-          )
-        ],
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildValueCol('Hệ thống', detail.systemQuantity.toString()),
+                _buildValueCol('Thực tế', detail.countedQuantity.toString()),
+                _buildValueCol('Chênh lệch', detail.difference.toString(), isHighlight: detail.difference != 0),
+              ],
+            ),
+          ),
+          children: [
+            const Divider(),
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.notes, size: 16, color: _secondary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Ghi chú', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _onSurfaceVariant)),
+                      const SizedBox(height: 4),
+                      Text(
+                        (detail.notes == null || detail.notes!.isEmpty) ? 'Không có ghi chú' : detail.notes!,
+                        style: TextStyle(fontSize: 13, color: _onSurface),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -41,6 +41,50 @@ class InventoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> editSession(InventorySession session) async {
+    _activeSessionId = session.id;
+    _selectedVariants.clear();
+    _systemQuantities.clear();
+    
+    // Fetch full session details from API to ensure Details are expanded
+    try {
+      final fullSession = await _service.fetchSessionDetails(session.id);
+      session = fullSession;
+    } catch (e) {
+      debugPrint('Failed to fetch full session details: $e');
+    }
+
+    if (_productVariants.isEmpty) {
+      await loadProductVariants();
+    }
+    
+    if (session.details != null) {
+      for (var detail in session.details!) {
+        var variant = _productVariants.firstWhere(
+            (v) => v.variantId == detail.variantId,
+            orElse: () => ProductVariant(
+              variantId: detail.variantId,
+              productId: 0,
+              variantName: detail.variantName ?? 'Unknown',
+              productName: '',
+              sku: detail.sku ?? '',
+              barcode: '',
+              imageUrl: '',
+              trackingMethod: 0,
+              baseUnitId: detail.unitId,
+              baseUnitSymbol: '',
+            ),
+        );
+        // Avoid duplicate
+        if (!_selectedVariants.any((v) => v.variantId == variant.variantId)) {
+          _selectedVariants.add(variant);
+          _systemQuantities[variant.variantId] = detail.systemQuantity;
+        }
+      }
+    }
+    notifyListeners();
+  }
+
   void toggleVariantSelection(ProductVariant variant) {
     if (_selectedVariants.any((v) => v.variantId == variant.variantId)) {
       _selectedVariants.removeWhere((v) => v.variantId == variant.variantId);
@@ -103,6 +147,7 @@ class InventoryProvider extends ChangeNotifier {
     } catch (e) {
       _error = e.toString();
       debugPrint('Error adding session: $e');
+      rethrow; // Throw error to prevent navigation
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -128,9 +173,11 @@ class InventoryProvider extends ChangeNotifier {
       _isLoading = true;
       _error = null;
       notifyListeners();
+
       for (var detail in details) {
         await _service.submitInventoryDetail(detail);
       }
+
       // Save for sync screen
       _lastSubmittedSessionId = _activeSessionId;
       // Clear selection after submit

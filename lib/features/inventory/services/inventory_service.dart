@@ -61,24 +61,34 @@ class InventoryService {
       } else if (jsonResponse is List) {
         dataList = jsonResponse;
       }
-      return dataList.map((data) => InventorySession.fromJson(data)).toList();
+      return List<InventorySession>.from(dataList.map((data) => InventorySession.fromJson(data)));
     } else {
       throw Exception('Failed to load inventory sessions: ${response.statusCode}');
     }
   }
 
   Future<InventorySession> fetchSessionDetails(int sessionId) async {
+    final queryStr = '\$filter=SessionID eq $sessionId&\$expand=Details(\$expand=ProductVariant)';
+    final uri = Uri.parse('$baseUrl/inventory-counts').replace(query: queryStr);
+    
     final response = await http.get(
-      Uri.parse('$baseUrl/inventory-counts/$sessionId'),
+      uri,
       headers: await _getHeaders(),
     );
 
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
-      if (jsonResponse is Map && jsonResponse.containsKey('data')) {
-        return InventorySession.fromJson(jsonResponse['data']);
+      List<dynamic> dataList = [];
+      if (jsonResponse is Map && jsonResponse.containsKey('value')) {
+        dataList = jsonResponse['value'];
+      } else if (jsonResponse is List) {
+        dataList = jsonResponse;
       }
-      return InventorySession.fromJson(jsonResponse);
+      
+      if (dataList.isNotEmpty) {
+        return InventorySession.fromJson(dataList.first);
+      }
+      throw Exception('Session not found in OData response.');
     } else {
       throw Exception('Failed to fetch session details: ${response.body}');
     }
@@ -124,15 +134,69 @@ class InventoryService {
     }
   }
 
-  Future<void> submitInventoryDetail(InventoryCountDetail detail) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/InventoryCountDetails'),
+  String _parseError(http.Response response) {
+    try {
+      final jsonResponse = json.decode(response.body);
+      String errorMsg = jsonResponse['message'] ?? 'Đã xảy ra lỗi (${response.statusCode})';
+      
+      if (jsonResponse['errors'] != null) {
+        final errors = jsonResponse['errors'];
+        if (errors is String) {
+          errorMsg = errors;
+        } else if (errors is Map) {
+          errorMsg = errors.values.map((e) => e is List ? e.join(', ') : e.toString()).join('\n');
+        } else if (errors is List) {
+          errorMsg = errors.join('\n');
+        }
+      }
+      return errorMsg;
+    } catch (e) {
+      return 'Lỗi máy chủ (${response.statusCode})';
+    }
+  }
+
+  Future<void> submitInventoryDetail(InventoryCountDetail detail, {bool isUpdate = false}) async {
+    final uri = isUpdate 
+        ? Uri.parse('$baseUrl/InventoryCountDetails/${detail.countDetailId}')
+        : Uri.parse('$baseUrl/InventoryCountDetails');
+        
+    final response = await (isUpdate ? http.put : http.post)(
+      uri,
       headers: await _getHeaders(),
       body: json.encode(detail.toJson()),
     );
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception('Failed to submit detail: ${response.body}');
+      throw Exception(_parseError(response));
+    }
+  }
+
+  Future<String?> uploadImage(String filePath) async {
+    try {
+      final uri = Uri.parse('$baseUrl/Cloudinary/upload');
+      final request = http.MultipartRequest('POST', uri);
+      
+      final token = await AuthProvider.getToken();
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+
+      request.files.add(await http.MultipartFile.fromPath('file', filePath));
+      
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['url'] != null) {
+          return jsonResponse['url'] as String;
+        }
+        throw Exception("Không tìm thấy dữ liệu ảnh trả về");
+      }
+      
+      throw Exception(_parseError(response));
+    } catch (e) {
+      throw Exception(e.toString());
     }
   }
 
@@ -143,7 +207,7 @@ class InventoryService {
     );
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception('Failed to sync session: ${response.body}');
+      throw Exception(_parseError(response));
     }
   }
 

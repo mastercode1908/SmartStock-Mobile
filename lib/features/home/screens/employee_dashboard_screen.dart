@@ -10,12 +10,14 @@ import '../../inventory/screens/create_inventory_screen.dart';
 import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../products/screens/product_list_screen.dart';
+import '../../inventory/providers/inventory_provider.dart';
 
 class EmployeeDashboardScreen extends StatefulWidget {
   const EmployeeDashboardScreen({Key? key}) : super(key: key);
 
   @override
-  State<EmployeeDashboardScreen> createState() => _EmployeeDashboardScreenState();
+  State<EmployeeDashboardScreen> createState() =>
+      _EmployeeDashboardScreenState();
 }
 
 class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
@@ -26,18 +28,18 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
   final Color _primaryFixedDim = const Color(0xFFFFB3AE);
   final Color _primaryContainer = const Color(0xFFD23E3E);
   final Color _onPrimaryContainer = const Color(0xFFFFFbFF);
-  
+
   final Color _surface = const Color(0xFFF9F9F9);
   final Color _surfaceContainerLowest = const Color(0xFFFFFFFF);
   final Color _surfaceVariant = const Color(0xFFE2E2E2);
   final Color _onSurfaceVariant = const Color(0xFF5A413F);
   final Color _onSurface = const Color(0xFF1A1C1C);
-  
+
   final Color _outlineVariant = const Color(0xFFE2BEBB);
   final Color _tertiary = const Color(0xFF93405F);
   final Color _tertiaryContainer = const Color(0xFFB15878);
   final Color _onTertiaryContainer = const Color(0xFFFFFbFF);
-  
+
   final Color _error = const Color(0xFFBA1A1A);
   final Color _errorContainer = const Color(0xFFFFDAD6);
   final Color _onErrorContainer = const Color(0xFF93000A);
@@ -45,6 +47,24 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
   final Color _secondary = const Color(0xFF546067);
   final Color _secondaryContainer = const Color(0xFFD7E4EC);
   final Color _onSecondaryContainer = const Color(0xFF5A666D);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<InventoryProvider>().loadSessions();
+    });
+  }
+
+  String _getCurrentShift() {
+    final hour = DateTime.now().hour;
+    if (hour >= 6 && hour < 14)
+      return 'Sáng';
+    else if (hour >= 14 && hour < 22)
+      return 'Chiều';
+    else
+      return 'Đêm';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +78,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
           children: [
             _buildWelcomeSection(context),
             const SizedBox(height: 24),
-            _buildSummaryCards(),
+            _buildSummaryCards(context),
             const SizedBox(height: 24),
             _buildQuickAccess(context),
             const SizedBox(height: 24),
@@ -104,7 +124,9 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const NotificationScreen()),
+              MaterialPageRoute(
+                builder: (context) => const NotificationScreen(),
+              ),
             );
           },
         ),
@@ -114,7 +136,9 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
 
   Widget _buildWelcomeSection(BuildContext context) {
     final user = context.watch<AuthProvider>().currentUser;
-    final displayName = user?.fullName.isNotEmpty == true ? user!.fullName : 'Nhân viên';
+    final displayName = user?.fullName.isNotEmpty == true
+        ? user!.fullName
+        : 'Nhân viên';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -147,11 +171,8 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Ca làm việc: Sáng - Kho A1',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: _onSurfaceVariant,
-                  ),
+                  'Ca làm việc: ${_getCurrentShift()}',
+                  style: TextStyle(fontSize: 12, color: _onSurfaceVariant),
                 ),
               ],
             ),
@@ -164,7 +185,8 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
               border: Border.all(color: _outlineVariant),
               image: const DecorationImage(
                 image: NetworkImage(
-                    'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
+                  'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+                ),
                 fit: BoxFit.cover,
               ),
             ),
@@ -174,7 +196,34 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
     );
   }
 
-  Widget _buildSummaryCards() {
+  Widget _buildSummaryCards(BuildContext context) {
+    final provider = context.watch<InventoryProvider>();
+    final user = context.watch<AuthProvider>().currentUser;
+    var sessions = provider.sessions;
+
+    if (user?.roleName == 'Staff') {
+      sessions = sessions
+          .where(
+            (s) =>
+                s.startDate.year == DateTime.now().year &&
+                s.startDate.month == DateTime.now().month &&
+                s.startDate.day == DateTime.now().day,
+          )
+          .toList();
+    }
+
+    final todaySessions = sessions
+        .where(
+          (s) =>
+              s.startDate.year == DateTime.now().year &&
+              s.startDate.month == DateTime.now().month &&
+              s.startDate.day == DateTime.now().day,
+        )
+        .length;
+
+    final draftSessions = sessions.where((s) => s.status == 'DRAFT').length;
+    final pendingSessions = sessions.where((s) => s.status == 'PENDING').length;
+
     return Row(
       children: [
         // Left Card (Primary)
@@ -217,7 +266,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                       ),
                     ),
                     Text(
-                      '24,560',
+                      '$todaySessions',
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -225,11 +274,8 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                       ),
                     ),
                     Text(
-                      '+120 hôm nay',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: _primaryFixedDim,
-                      ),
+                      'Theo thời gian thực',
+                      style: TextStyle(fontSize: 12, color: _primaryFixedDim),
                     ),
                   ],
                 ),
@@ -261,7 +307,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'ĐÃ QUÉT',
+                              'ĐANG KIỂM',
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
@@ -271,7 +317,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '1,240 mục',
+                              '$draftSessions đơn',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -280,7 +326,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                             ),
                           ],
                         ),
-                        Icon(Icons.trending_up, color: _tertiary),
+                        Icon(Icons.inventory, color: _tertiary),
                       ],
                     ),
                   ),
@@ -291,7 +337,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: _errorContainer,
+                      color: _secondaryContainer,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: _error.withOpacity(0.2)),
                     ),
@@ -303,21 +349,21 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'LỆCH TỒN',
+                              'CHỜ DUYỆT',
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1,
-                                color: _onErrorContainer,
+                                color: _error,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '18',
+                              '$pendingSessions đơn',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: _onErrorContainer,
+                                color: _error,
                               ),
                             ),
                           ],
@@ -335,7 +381,12 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
     );
   }
 
-  Widget _buildQuickAccessButton(BuildContext context, IconData icon, String label, VoidCallback onTap) {
+  Widget _buildQuickAccessButton(
+    BuildContext context,
+    IconData icon,
+    String label,
+    VoidCallback onTap,
+  ) {
     final isPressed = _pressedQuickAccessLabel == label;
     return GestureDetector(
       onTapDown: (_) {
@@ -386,31 +437,46 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
             _buildQuickAccessButton(context, Icons.analytics, 'Báo cáo', () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const IncidentReportScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const IncidentReportScreen(),
+                ),
               );
             }),
             _buildQuickAccessButton(context, Icons.assignment, 'Nhiệm vụ', () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const InventoryListScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const InventoryListScreen(),
+                ),
               );
             }),
             _buildQuickAccessButton(context, Icons.inventory_2, 'Kiểm kê', () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const CreateInventoryScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const CreateInventoryScreen(),
+                ),
               );
             }),
-            _buildQuickAccessButton(context, Icons.location_on, 'Vị trí lưu trữ', () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const WarehouseLocationScreen()),
-              );
-            }),
+            _buildQuickAccessButton(
+              context,
+              Icons.location_on,
+              'Vị trí lưu trữ',
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const WarehouseLocationScreen(),
+                  ),
+                );
+              },
+            ),
             _buildQuickAccessButton(context, Icons.widgets, 'Sản phẩm', () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ProductListScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const ProductListScreen(),
+                ),
               );
             }),
           ],
@@ -419,7 +485,14 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
     );
   }
 
-  Widget _buildQuickAccessItem(IconData icon, String label, Color bgColor, Color iconColor, [bool hasBorder = false, VoidCallback? onTap]) {
+  Widget _buildQuickAccessItem(
+    IconData icon,
+    String label,
+    Color bgColor,
+    Color iconColor, [
+    bool hasBorder = false,
+    VoidCallback? onTap,
+  ]) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -590,7 +663,10 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: badgeBg,
                         borderRadius: BorderRadius.circular(4),
@@ -621,7 +697,10 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
       selectedItemColor: const Color(0xFFB02528),
       unselectedItemColor: const Color(0xFF546067),
       showUnselectedLabels: true,
-      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+      selectedLabelStyle: const TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 12,
+      ),
       unselectedLabelStyle: const TextStyle(fontSize: 12),
       onTap: (index) {
         if (index == 1) {
@@ -629,7 +708,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
             context,
             PageRouteBuilder(
               opaque: false,
-              pageBuilder: (context, a1, a2) => const InventoryListScreen(), 
+              pageBuilder: (context, a1, a2) => const InventoryListScreen(),
               transitionDuration: Duration.zero,
               reverseTransitionDuration: Duration.zero,
             ),
@@ -639,7 +718,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
             context,
             PageRouteBuilder(
               opaque: false,
-              pageBuilder: (context, a1, a2) => const ScanScreen(), 
+              pageBuilder: (context, a1, a2) => const ScanScreen(),
               transitionDuration: Duration.zero,
               reverseTransitionDuration: Duration.zero,
             ),
@@ -649,7 +728,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
             context,
             PageRouteBuilder(
               opaque: false,
-              pageBuilder: (context, a1, a2) => const InventoryHistoryScreen(), 
+              pageBuilder: (context, a1, a2) => const InventoryHistoryScreen(),
               transitionDuration: Duration.zero,
               reverseTransitionDuration: Duration.zero,
             ),
@@ -659,7 +738,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
             context,
             PageRouteBuilder(
               opaque: false,
-              pageBuilder: (context, a1, a2) => const ProfileScreen(), 
+              pageBuilder: (context, a1, a2) => const ProfileScreen(),
               transitionDuration: Duration.zero,
               reverseTransitionDuration: Duration.zero,
             ),
@@ -668,10 +747,19 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
       },
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
-        BottomNavigationBarItem(icon: Icon(Icons.inventory_2_outlined), label: 'Kiểm kê'),
-        BottomNavigationBarItem(icon: Icon(Icons.qr_code_scanner), label: 'Scan'),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.inventory_2_outlined),
+          label: 'Kiểm kê',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.qr_code_scanner),
+          label: 'Scan',
+        ),
         BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Lịch sử'),
-        BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Cá nhân'),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person_outline),
+          label: 'Cá nhân',
+        ),
       ],
     );
   }

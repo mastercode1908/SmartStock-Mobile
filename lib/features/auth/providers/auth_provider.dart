@@ -93,6 +93,25 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> changePassword(String oldPassword, String newPassword) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+      
+      if (_currentUser == null) throw Exception('Not logged in');
+      
+      await _authService.changePassword(_currentUser!.token, oldPassword, newPassword);
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceAll('Exception: ', '');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<bool> tryAutoLogin() async {
     final prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey('user_data')) return false;

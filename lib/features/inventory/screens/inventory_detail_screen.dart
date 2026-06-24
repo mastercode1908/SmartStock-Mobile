@@ -5,6 +5,8 @@ import 'confirm_sync_screen.dart';
 import '../providers/inventory_provider.dart';
 import '../models/inventory_count_detail.dart';
 import '../models/product_variant.dart';
+import '../services/inventory_service.dart';
+import 'package:image_picker/image_picker.dart';
 
 class InventoryDetailScreen extends StatefulWidget {
   const InventoryDetailScreen({Key? key}) : super(key: key);
@@ -27,16 +29,27 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
 
   // Map to hold text controllers for each variant
   final Map<int, TextEditingController> _quantityControllers = {};
+  final Map<int, String?> _imageUrl = {};
+  final Map<int, bool> _isUploading = {};
 
   @override
   void initState() {
     super.initState();
-    // Initialize controllers
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<InventoryProvider>();
+      final session = provider.selectedSession;
       final variants = provider.selectedVariants;
       for (var v in variants) {
-        _quantityControllers[v.variantId] = TextEditingController();
+        InventoryCountDetail? detail;
+        try {
+          detail = session?.details?.firstWhere((d) => d.variantId == v.variantId);
+        } catch (_) {}
+        
+        _quantityControllers[v.variantId] = TextEditingController(
+          text: (detail != null && detail.countedQuantity > 0) ? detail.countedQuantity.toString() : ''
+        );
+        _imageUrl[v.variantId] = detail?.imageUrl;
+        _isUploading[v.variantId] = false;
       }
       provider.loadSystemQuantities();
       setState(() {});
@@ -49,6 +62,38 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
       controller.dispose();
     }
     super.dispose();
+  }
+
+  Future<void> _pickAndUploadImage(int variantId) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return;
+
+    setState(() {
+      _isUploading[variantId] = true;
+    });
+
+    try {
+      final service = InventoryService();
+      final url = await service.uploadImage(pickedFile.path);
+      if (url != null) {
+        setState(() {
+          _imageUrl[variantId] = url;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Lỗi: Server không trả về URL ảnh')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi: ${e.toString().replaceAll("Exception:", "").trim()}')),
+      );
+    } finally {
+      setState(() {
+        _isUploading[variantId] = false;
+      });
+    }
   }
 
   void _submitCounts() async {
@@ -78,6 +123,7 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
         countedQuantity: countedQty,
         difference: diff,
         status: status,
+        imageUrl: _imageUrl[variant.variantId],
       ));
     }
 
@@ -250,6 +296,7 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
             return Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
               child: _buildListItem(
+                variantId: variant.variantId,
                 title: variant.variantName.isNotEmpty ? variant.variantName : variant.productName,
                 sku: variant.sku,
                 channel: trackingStr,
@@ -267,6 +314,7 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
   }
 
   Widget _buildListItem({
+    required int variantId,
     required String title,
     required String sku,
     required String channel,
@@ -276,6 +324,9 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
     required Color statusColor,
     required Color borderColor,
   }) {
+    final url = _imageUrl[variantId];
+    final isUploading = _isUploading[variantId] ?? false;
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -346,6 +397,47 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
                   ),
                 ],
               ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Image and Upload Button
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Upload Button
+              InkWell(
+                onTap: isUploading ? null : () => _pickAndUploadImage(variantId),
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: _surfaceContainerHigh,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: _outlineVariant),
+                  ),
+                  child: isUploading 
+                      ? const Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator(strokeWidth: 2))
+                      : Icon(Icons.add_a_photo, color: _primary, size: 20),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Single Image
+              if (url != null)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    url,
+                    width: 48,
+                    height: 48,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      width: 48,
+                      height: 48,
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.broken_image, size: 20),
+                    ),
+                  ),
+                ),
             ],
           ),
         ],

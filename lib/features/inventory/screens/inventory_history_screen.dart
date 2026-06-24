@@ -6,6 +6,7 @@ import 'inventory_list_screen.dart';
 import '../../scanner/screens/scan_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 import '../providers/inventory_provider.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../models/inventory_session.dart';
 import 'inventory_history_detail_screen.dart';
 
@@ -164,13 +165,20 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
   }
 
   Widget _buildHistoryList() {
-    return Consumer<InventoryProvider>(
-      builder: (context, provider, child) {
+    return Consumer2<InventoryProvider, AuthProvider>(
+      builder: (context, provider, auth, child) {
         if (provider.isLoading && provider.sessions.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final completedSessions = provider.sessions.where((s) => s.status == 'COMPLETED').toList();
+        var completedSessions = provider.sessions.where((s) => s.status == 'POSTED').toList();
+        if (auth.currentUser?.roleName == 'Staff') {
+          completedSessions = completedSessions.where((s) => 
+            s.startDate.year == DateTime.now().year && 
+            s.startDate.month == DateTime.now().month && 
+            s.startDate.day == DateTime.now().day
+          ).toList();
+        }
 
         if (completedSessions.isEmpty) {
           return const Center(
@@ -189,25 +197,22 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
           itemBuilder: (context, index) {
             final session = completedSessions[index];
             final dateStr = DateFormat('dd/MM/yyyy').format(session.startDate);
+            final userName = auth.currentUser?.fullName ?? 'Nhân viên';
 
             return InkWell(
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => InventoryHistoryDetailScreen(sessionId: session.id),
+                    builder: (context) => InventoryHistoryDetailScreen(sessionId: session.id, isFromHistory: true),
                   ),
                 );
               },
               child: _buildHistoryCard(
                 id: '#${session.sessionCode}',
-                name: 'NV-${session.createdBy}', // placeholder user info
+                name: userName, 
                 zone: 'Kho ${session.warehouseId}',
                 date: dateStr,
-                accuracy: 'N/A',
-                accColor: _onSurface,
-                diff: 'N/A',
-                diffColor: _onSurface,
               ),
             );
           },
@@ -221,10 +226,6 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
     required String name,
     required String zone,
     required String date,
-    required String accuracy,
-    required Color accColor,
-    required String diff,
-    required Color diffColor,
   }) {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -270,34 +271,6 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                   Text(date, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: _secondary)),
                 ],
               ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          const Divider(height: 1),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(accuracy, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: accColor)),
-                      Text('ĐỘ CHÍNH XÁC', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: _secondary)),
-                    ],
-                  ),
-                  const SizedBox(width: 24),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(diff, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: diffColor)),
-                      Text('CHÊNH LỆCH', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: _secondary)),
-                    ],
-                  ),
-                ],
-              ),
-              Icon(Icons.chevron_right, color: _secondary.withOpacity(0.6)),
             ],
           ),
         ],

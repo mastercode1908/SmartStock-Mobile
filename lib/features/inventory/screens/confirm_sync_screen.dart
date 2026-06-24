@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../home/screens/employee_dashboard_screen.dart';
+import '../../dashboard/screens/dashboard_screen.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../providers/inventory_provider.dart';
 
 class ConfirmSyncScreen extends StatefulWidget {
@@ -340,11 +342,21 @@ class _ConfirmSyncScreenState extends State<ConfirmSyncScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Đồng bộ thành công!')),
                       );
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => const EmployeeDashboardScreen()),
-                        (route) => false,
-                      );
+                      final user = context.read<AuthProvider>().currentUser;
+                      provider.loadSessions();
+                      if (user?.roleName == 'Staff') {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => const EmployeeDashboardScreen()),
+                          (route) => false,
+                        );
+                      } else {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => const DashboardScreen()), // Admin dashboard
+                          (route) => false,
+                        );
+                      }
                     } else if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Đồng bộ lỗi: ${provider.error}')),
@@ -371,20 +383,29 @@ class _ConfirmSyncScreenState extends State<ConfirmSyncScreen> {
             }
           ),
           const SizedBox(height: 8),
-          TextButton.icon(
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const EmployeeDashboardScreen()),
-                (route) => false,
-              );
-            },
-            icon: Icon(Icons.home, color: _primary),
-            label: Text('Về trang chủ', style: TextStyle(fontWeight: FontWeight.bold, color: _primary)),
-            style: TextButton.styleFrom(
-              minimumSize: const Size(double.infinity, 48),
+            TextButton.icon(
+              onPressed: () {
+                final user = context.read<AuthProvider>().currentUser;
+                if (user?.roleName == 'Staff') {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const EmployeeDashboardScreen()),
+                    (route) => false,
+                  );
+                } else {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const DashboardScreen()),
+                    (route) => false,
+                  );
+                }
+              },
+              icon: Icon(Icons.home, color: _primary),
+              label: Text('Về trang chủ', style: TextStyle(fontWeight: FontWeight.bold, color: _primary)),
+              style: TextButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+              ),
             ),
-          ),
         ],
       ),
     );

@@ -1,7 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../inventory/providers/inventory_provider.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<InventoryProvider>().loadSessions();
+    });
+  }
+
+  String _getCurrentShift() {
+    final hour = DateTime.now().hour;
+    if (hour >= 6 && hour < 14) {
+      return 'Sáng';
+    } else if (hour >= 14 && hour < 22) {
+      return 'Chiều';
+    } else {
+      return 'Đêm';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,161 +67,172 @@ class DashboardScreen extends StatelessWidget {
           child: Container(color: Colors.grey[300], height: 1.0),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Welcome Section
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xffe2bebb)),
-                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text('Chào, Nguyễn Văn A', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87)),
-                      SizedBox(height: 4),
-                      Text('Ca làm việc: Sáng - Kho A1', style: TextStyle(fontSize: 12, color: Colors.black54)),
+      body: Consumer<InventoryProvider>(
+        builder: (context, provider, child) {
+          final sessions = provider.sessions;
+          final todaySessions = sessions.where((s) => 
+            s.startDate.year == DateTime.now().year && 
+            s.startDate.month == DateTime.now().month && 
+            s.startDate.day == DateTime.now().day).length;
+          
+          final draftSessions = sessions.where((s) => s.status == 'DRAFT').length;
+          final pendingSessions = sessions.where((s) => s.status == 'PENDING').length;
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Welcome Section
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xffe2bebb)),
+                    boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Chào, Nguyễn Văn A', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87)),
+                          const SizedBox(height: 4),
+                          Text('Ca làm việc: ${_getCurrentShift()}', style: TextStyle(fontSize: 12, color: Colors.black54)),
+                        ],
+                      ),
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: const Color(0xffe2bebb)),
+                          image: const DecorationImage(
+                            image: NetworkImage(
+                              'https://lh3.googleusercontent.com/aida-public/AB6AXuA2ZMo_FiXgpE1zMS7rFGZ9UQrD2_fWQ79mw0_DhVVwNxwYfc7IVZbvAQ9YNz8hdmPfY7a3mKbF6w30d0xSqA0-9R6sgXNclIu341RyY51-xKyHeikASs07E8VKcKZWd_8KXNK_PZg_uPRqBSci-ZuDzXgnL1qNgh4n80pUSLA3NjgGaceyEH4SuGV1CAfQzXXUKwq4tuJgRkgVE2W2kl2ZVdhFpt3jIaCxGque3m-P-hYMqoILs438_ZbDGn_uZXlFF9BUBnX5f8Bm',
+                            ),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: const Color(0xffe2bebb)),
-                      image: const DecorationImage(
-                        image: NetworkImage(
-                          'https://lh3.googleusercontent.com/aida-public/AB6AXuA2ZMo_FiXgpE1zMS7rFGZ9UQrD2_fWQ79mw0_DhVVwNxwYfc7IVZbvAQ9YNz8hdmPfY7a3mKbF6w30d0xSqA0-9R6sgXNclIu341RyY51-xKyHeikASs07E8VKcKZWd_8KXNK_PZg_uPRqBSci-ZuDzXgnL1qNgh4n80pUSLA3NjgGaceyEH4SuGV1CAfQzXXUKwq4tuJgRkgVE2W2kl2ZVdhFpt3jIaCxGque3m-P-hYMqoILs438_ZbDGn_uZXlFF9BUBnX5f8Bm',
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
+                ),
+                const SizedBox(height: 16),
 
-            // Summary Cards (Bento Grid)
-            Row(
-              children: [
-                // Large Primary Card
-                Expanded(
-                  child: Container(
-                    height: 160,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xffb02528),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
-                    ),
-                    child: Stack(
-                      children: [
-                        const Positioned(
-                          right: -16,
-                          top: -16,
-                          child: Opacity(
-                            opacity: 0.1,
-                            child: Icon(Icons.category, size: 80, color: Colors.white),
-                          ),
+                // Summary Cards (Bento Grid)
+                Row(
+                  children: [
+                    // Large Primary Card
+                    Expanded(
+                      child: Container(
+                        height: 160,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xffb02528),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text('Đơn kiểm kê hôm nay', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xffffb3ae))),
-                            SizedBox(height: 8),
-                            Text('24,560', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
-                            Spacer(),
-                            Text('+120 hôm nay', style: TextStyle(fontSize: 12, color: Color(0xffffb3ae))),
+                        child: Stack(
+                          children: [
+                            const Positioned(
+                              right: -16,
+                              top: -16,
+                              child: Opacity(
+                                opacity: 0.1,
+                                child: Icon(Icons.category, size: 80, color: Colors.white),
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Đơn kiểm kê hôm nay', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xffffb3ae))),
+                                const SizedBox(height: 8),
+                                Text('$todaySessions', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
+                                const Spacer(),
+                                const Text('Theo thời gian thực', style: TextStyle(fontSize: 12, color: Color(0xffffb3ae))),
+                              ],
+                            ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                // Stacked Small Cards
-                Expanded(
-                  child: SizedBox(
-                    height: 160,
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: const Color(0xffe2bebb)),
-                              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Text('ĐÃ QUÉT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54, letterSpacing: 1.0)),
-                                    SizedBox(height: 4),
-                                    Text('1,240 mục', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
+                    const SizedBox(width: 16),
+                    // Stacked Small Cards
+                    Expanded(
+                      child: SizedBox(
+                        height: 160,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: const Color(0xffe2bebb)),
+                                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        const Text('ĐANG KIỂM', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54, letterSpacing: 1.0)),
+                                        const SizedBox(height: 4),
+                                        Text('$draftSessions đơn', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
+                                      ],
+                                    ),
+                                    const Icon(Icons.inventory, color: Color(0xff93405f)),
                                   ],
                                 ),
-                                const Icon(Icons.trending_up, color: Color(0xff93405f)),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xffffdad6),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: const Color(0xffba1a1a).withOpacity(0.2)),
-                              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Text('LỆCH TỒN', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff93000a), letterSpacing: 1.0)),
-                                    SizedBox(height: 4),
-                                    Text('18', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xff93000a))),
+                            const SizedBox(height: 16),
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xffffdad6),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: const Color(0xffba1a1a).withOpacity(0.2)),
+                                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        const Text('CHỜ DUYỆT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff93000a), letterSpacing: 1.0)),
+                                        const SizedBox(height: 4),
+                                        Text('$pendingSessions đơn', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xff93000a))),
+                                      ],
+                                    ),
+                                    const Icon(Icons.pending_actions, color: Color(0xffba1a1a)),
                                   ],
                                 ),
-                                const Icon(Icons.pending_actions, color: Color(0xffba1a1a)),
-                              ],
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            // Quick Access Grid
-            const Text('Truy cập nhanh', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87)),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+                const SizedBox(height: 24),
+    
+                // Quick Access Grid
+                const Text('Truy cập nhanh', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87)),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                 _buildQuickAccessButton(icon: Icons.analytics, label: 'Báo cáo', bgColor: const Color(0xffd23e3e), iconColor: Colors.white),
                 _buildQuickAccessButton(icon: Icons.assignment, label: 'Nhiệm vụ', bgColor: const Color(0xffd23e3e), iconColor: Colors.white),
                 _buildQuickAccessButton(icon: Icons.inventory_2, label: 'Kiểm kê', bgColor: const Color(0xffe2e2e2), iconColor: const Color(0xff5a413f), isOutline: true),
@@ -251,9 +288,11 @@ class DashboardScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
+      );
+    },
+  ),
+);
+}
 
   Widget _buildQuickAccessButton({required IconData icon, required String label, required Color bgColor, required Color iconColor, bool isOutline = false}) {
     return Column(

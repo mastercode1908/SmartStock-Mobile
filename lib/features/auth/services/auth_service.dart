@@ -65,7 +65,20 @@ class AuthService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Cập nhật thất bại: ${response.statusCode}');
+      try {
+        final jsonResponse = json.decode(response.body);
+        String errorMsg = jsonResponse['message'] ?? 'Cập nhật thất bại';
+        if (jsonResponse['errors'] != null) {
+          final errors = jsonResponse['errors'];
+          if (errors is String) errorMsg = errors;
+          else if (errors is Map) errorMsg = errors.values.map((e) => e is List ? e.join(', ') : e.toString()).join('\n');
+          else if (errors is List) errorMsg = errors.join('\n');
+        }
+        throw Exception(errorMsg);
+      } catch (e) {
+        if (e is FormatException) throw Exception('Cập nhật thất bại (${response.statusCode})');
+        rethrow;
+      }
     }
   }
 
@@ -83,6 +96,25 @@ class AuthService {
       return jsonResponse['url'];
     } else {
       throw Exception('Upload failed: ${response.statusCode}');
+    }
+  }
+
+  Future<void> changePassword(String token, String oldPassword, String newPassword) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/Auth/change-password'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: json.encode({
+        'oldPassword': oldPassword,
+        'newPassword': newPassword,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      final jsonResponse = json.decode(response.body);
+      throw Exception(jsonResponse['message'] ?? 'Failed to change password');
     }
   }
 }
