@@ -171,7 +171,14 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final completedSessions = provider.sessions.where((s) => s.status == 'POSTED').toList();
+        var completedSessions = provider.sessions.where((s) => s.status == 'POSTED').toList();
+        if (auth.currentUser?.roleName == 'Staff') {
+          completedSessions = completedSessions.where((s) => 
+            s.startDate.year == DateTime.now().year && 
+            s.startDate.month == DateTime.now().month && 
+            s.startDate.day == DateTime.now().day
+          ).toList();
+        }
 
         if (completedSessions.isEmpty) {
           return const Center(

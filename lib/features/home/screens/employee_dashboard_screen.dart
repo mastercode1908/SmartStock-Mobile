@@ -9,9 +9,16 @@ import '../../profile/screens/profile_screen.dart';
 import '../../inventory/screens/create_inventory_screen.dart';
 import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../inventory/providers/inventory_provider.dart';
 
-class EmployeeDashboardScreen extends StatelessWidget {
+class EmployeeDashboardScreen extends StatefulWidget {
   const EmployeeDashboardScreen({Key? key}) : super(key: key);
+
+  @override
+  State<EmployeeDashboardScreen> createState() => _EmployeeDashboardScreenState();
+}
+
+class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
 
   // Define Colors from Tailwind Config
   final Color _primary = const Color(0xFFB02528);
@@ -39,6 +46,21 @@ class EmployeeDashboardScreen extends StatelessWidget {
   final Color _onSecondaryContainer = const Color(0xFF5A666D);
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<InventoryProvider>().loadSessions();
+    });
+  }
+
+  String _getCurrentShift() {
+    final hour = DateTime.now().hour;
+    if (hour >= 6 && hour < 14) return 'Sáng';
+    else if (hour >= 14 && hour < 22) return 'Chiều';
+    else return 'Đêm';
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _surface,
@@ -50,7 +72,7 @@ class EmployeeDashboardScreen extends StatelessWidget {
           children: [
             _buildWelcomeSection(context),
             const SizedBox(height: 24),
-            _buildSummaryCards(),
+            _buildSummaryCards(context),
             const SizedBox(height: 24),
             _buildQuickAccess(context),
             const SizedBox(height: 24),
@@ -139,7 +161,7 @@ class EmployeeDashboardScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Ca làm việc: Sáng - Kho A1',
+                  'Ca làm việc: ${_getCurrentShift()}',
                   style: TextStyle(
                     fontSize: 12,
                     color: _onSurfaceVariant,
@@ -166,7 +188,27 @@ class EmployeeDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryCards() {
+  Widget _buildSummaryCards(BuildContext context) {
+    final provider = context.watch<InventoryProvider>();
+    final user = context.watch<AuthProvider>().currentUser;
+    var sessions = provider.sessions;
+    
+    if (user?.roleName == 'Staff') {
+      sessions = sessions.where((s) => 
+        s.startDate.year == DateTime.now().year && 
+        s.startDate.month == DateTime.now().month && 
+        s.startDate.day == DateTime.now().day
+      ).toList();
+    }
+    
+    final todaySessions = sessions.where((s) => 
+      s.startDate.year == DateTime.now().year && 
+      s.startDate.month == DateTime.now().month && 
+      s.startDate.day == DateTime.now().day).length;
+    
+    final draftSessions = sessions.where((s) => s.status == 'DRAFT').length;
+    final pendingSessions = sessions.where((s) => s.status == 'PENDING').length;
+
     return Row(
       children: [
         // Left Card (Primary)
@@ -209,7 +251,7 @@ class EmployeeDashboardScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '24,560',
+                      '$todaySessions',
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -217,7 +259,7 @@ class EmployeeDashboardScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '+120 hôm nay',
+                      'Theo thời gian thực',
                       style: TextStyle(
                         fontSize: 12,
                         color: _primaryFixedDim,
@@ -253,7 +295,7 @@ class EmployeeDashboardScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'ĐÃ QUÉT',
+                              'ĐANG KIỂM',
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
@@ -263,7 +305,7 @@ class EmployeeDashboardScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '1,240 mục',
+                              '$draftSessions đơn',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -272,7 +314,7 @@ class EmployeeDashboardScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        Icon(Icons.trending_up, color: _tertiary),
+                        Icon(Icons.inventory, color: _tertiary),
                       ],
                     ),
                   ),
@@ -283,7 +325,7 @@ class EmployeeDashboardScreen extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: _errorContainer,
+                      color: _secondaryContainer,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: _error.withOpacity(0.2)),
                     ),
@@ -295,21 +337,21 @@ class EmployeeDashboardScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'LỆCH TỒN',
+                              'CHỜ DUYỆT',
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1,
-                                color: _onErrorContainer,
+                                color: _error,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '18',
+                              '$pendingSessions đơn',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: _onErrorContainer,
+                                color: _error,
                               ),
                             ),
                           ],

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../auth/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../home/screens/employee_dashboard_screen.dart';
 import 'inventory_history_screen.dart';
@@ -34,6 +36,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
   final Color _background = const Color(0xFFFFFFFF);
 
   String _currentFilter = 'TẤT CẢ';
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -133,6 +136,11 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
                     decoration: InputDecoration(
                       hintText: 'Tìm kiếm theo mã đợt kiểm kê...',
                       hintStyle: TextStyle(color: _secondary, fontSize: 14),
@@ -187,7 +195,15 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
   Widget _buildFilterChips() {
     return Consumer<InventoryProvider>(
       builder: (context, provider, child) {
-        final sessions = provider.sessions.where((s) => s.status != 'POSTED').toList();
+        final user = context.watch<AuthProvider>().currentUser;
+        var sessions = provider.sessions.where((s) => s.status != 'POSTED').toList();
+        if (user?.roleName == 'Staff') {
+          sessions = sessions.where((s) => 
+            s.startDate.year == DateTime.now().year && 
+            s.startDate.month == DateTime.now().month && 
+            s.startDate.day == DateTime.now().day
+          ).toList();
+        }
         int allCount = sessions.length;
         int draftCount = sessions.where((s) => s.status == 'DRAFT').length;
         int pendingCount = sessions.where((s) => s.status == 'PENDING').length;
@@ -250,9 +266,26 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
           return const Center(child: CircularProgressIndicator());
         }
 
+        final user = context.watch<AuthProvider>().currentUser;
         List<InventorySession> activeSessions = provider.sessions.where((s) => s.status != 'POSTED').toList();
+        if (user?.roleName == 'Staff') {
+          activeSessions = activeSessions.where((s) => 
+            s.startDate.year == DateTime.now().year && 
+            s.startDate.month == DateTime.now().month && 
+            s.startDate.day == DateTime.now().day
+          ).toList();
+        }
+
         if (_currentFilter != 'TẤT CẢ') {
           activeSessions = activeSessions.where((s) => s.status == _currentFilter).toList();
+        }
+        
+        if (_searchQuery.isNotEmpty) {
+          final query = _searchQuery.toLowerCase();
+          activeSessions = activeSessions.where((s) => 
+            s.sessionCode.toLowerCase().contains(query) || 
+            s.description.toLowerCase().contains(query)
+          ).toList();
         }
 
         if (activeSessions.isEmpty) {

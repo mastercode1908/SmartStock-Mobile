@@ -39,27 +39,29 @@ class InventoryCountDetail {
 
     String? vName;
     String? vSku;
-    if (json['productVariant'] != null) {
-      vName = json['productVariant']['variantName'];
-      vSku = json['productVariant']['sku'];
+    if (json['ProductVariant'] != null || json['productVariant'] != null) {
+      final pv = json['ProductVariant'] ?? json['productVariant'];
+      vName = pv['VariantName'] ?? pv['variantName'];
+      vSku = pv['SKU'] ?? pv['sku'];
     }
 
     String? locCode;
-    if (json['storageLocation'] != null) {
-      locCode = json['storageLocation']['locationCode'];
+    if (json['StorageLocation'] != null || json['storageLocation'] != null) {
+      final loc = json['StorageLocation'] ?? json['storageLocation'];
+      locCode = loc['LocationCode'] ?? loc['locationCode'];
     }
 
     return InventoryCountDetail(
-      countDetailId: json['countDetailID'] ?? json['countDetailId'] ?? 0,
-      sessionId: json['sessionID'] ?? json['sessionId'] ?? 0,
-      variantId: json['variantID'] ?? json['variantId'] ?? 0,
+      countDetailId: json['CountDetailID'] ?? json['countDetailID'] ?? json['countDetailId'] ?? 0,
+      sessionId: json['SessionID'] ?? json['sessionID'] ?? json['sessionId'] ?? 0,
+      variantId: json['VariantID'] ?? json['variantID'] ?? json['variantId'] ?? 0,
       variantName: vName,
       sku: vSku,
-      lotNumber: json['lotNumber'],
-      serialNumber: json['serialNumber'],
-      unitId: json['unitID'] ?? json['unitId'] ?? json['locationID'] ?? 0,
-      systemQuantity: json['systemQuantity'] ?? 0,
-      countedQuantity: json['actualQuantity'] ?? json['countedQuantity'] ?? 0,
+      lotNumber: json['LotNumber'] ?? json['lotNumber'],
+      serialNumber: json['SerialNumber'] ?? json['serialNumber'],
+      unitId: json['UnitID'] ?? json['unitID'] ?? json['unitId'] ?? json['LocationID'] ?? json['locationID'] ?? 0,
+      systemQuantity: json['SystemQuantity'] ?? json['systemQuantity'] ?? 0,
+      countedQuantity: json['ActualQuantity'] ?? json['actualQuantity'] ?? json['CountedQuantity'] ?? json['countedQuantity'] ?? 0,
       difference: diff,
       status: statusStr,
       notes: json['note'] ?? json['notes'],

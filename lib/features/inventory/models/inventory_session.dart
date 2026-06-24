@@ -59,17 +59,19 @@ class InventorySession {
 
   factory InventorySession.fromJson(Map<String, dynamic> json) {
     return InventorySession(
-      id: json['sessionID'] ?? json['sessionId'] ?? 0, 
-      warehouseId: json['warehouseID'] ?? json['warehouseId'] ?? 0,
-      sessionCode: json['sessionCode']?.toString() ?? '',
+      id: json['SessionID'] ?? json['sessionID'] ?? json['sessionId'] ?? 0, 
+      warehouseId: json['WarehouseID'] ?? json['warehouseID'] ?? json['warehouseId'] ?? 0,
+      sessionCode: (json['SessionCode'] ?? json['sessionCode'])?.toString() ?? '',
       countType: _parseCountType(json['countType']),
       status: _parseStatus(json['status']),
       description: json['description']?.toString() ?? '',
       startDate: json['startDate'] != null ? DateTime.parse(json['startDate']) : DateTime.now(),
       endDate: json['endDate'] != null ? DateTime.parse(json['endDate']) : null,
-      createdBy: json['createdBy'] ?? 0,
-      assignedTo: json['assignedTo'],
-      details: (json['details'] as List?)?.map((e) => InventoryCountDetail.fromJson(e as Map<String, dynamic>)).toList(),
+      createdBy: json['CreatedBy'] ?? json['createdBy'] ?? 0,
+      assignedTo: json['AssignedTo'] ?? json['assignedTo'],
+      details: (json['Details'] ?? json['details']) != null 
+          ? List<InventoryCountDetail>.from(((json['Details'] ?? json['details']) as List).map((e) => InventoryCountDetail.fromJson(e as Map<String, dynamic>)))
+          : null,
     );
   }
 

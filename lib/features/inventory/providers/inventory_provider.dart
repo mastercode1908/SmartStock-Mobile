@@ -46,6 +46,14 @@ class InventoryProvider extends ChangeNotifier {
     _selectedVariants.clear();
     _systemQuantities.clear();
     
+    // Fetch full session details from API to ensure Details are expanded
+    try {
+      final fullSession = await _service.fetchSessionDetails(session.id);
+      session = fullSession;
+    } catch (e) {
+      debugPrint('Failed to fetch full session details: $e');
+    }
+
     if (_productVariants.isEmpty) {
       await loadProductVariants();
     }

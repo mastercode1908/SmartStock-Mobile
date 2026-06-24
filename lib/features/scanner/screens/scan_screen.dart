@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:provider/provider.dart';
+import '../../inventory/providers/inventory_provider.dart';
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
@@ -56,11 +58,42 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
           MobileScanner(
             controller: controller,
             onDetect: (capture) {
+              if (!mounted) return;
               final List<Barcode> barcodes = capture.barcodes;
               for (final barcode in barcodes) {
-                debugPrint('Barcode found! ${barcode.rawValue}');
-                // Return result if needed:
-                // Navigator.pop(context, barcode.rawValue);
+                final rawValue = barcode.rawValue;
+                if (rawValue != null) {
+                  debugPrint('Barcode found! $rawValue');
+                  
+                  // Pause scanner to avoid multiple reads
+                  controller.stop();
+                  
+                  final provider = context.read<InventoryProvider>();
+                  final match = provider.productVariants.where((v) => v.barcode == rawValue || v.sku == rawValue).firstOrNull;
+                  
+                  if (match != null) {
+                    if (!provider.selectedVariants.any((v) => v.variantId == match.variantId)) {
+                      provider.toggleVariantSelection(match);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Đã thêm: ${match.variantName}')),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Sản phẩm đã có trong danh sách kiểm đếm')),
+                      );
+                    }
+                    Navigator.pop(context); // Go back after success
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Không tìm thấy sản phẩm với mã: $rawValue')),
+                    );
+                    // Resume scanning if not found
+                    Future.delayed(const Duration(seconds: 2), () {
+                      if (mounted) controller.start();
+                    });
+                  }
+                  break; // Process one barcode at a time
+                }
               }
             },
           ),

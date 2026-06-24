@@ -61,24 +61,34 @@ class InventoryService {
       } else if (jsonResponse is List) {
         dataList = jsonResponse;
       }
-      return dataList.map((data) => InventorySession.fromJson(data)).toList();
+      return List<InventorySession>.from(dataList.map((data) => InventorySession.fromJson(data)));
     } else {
       throw Exception('Failed to load inventory sessions: ${response.statusCode}');
     }
   }
 
   Future<InventorySession> fetchSessionDetails(int sessionId) async {
+    final queryStr = '\$filter=SessionID eq $sessionId&\$expand=Details(\$expand=ProductVariant)';
+    final uri = Uri.parse('$baseUrl/inventory-counts').replace(query: queryStr);
+    
     final response = await http.get(
-      Uri.parse('$baseUrl/inventory-counts/$sessionId'),
+      uri,
       headers: await _getHeaders(),
     );
 
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
-      if (jsonResponse is Map && jsonResponse.containsKey('data')) {
-        return InventorySession.fromJson(jsonResponse['data']);
+      List<dynamic> dataList = [];
+      if (jsonResponse is Map && jsonResponse.containsKey('value')) {
+        dataList = jsonResponse['value'];
+      } else if (jsonResponse is List) {
+        dataList = jsonResponse;
       }
-      return InventorySession.fromJson(jsonResponse);
+      
+      if (dataList.isNotEmpty) {
+        return InventorySession.fromJson(dataList.first);
+      }
+      throw Exception('Session not found in OData response.');
     } else {
       throw Exception('Failed to fetch session details: ${response.body}');
     }

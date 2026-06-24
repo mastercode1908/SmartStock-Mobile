@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/inventory_provider.dart';
 import '../../scanner/screens/scan_screen.dart';
+import 'inventory_detail_screen.dart';
 
 class InventoryHistoryDetailScreen extends StatefulWidget {
   final int sessionId;
@@ -87,7 +88,7 @@ class _InventoryHistoryDetailScreenState extends State<InventoryHistoryDetailScr
                       if (context.mounted) {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const ScanScreen()),
+                          MaterialPageRoute(builder: (context) => const InventoryDetailScreen()),
                         );
                       }
                     },
