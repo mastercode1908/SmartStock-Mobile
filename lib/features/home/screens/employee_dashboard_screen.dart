@@ -11,8 +11,15 @@ import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../products/screens/product_list_screen.dart';
 
-class EmployeeDashboardScreen extends StatelessWidget {
+class EmployeeDashboardScreen extends StatefulWidget {
   const EmployeeDashboardScreen({Key? key}) : super(key: key);
+
+  @override
+  State<EmployeeDashboardScreen> createState() => _EmployeeDashboardScreenState();
+}
+
+class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
+  String? _pressedQuickAccessLabel;
 
   // Define Colors from Tailwind Config
   final Color _primary = const Color(0xFFB02528);
@@ -328,6 +335,36 @@ class EmployeeDashboardScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildQuickAccessButton(BuildContext context, IconData icon, String label, VoidCallback onTap) {
+    final isPressed = _pressedQuickAccessLabel == label;
+    return GestureDetector(
+      onTapDown: (_) {
+        setState(() {
+          _pressedQuickAccessLabel = label;
+        });
+      },
+      onTapUp: (_) {
+        setState(() {
+          _pressedQuickAccessLabel = null;
+        });
+        onTap();
+      },
+      onTapCancel: () {
+        setState(() {
+          _pressedQuickAccessLabel = null;
+        });
+      },
+      child: _buildQuickAccessItem(
+        icon,
+        label,
+        isPressed ? _surfaceVariant : _primary,
+        isPressed ? _onSurfaceVariant : Colors.white,
+        isPressed,
+        null,
+      ),
+    );
+  }
+
   Widget _buildQuickAccess(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -346,31 +383,31 @@ class EmployeeDashboardScreen extends StatelessWidget {
           runSpacing: 16,
           alignment: WrapAlignment.start,
           children: [
-            _buildQuickAccessItem(Icons.analytics, 'Báo cáo', _primaryContainer, _onPrimaryContainer, false, () {
+            _buildQuickAccessButton(context, Icons.analytics, 'Báo cáo', () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const IncidentReportScreen()),
               );
             }),
-            _buildQuickAccessItem(Icons.assignment, 'Nhiệm vụ', _primaryContainer, _onPrimaryContainer, false, () {
+            _buildQuickAccessButton(context, Icons.assignment, 'Nhiệm vụ', () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const InventoryListScreen()),
               );
             }),
-            _buildQuickAccessItem(Icons.inventory_2, 'Kiểm kê', _surfaceVariant, _onSurfaceVariant, true, () {
+            _buildQuickAccessButton(context, Icons.inventory_2, 'Kiểm kê', () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const CreateInventoryScreen()),
               );
             }),
-            _buildQuickAccessItem(Icons.location_on, 'Vị trí kho', _primary, Colors.white, false, () {
+            _buildQuickAccessButton(context, Icons.location_on, 'Vị trí kho', () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const WarehouseLocationScreen()),
               );
             }),
-            _buildQuickAccessItem(Icons.widgets, 'Sản phẩm', _tertiary, Colors.white, false, () {
+            _buildQuickAccessButton(context, Icons.widgets, 'Sản phẩm', () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const ProductListScreen()),

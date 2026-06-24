@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/product_provider.dart';
-import '../models/product.dart';
 import '../models/product_variant.dart';
 import '../models/unit.dart';
 import '../models/product_unit.dart';
-import 'product_create_screen.dart';
-import 'variant_create_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final int productId;
@@ -22,7 +19,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   final currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
 
   // Colors matching tailwind design
-  final Color _primary = const Color(0xFFB3272E);
   final Color _surfaceContainer = const Color(0xFFE4F0F4);
   final Color _surfaceVariant = const Color(0xFFD9E4E9);
   final Color _primaryContainer = const Color(0xFFFF5F5F);
@@ -36,91 +32,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ProductProvider>(context, listen: false).loadProductDetails(widget.productId);
     });
-  }
-
-  Future<void> _deleteProductConfirm(Product product) async {
-    final provider = Provider.of<ProductProvider>(context, listen: false);
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Xác nhận xóa'),
-        content: Text('Bạn có chắc chắn muốn xóa sản phẩm "${product.productName}" và tất cả biến thể của nó không?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Xóa'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
-      final success = await provider.deleteProduct(product.productId);
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Xóa sản phẩm thành công!')),
-        );
-        Navigator.pop(context, true);
-      } else {
-        showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('Không thể xóa'),
-            content: Text(provider.error ?? 'Đã xảy ra lỗi khi xóa sản phẩm.'),
-            actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Đóng'))
-            ],
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _deleteVariantConfirm(ProductVariant variant) async {
-    final provider = Provider.of<ProductProvider>(context, listen: false);
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Xóa biến thể'),
-        content: Text('Bạn có chắc chắn muốn xóa biến thể "${variant.variantName}" không?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Xóa'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
-      final success = await provider.deleteVariant(variant.variantId, widget.productId);
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Xóa biến thể thành công!')),
-        );
-      } else {
-        showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('Không thể xóa'),
-            content: Text(provider.error ?? 'Đã xảy ra lỗi khi xóa biến thể.'),
-            actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Đóng'))
-            ],
-          ),
-        );
-      }
-    }
   }
 
   @override
@@ -144,15 +55,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             fontSize: 20,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete_outline, color: Color(0xffb3272e)),
-            onPressed: () {
-              final product = Provider.of<ProductProvider>(context, listen: false).selectedProduct;
-              if (product != null) _deleteProductConfirm(product);
-            },
-          ),
-        ],
+        actions: const [],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
           child: Container(color: Colors.grey[200], height: 1.0),
@@ -171,13 +74,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             );
           }
 
-          return Stack(
-            children: [
-              SingleChildScrollView(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).padding.bottom + 100, // Space for action bar
-                ),
-                child: Column(
+          return SingleChildScrollView(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).padding.bottom + 24,
+            ),
+            child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Product Hero Image & Summary
@@ -207,7 +108,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          Row(
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -225,7 +129,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
@@ -454,34 +357,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('Danh sách biến thể', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                              ElevatedButton.icon(
-                                onPressed: () async {
-                                  final result = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => VariantCreateScreen(
-                                  productId: product.productId,
-                                  baseUnit: product.baseUnit,
-                                ),
-                                    ),
-                                  );
-                                  if (result == true) {
-                                    provider.loadProductDetails(widget.productId);
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: _primary,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  minimumSize: Size.zero,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                ),
-                                icon: const Icon(Icons.add, size: 16),
-                                label: const Text('Thêm biến thể', style: TextStyle(fontSize: 12)),
-                              ),
+                            children: const [
+                              Text('Danh sách biến thể', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                             ],
                           ),
                           const SizedBox(height: 12),
@@ -513,8 +390,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                   variant: variant,
                                   productId: product.productId,
                                   baseUnit: product.baseUnit,
-                                  onDelete: () => _deleteVariantConfirm(variant),
-                                  onRefresh: () => provider.loadProductDetails(widget.productId),
                                 );
                               },
                             ),
@@ -523,82 +398,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                   ],
                 ),
-              ),
-
-              // Fixed Action Bar
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  padding: EdgeInsets.only(
-                    left: 16,
-                    right: 16,
-                    top: 16,
-                    bottom: MediaQuery.of(context).padding.bottom + 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.95),
-                    border: Border(top: BorderSide(color: Colors.grey[200]!)),
-                    boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 32, offset: const Offset(0, -12)),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () async {
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ProductCreateScreen(product: product),
-                              ),
-                            );
-                            if (result == true) {
-                              provider.loadProductDetails(widget.productId);
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xffdfeaef),
-                            foregroundColor: _primary,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                          icon: const Icon(Icons.edit_note),
-                          label: const Text('Sửa sản phẩm cha', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () async {
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => VariantCreateScreen(productId: product.productId),
-                              ),
-                            );
-                            if (result == true) {
-                              provider.loadProductDetails(widget.productId);
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _primary,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                          icon: const Icon(Icons.add),
-                          label: const Text('Thêm biến thể', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          );
+              );
         },
       ),
     );
@@ -633,16 +433,12 @@ class VariantItemCard extends StatefulWidget {
   final ProductVariant variant;
   final int productId;
   final Unit? baseUnit;
-  final VoidCallback onDelete;
-  final VoidCallback onRefresh;
 
   const VariantItemCard({
     super.key,
     required this.variant,
     required this.productId,
     this.baseUnit,
-    required this.onDelete,
-    required this.onRefresh,
   });
 
   @override
@@ -745,39 +541,6 @@ class _VariantItemCardState extends State<VariantItemCard> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, size: 18, color: Colors.blue),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        onPressed: () async {
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => VariantCreateScreen(
-                                productId: widget.productId,
-                                variant: widget.variant,
-                                baseUnit: widget.baseUnit,
-                              ),
-                            ),
-                          );
-                          if (result == true) {
-                            widget.onRefresh();
-                          }
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        onPressed: widget.onDelete,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
@@ -804,23 +567,10 @@ class _VariantItemCardState extends State<VariantItemCard> {
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
+            children: const [
+              Text(
                 'Đơn vị quy đổi:',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54),
-              ),
-              TextButton.icon(
-                onPressed: () => _showManageUnitsBottomSheet(context, provider),
-                icon: const Icon(Icons.settings, size: 14, color: Color(0xFFB3272E)),
-                label: const Text(
-                  'Quản lý',
-                  style: TextStyle(fontSize: 12, color: Color(0xFFB3272E), fontWeight: FontWeight.w600),
-                ),
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
               ),
             ],
           ),
@@ -850,275 +600,6 @@ class _VariantItemCardState extends State<VariantItemCard> {
                 );
               }).toList(),
             ),
-        ],
-      ),
-    );
-  }
-
-  void _showManageUnitsBottomSheet(BuildContext context, ProductProvider provider) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setSheetState) {
-            final variantUnits = provider.getVariantUnits(widget.variant.variantId);
-            final allUnits = provider.units;
-            
-            final configuredUnitIds = variantUnits.map((vu) => vu.unitId).toSet();
-            final availableUnits = allUnits.where((u) {
-              return u.unitId != widget.baseUnit?.unitId && !configuredUnitIds.contains(u.unitId);
-            }).toList();
-
-            return Padding(
-              padding: EdgeInsets.only(
-                left: 16,
-                right: 16,
-                top: 16,
-                bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Quản lý Đơn vị quy đổi',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(ctx),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    'Biến thể: ${widget.variant.variantName}',
-                    style: const TextStyle(fontSize: 14, color: Colors.black54),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Danh sách đơn vị quy đổi',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                  ),
-                  const SizedBox(height: 8),
-                  if (variantUnits.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Center(
-                        child: Text(
-                          'Chưa có đơn vị quy đổi nào được thiết lập.',
-                          style: TextStyle(color: Colors.black38, fontStyle: FontStyle.italic),
-                        ),
-                      ),
-                    )
-                  else
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: variantUnits.length,
-                      itemBuilder: (ctx, index) {
-                        final pu = variantUnits[index];
-                        return ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text('1 ${pu.unitName} (${pu.symbol})'),
-                          subtitle: Text('Hệ số quy đổi: 1 ${pu.unitName} = ${pu.conversionFactor} ${widget.baseUnit?.symbol ?? widget.baseUnit?.unitName ?? ''}'),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete_outline, color: Colors.red),
-                            onPressed: () async {
-                              final confirm = await showDialog<bool>(
-                                context: context,
-                                builder: (dCtx) => AlertDialog(
-                                  title: const Text('Xác nhận xóa'),
-                                  content: Text('Xóa đơn vị quy đổi ${pu.unitName}?'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(dCtx, false),
-                                      child: const Text('Hủy'),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: () => Navigator.pop(dCtx, true),
-                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                                      child: const Text('Xóa'),
-                                    ),
-                                  ],
-                                ),
-                              );
-                              if (confirm == true) {
-                                final success = await provider.deleteVariantUnit(
-                                  productUnitId: pu.productUnitId,
-                                  variantId: widget.variant.variantId,
-                                );
-                                if (success) {
-                                  setSheetState(() {});
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(provider.error ?? 'Lỗi khi xóa')),
-                                  );
-                                }
-                              }
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                  const Divider(height: 32),
-                  const Text(
-                    'Thêm đơn vị quy đổi mới',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                  ),
-                  const SizedBox(height: 8),
-                  if (availableUnits.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8),
-                      child: Text(
-                        'Không còn đơn vị nào khả dụng để quy đổi.',
-                        style: TextStyle(color: Colors.black38, fontStyle: FontStyle.italic),
-                      ),
-                    )
-                  else
-                    _AddVariantUnitForm(
-                      variantId: widget.variant.variantId,
-                      baseUnitSymbol: widget.baseUnit?.symbol ?? widget.baseUnit?.unitName ?? '',
-                      availableUnits: availableUnits,
-                      onAdd: (unitId, factor) async {
-                        final success = await provider.createVariantUnit(
-                          variantId: widget.variant.variantId,
-                          unitId: unitId,
-                          conversionFactor: factor,
-                        );
-                        if (success) {
-                          setSheetState(() {});
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(provider.error ?? 'Lỗi khi thêm')),
-                          );
-                        }
-                      },
-                    ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-}
-
-class _AddVariantUnitForm extends StatefulWidget {
-  final int variantId;
-  final String baseUnitSymbol;
-  final List<Unit> availableUnits;
-  final Future<void> Function(int unitId, double factor) onAdd;
-
-  const _AddVariantUnitForm({
-    required this.variantId,
-    required this.baseUnitSymbol,
-    required this.availableUnits,
-    required this.onAdd,
-  });
-
-  @override
-  State<_AddVariantUnitForm> createState() => _AddVariantUnitFormState();
-}
-
-class _AddVariantUnitFormState extends State<_AddVariantUnitForm> {
-  final _formKey = GlobalKey<FormState>();
-  final _factorController = TextEditingController();
-  int? _selectedUnitId;
-  bool _isSubmitting = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        children: [
-          DropdownButtonFormField<int>(
-            value: _selectedUnitId,
-            decoration: InputDecoration(
-              labelText: 'Chọn đơn vị quy đổi',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            items: widget.availableUnits.map((u) {
-              return DropdownMenuItem(
-                value: u.unitId,
-                child: Text('${u.unitName} (${u.symbol})'),
-              );
-            }).toList(),
-            onChanged: (val) {
-              setState(() {
-                _selectedUnitId = val;
-              });
-            },
-            validator: (val) => val == null ? 'Vui lòng chọn đơn vị quy đổi' : null,
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: _factorController,
-            decoration: InputDecoration(
-              labelText: 'Hệ số quy đổi',
-              suffixText: widget.baseUnitSymbol,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              hintText: 'Ví dụ: 10 (1 Hộp = 10 cái)',
-            ),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            validator: (val) {
-              if (val == null || val.trim().isEmpty) return 'Vui lòng nhập hệ số';
-              final numVal = double.tryParse(val);
-              if (numVal == null || numVal <= 0) return 'Hệ số phải lớn hơn 0';
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: _isSubmitting
-                  ? null
-                  : () async {
-                      if (!_formKey.currentState!.validate()) return;
-                      setState(() {
-                        _isSubmitting = true;
-                      });
-                      try {
-                        await widget.onAdd(
-                          _selectedUnitId!,
-                          double.parse(_factorController.text),
-                        );
-                        _factorController.clear();
-                        setState(() {
-                          _selectedUnitId = null;
-                        });
-                      } finally {
-                        setState(() {
-                          _isSubmitting = false;
-                        });
-                      }
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFB3272E),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              child: _isSubmitting
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                    )
-                  : const Text('Thêm quy đổi'),
-            ),
-          ),
         ],
       ),
     );

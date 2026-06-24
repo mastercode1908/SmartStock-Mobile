@@ -4,8 +4,11 @@ import 'package:intl/intl.dart';
 import '../providers/product_provider.dart';
 import '../models/product.dart';
 import 'product_detail_screen.dart';
-import 'product_create_screen.dart';
 import '../../scanner/screens/scan_screen.dart';
+import '../../inventory/screens/inventory_list_screen.dart';
+import '../../inventory/screens/inventory_history_screen.dart';
+import '../../profile/screens/profile_screen.dart';
+import '../../home/screens/employee_dashboard_screen.dart';
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -15,7 +18,6 @@ class ProductListScreen extends StatefulWidget {
 }
 
 class _ProductListScreenState extends State<ProductListScreen> {
-  final int _selectedIndex = 1; // "Kiểm kê" is active
   final TextEditingController _searchController = TextEditingController();
   final currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
 
@@ -299,20 +301,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add, color: Color(0xffb02528), size: 28),
-            onPressed: () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProductCreateScreen()),
-              );
-              if (result == true) {
-                Provider.of<ProductProvider>(context, listen: false).loadProducts(isRefresh: true);
-              }
-            },
-          ),
-        ],
+        actions: const [],
       ),
       body: Consumer<ProductProvider>(
         builder: (context, provider, child) {
@@ -587,29 +576,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
           children: [
             Container(color: Colors.grey[50], height: 1),
             if (product.productVariants.isEmpty)
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Sản phẩm chưa có biến thể',
-                      style: TextStyle(color: Colors.black38, fontSize: 13, fontStyle: FontStyle.italic),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () => _navigateToDetails(product.productId),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        minimumSize: Size.zero,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      icon: const Icon(Icons.add, size: 14),
-                      label: const Text('Thêm', style: TextStyle(fontSize: 12)),
-                    )
-                  ],
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                  'Sản phẩm chưa có biến thể',
+                  style: TextStyle(color: Colors.black38, fontSize: 13, fontStyle: FontStyle.italic),
                 ),
               )
             else
@@ -764,64 +735,73 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   Widget _buildBottomNav(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey[200]!)),
-      ),
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).padding.bottom + 8,
-        top: 8,
-        left: 8,
-        right: 8,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(Icons.home, 'Trang chủ', 0),
-          _buildNavItem(Icons.inventory_2, 'Kiểm kê', 1),
-          _buildNavItem(Icons.qr_code_scanner, 'Scan', 2, onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const ScanScreen()));
-          }),
-          _buildNavItem(Icons.history, 'Lịch sử', 3),
-          _buildNavItem(Icons.person, 'Cá nhân', 4),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, String label, int index, {VoidCallback? onTap}) {
-    final isSelected = _selectedIndex == index;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: isSelected
-            ? BoxDecoration(
-                color: const Color(0xffb02528),
-                borderRadius: BorderRadius.circular(12),
-              )
-            : null,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? Colors.white : Colors.black54,
+    return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
+      backgroundColor: Colors.white,
+      selectedItemColor: const Color(0xFF546067),
+      unselectedItemColor: const Color(0xFF546067),
+      showUnselectedLabels: true,
+      selectedLabelStyle: const TextStyle(fontSize: 12),
+      unselectedLabelStyle: const TextStyle(fontSize: 12),
+      onTap: (index) {
+        if (index == 0) {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const EmployeeDashboardScreen()),
+            );
+          }
+        } else if (index == 1) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const InventoryListScreen(), 
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
             ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? Colors.white : Colors.black54,
-              ),
+          );
+        } else if (index == 2) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const ScanScreen(), 
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
             ),
-          ],
-        ),
-      ),
+          );
+        } else if (index == 3) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const InventoryHistoryScreen(), 
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
+          );
+        } else if (index == 4) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const ProfileScreen(), 
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
+          );
+        }
+      },
+      items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Trang chủ'),
+        BottomNavigationBarItem(icon: Icon(Icons.inventory_2_outlined), label: 'Kiểm kê'),
+        BottomNavigationBarItem(icon: Icon(Icons.qr_code_scanner), label: 'Scan'),
+        BottomNavigationBarItem(icon: Icon(Icons.history_outlined), label: 'Lịch sử'),
+        BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Cá nhân'),
+      ],
     );
   }
 }
