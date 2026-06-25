@@ -176,9 +176,11 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: _outlineVariant),
-              image: const DecorationImage(
+              image: DecorationImage(
                 image: NetworkImage(
-                    'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
+                    user?.avatarUrl?.isNotEmpty == true
+                        ? user!.avatarUrl!
+                        : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
                 fit: BoxFit.cover,
               ),
             ),

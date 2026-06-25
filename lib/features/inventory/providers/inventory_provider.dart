@@ -114,6 +114,7 @@ class InventoryProvider extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
       _sessions = await _service.fetchInventorySessions();
+      _sessions.sort((a, b) => b.id.compareTo(a.id));
     } catch (e) {
       _error = e.toString();
       debugPrint('Error loading sessions: $e');
