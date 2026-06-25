@@ -171,7 +171,8 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        var completedSessions = provider.sessions.where((s) => s.status == 'POSTED').toList();
+        final user = context.watch<AuthProvider>().currentUser;
+        var completedSessions = provider.sessions.where((s) => s.status == 'POSTED' && s.createdBy == user?.userId).toList();
         if (auth.currentUser?.roleName == 'Staff') {
           completedSessions = completedSessions.where((s) => 
             s.startDate.year == DateTime.now().year && 

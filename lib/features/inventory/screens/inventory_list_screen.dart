@@ -196,7 +196,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
     return Consumer<InventoryProvider>(
       builder: (context, provider, child) {
         final user = context.watch<AuthProvider>().currentUser;
-        var sessions = provider.sessions.where((s) => s.status != 'POSTED').toList();
+        var sessions = provider.sessions.where((s) => s.status != 'POSTED' && s.createdBy == user?.userId).toList();
         if (user?.roleName == 'Staff') {
           sessions = sessions.where((s) => 
             s.startDate.year == DateTime.now().year && 
@@ -267,7 +267,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
         }
 
         final user = context.watch<AuthProvider>().currentUser;
-        List<InventorySession> activeSessions = provider.sessions.where((s) => s.status != 'POSTED').toList();
+        List<InventorySession> activeSessions = provider.sessions.where((s) => s.status != 'POSTED' && s.createdBy == user?.userId).toList();
         if (user?.roleName == 'Staff') {
           activeSessions = activeSessions.where((s) => 
             s.startDate.year == DateTime.now().year && 

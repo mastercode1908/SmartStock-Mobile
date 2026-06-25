@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../../home/screens/employee_dashboard_screen.dart';
+import '../../dashboard/screens/dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -48,9 +49,14 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
+      final roleName = authProvider.currentUser?.roleName;
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const EmployeeDashboardScreen()),
+        MaterialPageRoute(
+          builder: (context) => roleName == 'Staff'
+              ? const EmployeeDashboardScreen()
+              : const DashboardScreen(),
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

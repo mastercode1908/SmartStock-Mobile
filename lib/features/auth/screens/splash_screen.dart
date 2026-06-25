@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import 'login_screen.dart';
 import '../../home/screens/employee_dashboard_screen.dart';
+import '../../dashboard/screens/dashboard_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -47,10 +48,13 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     if (mounted) {
       if (isAuth) {
+        final roleName = authProvider.currentUser?.roleName;
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, a1, a2) => const EmployeeDashboardScreen(),
+            pageBuilder: (context, a1, a2) => roleName == 'Staff'
+                ? const EmployeeDashboardScreen()
+                : const DashboardScreen(),
             transitionDuration: const Duration(milliseconds: 500),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               return FadeTransition(opacity: animation, child: child);

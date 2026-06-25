@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../inventory/providers/inventory_provider.dart';
-
+import '../../auth/providers/auth_provider.dart';
+import '../../inventory/screens/inventory_list_screen.dart';
+import '../../inventory/screens/inventory_history_screen.dart';
+import '../../scanner/screens/scan_screen.dart';
+import '../../profile/screens/profile_screen.dart';
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -69,7 +73,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: Consumer<InventoryProvider>(
         builder: (context, provider, child) {
-          final sessions = provider.sessions;
+          final user = context.watch<AuthProvider>().currentUser;
+          final sessions = provider.sessions.where((s) => s.createdBy == user?.userId).toList();
           final todaySessions = sessions.where((s) => 
             s.startDate.year == DateTime.now().year && 
             s.startDate.month == DateTime.now().month && 
@@ -84,41 +89,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Welcome Section
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xffe2bebb)),
-                    boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                Consumer<AuthProvider>(
+                  builder: (context, authProvider, child) {
+                    final user = authProvider.currentUser;
+                    final displayName = user?.fullName.isNotEmpty == true ? user!.fullName : 'Admin';
+                    
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xffe2bebb)),
+                        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Chào, Nguyễn Văn A', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87)),
-                          const SizedBox(height: 4),
-                          Text('Ca làm việc: ${_getCurrentShift()}', style: TextStyle(fontSize: 12, color: Colors.black54)),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Chào, $displayName', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87)),
+                              const SizedBox(height: 4),
+                              Text('Ca làm việc: ${_getCurrentShift()}', style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                            ],
+                          ),
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: const Color(0xffe2bebb)),
+                              image: DecorationImage(
+                                image: NetworkImage(
+                                  user?.avatarUrl?.isNotEmpty == true
+                                      ? user!.avatarUrl!
+                                      : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+                                ),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: const Color(0xffe2bebb)),
-                          image: const DecorationImage(
-                            image: NetworkImage(
-                              'https://lh3.googleusercontent.com/aida-public/AB6AXuA2ZMo_FiXgpE1zMS7rFGZ9UQrD2_fWQ79mw0_DhVVwNxwYfc7IVZbvAQ9YNz8hdmPfY7a3mKbF6w30d0xSqA0-9R6sgXNclIu341RyY51-xKyHeikASs07E8VKcKZWd_8KXNK_PZg_uPRqBSci-ZuDzXgnL1qNgh4n80pUSLA3NjgGaceyEH4SuGV1CAfQzXXUKwq4tuJgRkgVE2W2kl2ZVdhFpt3jIaCxGque3m-P-hYMqoILs438_ZbDGn_uZXlFF9BUBnX5f8Bm',
-                            ),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    );
+                  }
                 ),
                 const SizedBox(height: 16),
 
@@ -290,9 +304,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       );
     },
-  ),
-);
-}
+      ),
+      bottomNavigationBar: _buildBottomNav(context),
+    );
+  }
 
   Widget _buildQuickAccessButton({required IconData icon, required String label, required Color bgColor, required Color iconColor, bool isOutline = false}) {
     return Column(
@@ -380,6 +395,68 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildBottomNav(BuildContext context) {
+    return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
+      backgroundColor: Colors.white,
+      selectedItemColor: const Color(0xFFB02528),
+      unselectedItemColor: const Color(0xFF546067),
+      showUnselectedLabels: true,
+      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+      unselectedLabelStyle: const TextStyle(fontSize: 12),
+      onTap: (index) {
+        if (index == 1) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const InventoryListScreen(), 
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
+          );
+        } else if (index == 2) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const ScanScreen(), 
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
+          );
+        } else if (index == 3) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const InventoryHistoryScreen(), 
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
+          );
+        } else if (index == 4) {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, a1, a2) => const ProfileScreen(), 
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
+          );
+        }
+      },
+      items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
+        BottomNavigationBarItem(icon: Icon(Icons.inventory_2_outlined), label: 'Kiểm kê'),
+        BottomNavigationBarItem(icon: Icon(Icons.qr_code_scanner), label: 'Scan'),
+        BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Lịch sử'),
+        BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Cá nhân'),
+      ],
     );
   }
 }

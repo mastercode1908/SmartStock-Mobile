@@ -193,7 +193,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
   Widget _buildSummaryCards(BuildContext context) {
     final provider = context.watch<InventoryProvider>();
     final user = context.watch<AuthProvider>().currentUser;
-    var sessions = provider.sessions;
+    var sessions = provider.sessions.where((s) => s.createdBy == user?.userId).toList();
     
     if (user?.roleName == 'Staff') {
       sessions = sessions.where((s) => 
