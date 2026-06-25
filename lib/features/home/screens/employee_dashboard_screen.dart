@@ -183,10 +183,16 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: _outlineVariant),
-              image: const DecorationImage(
+              image: DecorationImage(
                 image: NetworkImage(
+<<<<<<< HEAD
                   'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
                 ),
+=======
+                    user?.avatarUrl?.isNotEmpty == true
+                        ? user!.avatarUrl!
+                        : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
+>>>>>>> theduc
                 fit: BoxFit.cover,
               ),
             ),
@@ -199,8 +205,13 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
   Widget _buildSummaryCards(BuildContext context) {
     final provider = context.watch<InventoryProvider>();
     final user = context.watch<AuthProvider>().currentUser;
+<<<<<<< HEAD
     var sessions = provider.sessions;
 
+=======
+    var sessions = provider.sessions.where((s) => s.createdBy == user?.userId).toList();
+    
+>>>>>>> theduc
     if (user?.roleName == 'Staff') {
       sessions = sessions
           .where(
