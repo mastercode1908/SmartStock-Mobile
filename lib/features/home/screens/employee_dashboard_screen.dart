@@ -1,16 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../inventory/screens/inventory_list_screen.dart';
-import '../../inventory/screens/inventory_history_screen.dart';
-import '../../notifications/screens/notification_screen.dart';
-import '../../inventory/screens/warehouse_location_screen.dart';
-import '../../inventory/screens/incident_report_screen.dart';
-import '../../scanner/screens/scan_screen.dart';
-import '../../profile/screens/profile_screen.dart';
-import '../../inventory/screens/create_inventory_screen.dart';
 import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
-import '../../products/screens/product_list_screen.dart';
-import '../../inventory/providers/inventory_provider.dart';
+import '../../inventory/screens/pickup/pickup_list_screen.dart';
+import '../../inventory/screens/count/count_list_screen.dart';
 
 class EmployeeDashboardScreen extends StatefulWidget {
   const EmployeeDashboardScreen({Key? key}) : super(key: key);
@@ -21,406 +13,356 @@ class EmployeeDashboardScreen extends StatefulWidget {
 }
 
 class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
-  String? _pressedQuickAccessLabel;
-
-  // Define Colors from Tailwind Config
+  // Define Colors based on Tailwind Config from HTML
   final Color _primary = const Color(0xFFB02528);
-  final Color _primaryFixedDim = const Color(0xFFFFB3AE);
+  final Color _primaryFixed = const Color(0xFFFFDAD7);
   final Color _primaryContainer = const Color(0xFFD23E3E);
-  final Color _onPrimaryContainer = const Color(0xFFFFFbFF);
-
-  final Color _surface = const Color(0xFFF9F9F9);
   final Color _surfaceContainerLowest = const Color(0xFFFFFFFF);
+  final Color _surfaceContainer = const Color(0xFFEEEEEE);
   final Color _surfaceVariant = const Color(0xFFE2E2E2);
   final Color _onSurfaceVariant = const Color(0xFF5A413F);
   final Color _onSurface = const Color(0xFF1A1C1C);
-
   final Color _outlineVariant = const Color(0xFFE2BEBB);
-  final Color _tertiary = const Color(0xFF93405F);
-  final Color _tertiaryContainer = const Color(0xFFB15878);
-  final Color _onTertiaryContainer = const Color(0xFFFFFbFF);
-
   final Color _error = const Color(0xFFBA1A1A);
   final Color _errorContainer = const Color(0xFFFFDAD6);
-  final Color _onErrorContainer = const Color(0xFF93000A);
-
   final Color _secondary = const Color(0xFF546067);
   final Color _secondaryContainer = const Color(0xFFD7E4EC);
   final Color _onSecondaryContainer = const Color(0xFF5A666D);
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<InventoryProvider>().loadSessions();
-    });
-  }
-
-  String _getCurrentShift() {
-    final hour = DateTime.now().hour;
-    if (hour >= 6 && hour < 14)
-      return 'Sáng';
-    else if (hour >= 14 && hour < 22)
-      return 'Chiều';
-    else
-      return 'Đêm';
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _surface,
+      backgroundColor: const Color(0xFFF9F9F9),
       appBar: _buildAppBar(context),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildWelcomeSection(context),
+            _buildGreeting(context),
             const SizedBox(height: 24),
-            _buildSummaryCards(context),
-            const SizedBox(height: 24),
-            _buildQuickAccess(context),
-            const SizedBox(height: 24),
+            _buildBentoGrid(),
+            const SizedBox(height: 32),
+            _buildQuickAccess(),
+            const SizedBox(height: 32),
             _buildRecentActivity(),
+            const SizedBox(height: 80), // Padding for bottom nav
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(context),
     );
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: _surface,
+      backgroundColor: Colors.white,
       elevation: 0,
       scrolledUnderElevation: 0,
-      shape: Border(bottom: BorderSide(color: _outlineVariant, width: 1)),
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: _primary),
-        onPressed: () {
-          if (Navigator.canPop(context)) {
-            Navigator.pop(context);
-          }
-        },
+      shape: Border(bottom: BorderSide(color: _surfaceContainer, width: 1)),
+      centerTitle: true,
+      title: const Text(
+        'Dashboard',
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.w600,
+          fontSize: 20,
+        ),
       ),
-      title: Row(
-        children: [
-          Icon(Icons.inventory_2, color: _primary),
-          const SizedBox(width: 8),
-          Text(
-            'Smart Stock',
-            style: TextStyle(
-              color: _primary,
-              fontWeight: FontWeight.bold,
-              fontSize: 24,
-            ),
-          ),
-        ],
+      leading: IconButton(
+        icon: const Icon(Icons.notifications_outlined, color: Colors.black),
+        onPressed: () {},
       ),
       actions: [
-        IconButton(
-          icon: Icon(Icons.notifications_none, color: _primary),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const NotificationScreen(),
+        Padding(
+          padding: const EdgeInsets.only(right: 16.0),
+          child: Row(
+            children: [
+              const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Nguyễn Văn A',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    'Operator #42',
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                ],
               ),
-            );
-          },
+              const SizedBox(width: 8),
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: _primaryContainer, width: 2),
+                  image: const DecorationImage(
+                    image: NetworkImage(
+                      'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+                    ),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildWelcomeSection(BuildContext context) {
+  Widget _buildGreeting(BuildContext context) {
     final user = context.watch<AuthProvider>().currentUser;
     final displayName = user?.fullName.isNotEmpty == true
         ? user!.fullName
-        : 'Nhân viên';
+        : 'Nguyễn Văn A';
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: _surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _outlineVariant),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Chào, $displayName',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                    color: _onSurface,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Ca làm việc: ${_getCurrentShift()}',
-                  style: TextStyle(fontSize: 12, color: _onSurfaceVariant),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: _outlineVariant),
-              image: DecorationImage(
-                image: NetworkImage(
-                  user?.avatarUrl?.isNotEmpty == true
-                      ? user!.avatarUrl!
-                      : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
-                ),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryCards(BuildContext context) {
-    final provider = context.watch<InventoryProvider>();
-    final user = context.watch<AuthProvider>().currentUser;
-    var sessions = provider.sessions
-        .where((s) => s.createdBy == user?.userId)
-        .toList();
-
-    if (user?.roleName == 'Staff') {
-      sessions = sessions
-          .where(
-            (s) =>
-                s.startDate.year == DateTime.now().year &&
-                s.startDate.month == DateTime.now().month &&
-                s.startDate.day == DateTime.now().day,
-          )
-          .toList();
-    }
-
-    final todaySessions = sessions
-        .where(
-          (s) =>
-              s.startDate.year == DateTime.now().year &&
-              s.startDate.month == DateTime.now().month &&
-              s.startDate.day == DateTime.now().day,
-        )
-        .length;
-
-    final draftSessions = sessions.where((s) => s.status == 'DRAFT').length;
-    final pendingSessions = sessions.where((s) => s.status == 'PENDING').length;
-
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Left Card (Primary)
-        Expanded(
-          child: Container(
-            height: 160,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: _primary,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  right: -20,
-                  top: -20,
-                  child: Icon(
-                    Icons.category,
-                    size: 100,
-                    color: Colors.white.withOpacity(0.1),
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Đơn kiểm kê\nhôm nay',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: _primaryFixedDim,
-                      ),
-                    ),
-                    Text(
-                      '$todaySessions',
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Text(
-                      'Theo thời gian thực',
-                      style: TextStyle(fontSize: 12, color: _primaryFixedDim),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+        Text(
+          'Chào, $displayName',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w600,
+            color: _onSurface,
           ),
         ),
-        const SizedBox(width: 16),
-        // Right Column Cards
-        Expanded(
-          child: SizedBox(
-            height: 160,
-            child: Column(
-              children: [
-                // Top Right Card
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: _surfaceContainerLowest,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: _outlineVariant),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'ĐANG KIỂM',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1,
-                                color: _onSurfaceVariant,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '$draftSessions đơn',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: _onSurface,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Icon(Icons.inventory, color: _tertiary),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Bottom Right Card (Error)
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: _secondaryContainer,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: _error.withOpacity(0.2)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'CHỜ DUYỆT',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1,
-                                color: _error,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '$pendingSessions đơn',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: _error,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Icon(Icons.pending_actions, color: _error),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        const SizedBox(height: 8),
+        Text(
+          'Tổng quan công việc hôm nay của bạn.',
+          style: TextStyle(fontSize: 18, color: _onSurfaceVariant),
         ),
       ],
     );
   }
 
-  Widget _buildQuickAccessButton(
-    BuildContext context,
-    IconData icon,
-    String label,
-    VoidCallback onTap,
-  ) {
-    final isPressed = _pressedQuickAccessLabel == label;
-    return GestureDetector(
-      onTapDown: (_) {
-        setState(() {
-          _pressedQuickAccessLabel = label;
-        });
-      },
-      onTapUp: (_) {
-        setState(() {
-          _pressedQuickAccessLabel = null;
-        });
-        onTap();
-      },
-      onTapCancel: () {
-        setState(() {
-          _pressedQuickAccessLabel = null;
-        });
-      },
-      child: _buildQuickAccessItem(
-        icon,
-        label,
-        isPressed ? _surfaceVariant : _primary,
-        isPressed ? _onSurfaceVariant : Colors.white,
-        isPressed,
-        null,
-      ),
+  Widget _buildBentoGrid() {
+    return Column(
+      children: [
+        // Primary Card
+        Container(
+          height: 140,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: _primary,
+            borderRadius: BorderRadius.circular(32),
+            boxShadow: [
+              BoxShadow(
+                color: _primary.withOpacity(0.2),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.inventory_2,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Đơn kiểm kê hôm nay',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Text(
+                    '124', // Mocked
+                    style: TextStyle(
+                      fontSize: 56,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 1.0,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Secondary Cards Row
+        Row(
+          children: [
+            Expanded(
+              child: Container(
+                height: 140,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: _surfaceContainerLowest,
+                  borderRadius: BorderRadius.circular(32),
+                  border: Border.all(color: _outlineVariant),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: _primaryFixed,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.bar_chart,
+                                color: _primary,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Đã quét',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: _onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          '+12%',
+                          style: TextStyle(fontSize: 16, color: _secondary),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      '8,432', // Mocked
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: _onSurface,
+                      ),
+                    ),
+                    Container(
+                      height: 8,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: _surfaceContainer,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: FractionallySizedBox(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: 0.75,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: _primary,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Container(
+                height: 140,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: _surfaceContainerLowest,
+                  borderRadius: BorderRadius.circular(32),
+                  border: Border.all(color: _outlineVariant),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: _errorContainer,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.warning_amber_rounded,
+                            color: _error,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Lệch tồn',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: _onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      '3', // Mocked
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: _error,
+                      ),
+                    ),
+                    Text(
+                      'Cần xử lý trong ca',
+                      style: TextStyle(fontSize: 12, color: _onSurfaceVariant),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
-  Widget _buildQuickAccess(BuildContext context) {
+  Widget _buildQuickAccess() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -433,56 +375,42 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        Wrap(
-          spacing: 16,
-          runSpacing: 16,
-          alignment: WrapAlignment.start,
+        Row(
           children: [
-            _buildQuickAccessButton(context, Icons.analytics, 'Báo cáo', () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const IncidentReportScreen(),
-                ),
-              );
-            }),
-            _buildQuickAccessButton(context, Icons.assignment, 'Nhiệm vụ', () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const InventoryListScreen(),
-                ),
-              );
-            }),
-            _buildQuickAccessButton(context, Icons.inventory_2, 'Kiểm kê', () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CreateInventoryScreen(),
-                ),
-              );
-            }),
-            _buildQuickAccessButton(
+            _buildQuickAccessItem(
               context,
-              Icons.location_on,
-              'Vị trí lưu trữ',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const WarehouseLocationScreen(),
-                  ),
-                );
-              },
+              Icons.conveyor_belt,
+              'Nhặt đồ',
+              _primaryFixed,
+              _primary,
+              fallbackIcon: Icons.shopping_cart,
+              screen: const PickUpListScreen(),
             ),
-            _buildQuickAccessButton(context, Icons.widgets, 'Sản phẩm', () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProductListScreen(),
-                ),
-              );
-            }),
+            const SizedBox(width: 12),
+            _buildQuickAccessItem(
+              context,
+              Icons.play_arrow,
+              'Tiếp tục',
+              _secondaryContainer,
+              _onSecondaryContainer,
+            ),
+            const SizedBox(width: 12),
+            _buildQuickAccessItem(
+              context,
+              Icons.qr_code_scanner,
+              'Quét mã',
+              _surfaceVariant,
+              _onSurfaceVariant,
+            ),
+            const SizedBox(width: 12),
+            _buildQuickAccessItem(
+              context,
+              Icons.manage_search,
+              'Kiểm kê',
+              _surfaceVariant,
+              _onSurfaceVariant,
+              screen: const CountListScreen(),
+            ),
           ],
         ),
       ],
@@ -490,44 +418,64 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
   }
 
   Widget _buildQuickAccessItem(
+    BuildContext context,
     IconData icon,
     String label,
     Color bgColor,
-    Color iconColor, [
-    bool hasBorder = false,
-    VoidCallback? onTap,
-  ]) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(16),
-              border: hasBorder ? Border.all(color: _outlineVariant) : null,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
+    Color iconColor, {
+    IconData? fallbackIcon,
+    Widget? screen,
+  }) {
+    final safeIcon = fallbackIcon != null && icon.codePoint == 0
+        ? fallbackIcon
+        : icon;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          if (screen != null) {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            color: _surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: _outlineVariant),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  shape: BoxShape.circle,
                 ),
-              ],
-            ),
-            child: Icon(icon, color: iconColor, size: 28),
+                child: Icon(safeIcon, color: iconColor),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: _onSurface,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: _onSurface,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -538,7 +486,6 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
               'Hoạt động gần đây',
@@ -551,47 +498,63 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
             Text(
               'Xem tất cả',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
                 color: _primary,
-                fontWeight: FontWeight.w500,
               ),
             ),
           ],
         ),
         const SizedBox(height: 16),
-        _buildActivityItem(
-          icon: Icons.inventory,
-          iconColor: _primary,
-          title: 'Kiểm kê - Kệ B-04',
-          time: '10:45',
-          subtitle: 'Người thực hiện: N.V.A',
-          badgeText: 'Hoàn thành',
-          badgeBg: _tertiaryContainer,
-          badgeColor: _onTertiaryContainer,
-        ),
-        const SizedBox(height: 8),
-        _buildActivityItem(
-          icon: Icons.inventory_2,
-          iconColor: _secondary,
-          title: 'Kiểm kê - Khu vực A1',
-          time: '09:15',
-          subtitle: 'Đang đối soát dữ liệu',
-          badgeText: 'Đang thực hiện',
-          badgeBg: _secondaryContainer,
-          badgeColor: _onSecondaryContainer,
-        ),
-        const SizedBox(height: 8),
-        _buildActivityItem(
-          icon: Icons.inventory,
-          iconColor: _onErrorContainer,
-          iconBg: _errorContainer,
-          title: 'Kiểm kê - Kệ A2',
-          time: 'HÔM QUA',
-          subtitle: 'Sai lệch: -2 sản phẩm',
-          subtitleColor: _error,
-          badgeText: 'Cần xử lý',
-          badgeBg: _errorContainer,
-          badgeColor: _onErrorContainer,
+        Container(
+          decoration: BoxDecoration(
+            color: _surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: _outlineVariant),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              _buildActivityItem(
+                icon: Icons.inventory_2,
+                iconBg: _primaryFixed,
+                iconColor: _primary,
+                title: 'Khu vực A - Kệ 04',
+                time: '10 phút trước',
+                progress: 1.0,
+                status: 'Hoàn thành',
+                statusColor: _primary,
+              ),
+              Divider(height: 1, color: _surfaceContainer),
+              _buildActivityItem(
+                icon: Icons.conveyor_belt,
+                fallbackIcon: Icons.shopping_cart,
+                iconBg: _secondaryContainer,
+                iconColor: _onSecondaryContainer,
+                title: 'Khu vực B - Kệ 12',
+                time: '45 phút trước',
+                progress: 0.5,
+                status: '50%',
+                statusColor: _onSurfaceVariant,
+              ),
+              Divider(height: 1, color: _surfaceContainer),
+              _buildActivityItem(
+                icon: Icons.warning_amber_rounded,
+                iconBg: _errorContainer,
+                iconColor: _error,
+                title: 'Khu vực C - Kệ 01 (Lệch tồn)',
+                time: '2 giờ trước',
+                status: 'Chờ xử lý',
+                statusColor: _error,
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -599,36 +562,29 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
 
   Widget _buildActivityItem({
     required IconData icon,
+    IconData? fallbackIcon,
+    required Color iconBg,
     required Color iconColor,
-    Color? iconBg,
     required String title,
     required String time,
-    required String subtitle,
-    Color? subtitleColor,
-    required String badgeText,
-    required Color badgeBg,
-    required Color badgeColor,
+    double? progress,
+    required String status,
+    required Color statusColor,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: _surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _outlineVariant),
-      ),
+    final safeIcon = fallbackIcon != null && icon.codePoint == 0
+        ? fallbackIcon
+        : icon;
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(
-              color: iconBg ?? _surfaceVariant,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: iconColor, size: 20),
+            decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
+            child: Icon(safeIcon, color: iconColor, size: 20),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -636,52 +592,55 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: _onSurface,
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: _onSurface,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     Text(
                       time,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 1,
-                        color: _onSurfaceVariant,
-                      ),
+                      style: TextStyle(fontSize: 12, color: _onSurfaceVariant),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: subtitleColor ?? _onSurfaceVariant,
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: badgeBg,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        badgeText,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: badgeColor,
-                          fontWeight: FontWeight.w500,
+                    if (progress != null) ...[
+                      Expanded(
+                        child: Container(
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: _surfaceVariant,
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          child: FractionallySizedBox(
+                            alignment: Alignment.centerLeft,
+                            widthFactor: progress,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: _primary,
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                            ),
+                          ),
                         ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    Text(
+                      status,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: statusColor,
                       ),
                     ),
                   ],
@@ -691,80 +650,6 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildBottomNav(BuildContext context) {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.white,
-      selectedItemColor: const Color(0xFFB02528),
-      unselectedItemColor: const Color(0xFF546067),
-      showUnselectedLabels: true,
-      selectedLabelStyle: const TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: 12,
-      ),
-      unselectedLabelStyle: const TextStyle(fontSize: 12),
-      onTap: (index) {
-        if (index == 1) {
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              opaque: false,
-              pageBuilder: (context, a1, a2) => const InventoryListScreen(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ),
-          );
-        } else if (index == 2) {
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              opaque: false,
-              pageBuilder: (context, a1, a2) => const ScanScreen(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ),
-          );
-        } else if (index == 3) {
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              opaque: false,
-              pageBuilder: (context, a1, a2) => const InventoryHistoryScreen(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ),
-          );
-        } else if (index == 4) {
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              opaque: false,
-              pageBuilder: (context, a1, a2) => const ProfileScreen(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ),
-          );
-        }
-      },
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.inventory_2_outlined),
-          label: 'Kiểm kê',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.qr_code_scanner),
-          label: 'Scan',
-        ),
-        BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Lịch sử'),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person_outline),
-          label: 'Cá nhân',
-        ),
-      ],
     );
   }
 }

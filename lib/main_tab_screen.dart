@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'features/home/screens/employee_dashboard_screen.dart';
-import 'features/inventory/screens/inventory_list_screen.dart';
-import 'features/inventory/screens/inventory_history_screen.dart';
+import 'features/profile/screens/profile_screen.dart';
+import 'features/scanner/screens/scan_screen.dart';
+import 'features/inventory/screens/pickup/pickup_list_screen.dart';
+import 'features/inventory/screens/count/count_list_screen.dart';
 
 class MainTabScreen extends StatefulWidget {
   const MainTabScreen({Key? key}) : super(key: key);
@@ -15,11 +17,17 @@ class _MainTabScreenState extends State<MainTabScreen> {
 
   final List<Widget> _screens = [
     const EmployeeDashboardScreen(),
-    const InventoryListScreen(),
-    const Center(child: Text('Scan Screen')),
-    const InventoryHistoryScreen(),
-    const Center(child: Text('Profile Screen')),
+    const PickUpListScreen(), // Nhặt đồ
+    const ScanScreen(),
+    const CountListScreen(), // Kiểm kê
+    const ProfileScreen(), // Thiết lập
   ];
+
+  void _onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,43 +36,95 @@ class _MainTabScreenState extends State<MainTabScreen> {
         index: _currentIndex,
         children: _screens,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFFB3272E),
-        unselectedItemColor: const Color(0xFF586062),
-        showUnselectedLabels: true,
-        currentIndex: _currentIndex,
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-        unselectedLabelStyle: const TextStyle(fontSize: 12),
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _onTabTapped(2); // Go to Scan Screen
         },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Trang chủ',
+        backgroundColor: const Color(0xFFB02528),
+        foregroundColor: Colors.white,
+        shape: const CircleBorder(),
+        child: const Icon(Icons.qr_code_scanner, size: 32),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8.0,
+        color: Colors.white,
+        child: SizedBox(
+          height: 60,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              _buildTabItem(
+                icon: Icons.home_outlined,
+                activeIcon: Icons.home,
+                label: 'Trang chủ',
+                index: 0,
+              ),
+              _buildTabItem(
+                icon: Icons.conveyor_belt, // Need to handle icon if not available
+                activeIcon: Icons.conveyor_belt,
+                label: 'Nhặt đồ',
+                index: 1,
+                fallbackIcon: Icons.shopping_cart_outlined,
+                fallbackActiveIcon: Icons.shopping_cart,
+              ),
+              const SizedBox(width: 48), // Space for FAB
+              _buildTabItem(
+                icon: Icons.inventory_2_outlined,
+                activeIcon: Icons.inventory_2,
+                label: 'Kiểm kê',
+                index: 3,
+              ),
+              _buildTabItem(
+                icon: Icons.settings_outlined,
+                activeIcon: Icons.settings,
+                label: 'Thiết lập',
+                index: 4,
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory_2_outlined),
-            activeIcon: Icon(Icons.inventory_2),
-            label: 'Kiểm kê',
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabItem({
+    required IconData icon,
+    required IconData activeIcon,
+    required String label,
+    required int index,
+    IconData? fallbackIcon,
+    IconData? fallbackActiveIcon,
+  }) {
+    final isSelected = _currentIndex == index;
+    final displayIcon = isSelected 
+        ? activeIcon 
+        : icon;
+        
+    // Use fallback icon if conveyor_belt is not in material icons yet (sometimes in newer flutter versions)
+    final safeIcon = fallbackIcon != null && icon.codePoint == 0 ? fallbackIcon : icon;
+    final safeActiveIcon = fallbackActiveIcon != null && activeIcon.codePoint == 0 ? fallbackActiveIcon : activeIcon;
+    final finalIcon = isSelected ? safeActiveIcon : safeIcon;
+
+    return MaterialButton(
+      minWidth: 40,
+      onPressed: () => _onTabTapped(index),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            finalIcon,
+            color: isSelected ? const Color(0xFFB02528) : const Color(0xFF5A666D),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code_scanner),
-            label: 'Scan',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history_outlined),
-            activeIcon: Icon(Icons.history),
-            label: 'Lịch sử',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Cá nhân',
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected ? const Color(0xFFB02528) : const Color(0xFF5A666D),
+            ),
           ),
         ],
       ),

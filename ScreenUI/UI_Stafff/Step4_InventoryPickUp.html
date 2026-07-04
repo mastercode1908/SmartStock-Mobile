@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html class="light" lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Smart Stock - Kiểm tra danh sách</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#ffb3ae",
+                        "secondary-container": "#d7e4ec",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f1f1f1",
+                        "primary-fixed": "#ffdad7",
+                        "primary": "#b02528",
+                        "on-primary-fixed-variant": "#910816",
+                        "error": "#ba1a1a",
+                        "on-surface": "#1a1c1c",
+                        "primary-container": "#d23e3e",
+                        "surface-bright": "#f9f9f9",
+                        "surface-container-low": "#f3f3f3",
+                        "surface": "#f9f9f9",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#111d23",
+                        "secondary": "#546067",
+                        "surface-container": "#eeeeee",
+                        "tertiary": "#93405f",
+                        "inverse-primary": "#ffb3ae",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#b15878",
+                        "surface-container-high": "#e8e8e8",
+                        "outline-variant": "#e2bebb",
+                        "secondary-fixed": "#d7e4ec",
+                        "on-tertiary-fixed": "#3e001e",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed-dim": "#ffb0c9",
+                        "on-secondary": "#ffffff",
+                        "outline": "#8e706e",
+                        "surface-dim": "#dadada",
+                        "surface-tint": "#b3272a",
+                        "on-secondary-fixed-variant": "#3c494f",
+                        "tertiary-fixed": "#ffd9e2",
+                        "on-primary-fixed": "#410004",
+                        "inverse-surface": "#2f3131",
+                        "on-secondary-container": "#5a666d",
+                        "surface-variant": "#e2e2e2",
+                        "on-tertiary-fixed-variant": "#792b4a",
+                        "on-primary-container": "#fffbff",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-background": "#1a1c1c",
+                        "on-surface-variant": "#5a413f",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#bbc8d0",
+                        "background": "#f9f9f9",
+                        "on-tertiary-container": "#fffbff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "xl": "32px",
+                        "margin-desktop": "40px",
+                        "2xl": "48px",
+                        "lg": "24px",
+                        "3xl": "64px",
+                        "xs": "4px",
+                        "base": "4px",
+                        "sm": "8px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "label-md": ["Hanken Grotesk"],
+                        "label-lg": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "display": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "title-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "500" }]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Hanken Grotesk', sans-serif;
+            background-color: #f9f9f9;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .ambient-shadow {
+            box-shadow: 0 0 32px 0 rgba(239, 83, 80, 0.08);
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="text-on-background bg-background min-h-screen pb-32">
+    <!-- TopAppBar -->
+    <header
+        class="fixed top-0 w-full z-50 bg-surface dark:bg-surface-dim bg-surface-container-low dark:bg-surface-container-lowest">
+        <div class="flex items-center justify-between px-margin-mobile h-16 w-full">
+            <div class="flex items-center gap-md">
+                <button
+                    class="active:scale-95 transition-transform text-primary dark:text-primary-fixed-dim hover:bg-surface-variant transition-colors p-sm rounded-full flex items-center justify-center">
+                    <span class="material-symbols-outlined" data-icon="close">close</span>
+                </button>
+                <h1 class="font-title-lg text-title-lg text-primary dark:text-primary-fixed-dim font-bold">Warehouse Pro
+                </h1>
+            </div>
+            <button
+                class="active:scale-95 transition-transform text-primary dark:text-primary-fixed-dim hover:bg-surface-variant transition-colors p-sm rounded-full flex items-center justify-center">
+                <span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+            </button>
+        </div>
+    </header>
+    <main class="pt-20 px-margin-mobile max-w-2xl mx-auto"><!-- Wizard Header -->
+        <div class="text-center w-full mb-lg">
+            <h2 class="font-headline-md text-headline-md text-primary mb-sm">Bước 4/5: Kiểm tra danh sách</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant">Xem lại các mục đã kiểm kê và xác nhận sai lệch
+            </p>
+            <!-- Progress Bar -->
+            <div class="w-full bg-surface-container-high h-2 rounded-full mt-md overflow-hidden">
+                <div class="bg-primary h-full w-4/5 rounded-full transition-all duration-300"></div>
+            </div>
+        </div>
+        <!-- Filter/Stats Chips -->
+        <div class="flex gap-sm mb-lg overflow-x-auto pb-sm">
+            <button
+                class="px-md py-sm rounded-full bg-primary text-on-primary font-label-md text-label-md shrink-0 flex items-center gap-xs">
+                <span class="">Tất cả (24)</span>
+            </button>
+            <button
+                class="px-md py-sm rounded-full bg-surface-container-highest text-on-surface border border-outline-variant/50 font-label-md text-label-md shrink-0 flex items-center gap-xs">
+                <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                <span class="">Khớp (21)</span>
+            </button>
+            <button
+                class="px-md py-sm rounded-full bg-[#FEEBEE] text-primary border border-primary/30 font-label-md text-label-md shrink-0 flex items-center gap-xs">
+                <span class="w-2 h-2 rounded-full bg-primary"></span>
+                <span class="">Sai lệch (3)</span>
+            </button>
+        </div>
+        <!-- Discrepancy List -->
+        <div class="space-y-sm mb-xl">
+            <h2 class="font-title-lg text-title-lg text-on-background mb-sm">Sai lệch</h2>
+            <div
+                class="bg-surface-bright rounded-lg p-md border border-[#FEEBEE] shadow-[0_4px_16px_rgba(239,83,80,0.08)] flex items-center justify-between">
+                <div class="flex items-center gap-md">
+                    <div class="w-12 h-12 rounded bg-[#FEEBEE] flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-primary">warning</span>
+                    </div>
+                    <div>
+                        <div class="font-label-lg text-label-lg text-on-background">iPhone 15 Pro Max 256GB</div>
+                        <div class="font-body-md text-body-md text-on-surface-variant text-sm">SKU: APP-I15PM-256-BLK
+                        </div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="flex items-center justify-end gap-sm mb-xs">
+                        <span class="font-body-md text-body-md text-on-surface-variant line-through">HT: 1</span>
+                        <span class="font-label-lg text-label-lg text-primary">Đếm: 0</span>
+                    </div>
+                    <button class="text-primary font-label-md text-label-md underline hover:text-primary-container">Đếm
+                        lại</button>
+                </div>
+            </div>
+            <div
+                class="bg-surface-bright rounded-lg p-md border border-[#FEEBEE] shadow-[0_4px_16px_rgba(239,83,80,0.08)] flex items-center justify-between">
+                <div class="flex items-center gap-md">
+                    <div class="w-12 h-12 rounded bg-[#FEEBEE] flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-primary">warning</span>
+                    </div>
+                    <div>
+                        <div class="font-label-lg text-label-lg text-on-background">Chuột Logitech MX Master 3S</div>
+                        <div class="font-body-md text-body-md text-on-surface-variant text-sm">SKU: LOG-MXM3S-GRY</div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="flex items-center justify-end gap-sm mb-xs">
+                        <span class="font-body-md text-body-md text-on-surface-variant line-through">HT: 1</span>
+                        <span class="font-label-lg text-label-lg text-primary">Đếm: 0</span>
+                    </div>
+                    <button class="text-primary font-label-md text-label-md underline hover:text-primary-container">Đếm
+                        lại</button>
+                </div>
+            </div>
+        </div>
+        <!-- Matched List -->
+        <div class="space-y-sm">
+            <h2 class="font-title-lg text-title-lg text-on-background mb-sm mt-lg">Các mục đã khớp</h2>
+            <div class="flex items-center justify-between py-sm border-b border-surface-container">
+                <div class="flex items-center gap-md">
+                    <span class="material-symbols-outlined text-green-600" data-weight="fill">check_circle</span>
+                    <div>
+                        <div class="font-label-lg text-label-lg text-on-background">Bàn phím Keychron K2V2</div>
+                        <div class="font-body-md text-body-md text-on-surface-variant text-sm">SKU: KEY-K2V2-RGB</div>
+                    </div>
+                </div>
+                <div class="font-label-lg text-label-lg text-on-background">SL: 5/5</div>
+            </div>
+            <div class="flex items-center justify-between py-sm border-b border-surface-container">
+                <div class="flex items-center gap-md">
+                    <span class="material-symbols-outlined text-green-600" data-weight="fill">check_circle</span>
+                    <div>
+                        <div class="font-label-lg text-label-lg text-on-background">Hub USB-C 7-in-1 Baseus</div>
+                        <div class="font-body-md text-body-md text-on-surface-variant text-sm">SKU: BAS-HUB-71-GR</div>
+                    </div>
+                </div>
+                <div class="font-label-lg text-label-lg text-on-background">SL: 7/7</div>
+            </div>
+        </div>
+    </main>
+    <!-- BottomNavBar -->
+    <script>
+        // Micro-interactions for button active states
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.classList.add('scale-95');
+            });
+            button.addEventListener('mouseup', () => {
+                button.classList.remove('scale-95');
+            });
+            button.addEventListener('mouseleave', () => {
+                button.classList.remove('scale-95');
+            });
+        });
+    </script>
+
+
+    <div class="fixed bottom-0 left-0 right-0 bg-surface border-t border-surface-container p-md z-50">
+        <div class="max-w-2xl mx-auto flex gap-md">
+            <button
+                class="flex-1 h-12 rounded-full border border-outline text-primary font-label-lg text-label-lg active:scale-95 transition-transform hover:bg-surface-variant">
+                Đếm lại tất cả
+            </button>
+            <button
+                class="flex-1 h-12 rounded-full bg-primary text-on-primary font-label-lg text-label-lg active:scale-95 transition-transform">
+                Tiếp tục (Bước 5)
+            </button>
+        </div>
+    </div>
+</body>
+
+</html>
