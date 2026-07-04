@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../providers/inventory_provider.dart';
 
 class CountStep5Screen extends StatefulWidget {
   const CountStep5Screen({Key? key}) : super(key: key);
@@ -11,24 +13,50 @@ class CountStep5Screen extends StatefulWidget {
 class _CountStep5ScreenState extends State<CountStep5Screen> {
   bool _isSyncing = false;
   bool _isSynced = false;
+  String? _error;
 
   void _handleSync() async {
     setState(() {
       _isSyncing = true;
+      _error = null;
     });
 
-    await Future.delayed(const Duration(seconds: 2));
+    final provider = context.read<InventoryProvider>();
+    final session = provider.selectedSession ?? provider.sessions.firstWhere((s) => s.id == provider.activeSessionId);
+    final details = session.details ?? [];
 
-    if (mounted) {
+    // Filter only those with actual quantities
+    final countedDetails = details.where((d) => d.actualQuantity != null).toList();
+
+    // API calls to submit counted details and then sync the session
+    bool submitSuccess = await provider.submitCountDetails(countedDetails);
+    
+    if (submitSuccess && mounted) {
+      bool syncSuccess = await provider.syncSession(session.id);
+      
+      if (mounted) {
+        if (syncSuccess) {
+          setState(() {
+            _isSyncing = false;
+            _isSynced = true;
+          });
+          
+          await Future.delayed(const Duration(milliseconds: 1000));
+          if (mounted) {
+            Navigator.popUntil(context, (route) => route.isFirst);
+          }
+        } else {
+          setState(() {
+            _isSyncing = false;
+            _error = provider.error ?? "Lỗi khi đồng bộ.";
+          });
+        }
+      }
+    } else if (mounted) {
       setState(() {
         _isSyncing = false;
-        _isSynced = true;
+        _error = provider.error ?? "Lỗi khi gửi kết quả.";
       });
-      
-      await Future.delayed(const Duration(milliseconds: 500));
-      if (mounted) {
-        Navigator.popUntil(context, (route) => route.isFirst);
-      }
     }
   }
 
@@ -37,29 +65,56 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: _buildAppBar(context),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _buildProgressHeader(),
-                const SizedBox(height: 32),
-                _buildSummaryGrid(),
-                const SizedBox(height: 32),
-                _buildDiscrepancyList(),
-                const SizedBox(height: 120), // Padding for sticky bottom area
-              ],
-            ),
-          ),
-          Positioned(
-            bottom: 24,
-            left: 16,
-            right: 16,
-            child: _buildActionButtons(context),
-          ),
-        ],
+      body: Consumer<InventoryProvider>(
+        builder: (context, provider, child) {
+          final session = provider.selectedSession ?? provider.sessions.firstWhere((s) => s.id == provider.activeSessionId);
+          final details = session.details ?? [];
+
+          final totalSku = details.length;
+          final matched = details.where((d) => d.actualQuantity != null && d.actualQuantity == d.systemQuantity).length;
+          final discrepant = details.where((d) => d.actualQuantity != null && d.actualQuantity != d.systemQuantity).toList();
+
+          return Stack(
+            children: [
+              SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _buildProgressHeader(),
+                    const SizedBox(height: 32),
+                    if (_error != null)
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: AppColors.errorContainer,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.error, color: AppColors.error),
+                            const SizedBox(width: 8),
+                            Expanded(child: Text(_error!, style: const TextStyle(color: AppColors.onErrorContainer))),
+                          ],
+                        ),
+                      ),
+                    _buildSummaryGrid(totalSku, matched, discrepant.length),
+                    const SizedBox(height: 32),
+                    _buildDiscrepancyList(discrepant),
+                    const SizedBox(height: 120), // Padding for sticky bottom area
+                  ],
+                ),
+              ),
+              Positioned(
+                bottom: 24,
+                left: 16,
+                right: 16,
+                child: _buildActionButtons(context),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -70,8 +125,8 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.menu, color: AppColors.primary),
-        onPressed: () {},
+        icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+        onPressed: () => Navigator.pop(context),
       ),
       centerTitle: true,
       title: const Text(
@@ -82,12 +137,6 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
           fontSize: 20,
         ),
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.account_circle, color: AppColors.primary),
-          onPressed: () {},
-        ),
-      ],
     );
   }
 
@@ -128,7 +177,7 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
     );
   }
 
-  Widget _buildSummaryGrid() {
+  Widget _buildSummaryGrid(int total, int matched, int discrepant) {
     return Row(
       children: [
         Expanded(
@@ -136,7 +185,7 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
             icon: Icons.dataset,
             iconColor: AppColors.secondary,
             title: 'TỔNG SỐ SKU',
-            value: '1.248',
+            value: '$total',
             valueColor: AppColors.onSurface,
             bgColor: AppColors.surfaceContainerLowest,
             borderColor: AppColors.outlineVariant.withOpacity(0.3),
@@ -148,7 +197,7 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
             icon: Icons.check_circle,
             iconColor: AppColors.primary,
             title: 'ĐÃ KHỚP',
-            value: '1.242',
+            value: '$matched',
             valueColor: AppColors.primary,
             bgColor: const Color(0xFFFEEBEE).withOpacity(0.4),
             borderColor: AppColors.outlineVariant.withOpacity(0.3),
@@ -160,7 +209,7 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
             icon: Icons.warning,
             iconColor: AppColors.error,
             title: 'CHÊNH LỆCH',
-            value: '6',
+            value: '$discrepant',
             valueColor: AppColors.error,
             bgColor: AppColors.surfaceContainerLowest,
             borderColor: AppColors.error.withOpacity(0.2),
@@ -207,7 +256,8 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
     );
   }
 
-  Widget _buildDiscrepancyList() {
+  Widget _buildDiscrepancyList(List<dynamic> discrepantItems) {
+    if (discrepantItems.isEmpty) return const SizedBox.shrink();
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerLowest,
@@ -238,15 +288,20 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
               ],
             ),
           ),
-          _buildDiscrepancyListItem('SKU-892-A', 'Dự kiến: 140 | Thực tế: 138', '-2'),
-          const Divider(height: 1, color: AppColors.surfaceContainer),
-          _buildDiscrepancyListItem('SKU-411-B', 'Dự kiến: 50 | Thực tế: 54', '+4'),
+          ...discrepantItems.map((d) => Column(
+            children: [
+              _buildDiscrepancyListItem(d.sku ?? '', 'Dự kiến: ${d.systemQuantity} | Thực tế: ${d.actualQuantity}', '${d.actualQuantity! - d.systemQuantity}'),
+              const Divider(height: 1, color: AppColors.surfaceContainer),
+            ],
+          )).toList(),
         ],
       ),
     );
   }
 
   Widget _buildDiscrepancyListItem(String title, String subtitle, String diff) {
+    final diffInt = int.tryParse(diff) ?? 0;
+    final diffStr = diffInt > 0 ? '+$diff' : diff;
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
@@ -276,7 +331,7 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
               color: AppColors.error.withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Text(diff, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.error)),
+            child: Text(diffStr, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.error)),
           ),
         ],
       ),

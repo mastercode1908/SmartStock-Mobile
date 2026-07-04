@@ -1,29 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import 'count_step2_screen.dart';
+import '../../providers/inventory_provider.dart';
+import '../../models/storage_location.dart';
 
-class CountStep1Screen extends StatelessWidget {
+class CountStep1Screen extends StatefulWidget {
   const CountStep1Screen({Key? key}) : super(key: key);
+
+  @override
+  State<CountStep1Screen> createState() => _CountStep1ScreenState();
+}
+
+class _CountStep1ScreenState extends State<CountStep1Screen> {
+  String? _selectedZone;
+  String? _selectedRack;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<InventoryProvider>();
+      if (provider.locations.isEmpty) {
+        provider.loadWarehouses();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: _buildAppBar(context),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildProgressHeader(),
-            const SizedBox(height: 32),
-            _buildZonesSelection(),
-            const SizedBox(height: 32),
-            _buildAislesSelection(),
-            const SizedBox(height: 32),
-            _buildActionArea(context),
-          ],
-        ),
+      body: Consumer<InventoryProvider>(
+        builder: (context, provider, child) {
+          if (provider.isLoading && provider.locations.isEmpty) {
+            return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+          }
+
+          final session = provider.selectedSession ?? provider.sessions.firstWhere((s) => s.id == provider.activeSessionId);
+          
+          // Filter locations by session's warehouse
+          final warehouseLocations = provider.locations.where((l) => l.warehouseId == session.warehouseId).toList();
+          
+          // Get unique zones
+          final zones = warehouseLocations.map((l) => l.zone).toSet().toList()..sort();
+          if (_selectedZone == null && zones.isNotEmpty) {
+            _selectedZone = zones.first;
+          }
+
+          // Get racks for selected zone
+          final racksInZone = warehouseLocations
+              .where((l) => l.zone == _selectedZone)
+              .map((l) => l.rack)
+              .toSet()
+              .toList()..sort();
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildProgressHeader(),
+                const SizedBox(height: 32),
+                _buildZonesSelection(zones),
+                const SizedBox(height: 32),
+                if (_selectedZone != null) _buildAislesSelection(racksInZone),
+                const SizedBox(height: 32),
+                _buildActionArea(context),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -92,17 +140,31 @@ class CountStep1Screen extends StatelessWidget {
     );
   }
 
-  Widget _buildZonesSelection() {
+  Widget _buildZonesSelection(List<String> zones) {
+    if (zones.isEmpty) {
+      return const Text('Không có khu vực nào trong kho này.', style: TextStyle(color: AppColors.onSurfaceVariant));
+    }
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Khu vực Kho', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: AppColors.onSurface)),
         const SizedBox(height: 16),
-        _buildZoneCard('A', 'Khu A - Điện tử', '12 Dãy kệ • 450 Thùng', true),
-        const SizedBox(height: 12),
-        _buildZoneCard('B', 'Khu B - Quần áo', '8 Dãy kệ • 320 Thùng', false),
-        const SizedBox(height: 12),
-        _buildZoneCard('C', 'Khu C - Hàng dễ hỏng', '5 Dãy kệ • 150 Thùng', false),
+        ...zones.map((zone) {
+          bool isSelected = _selectedZone == zone;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedZone = zone;
+                  _selectedRack = null;
+                });
+              },
+              child: _buildZoneCard(zone, 'Khu $zone', '', isSelected),
+            ),
+          );
+        }).toList(),
       ],
     );
   }
@@ -126,7 +188,7 @@ class CountStep1Screen extends StatelessWidget {
             ),
             alignment: Alignment.center,
             child: Text(
-              id,
+              id.isNotEmpty ? id[0].toUpperCase() : '?',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -140,8 +202,10 @@ class CountStep1Screen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
-                const SizedBox(height: 4),
-                Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                if (subtitle.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                ],
               ],
             ),
           ),
@@ -154,14 +218,14 @@ class CountStep1Screen extends StatelessWidget {
     );
   }
 
-  Widget _buildAislesSelection() {
+  Widget _buildAislesSelection(List<String> racks) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Các Dãy kệ trong Khu A', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onSurface)),
+            Text('Các Dãy kệ trong Khu $_selectedZone', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onSurface)),
             Container(
               padding: const EdgeInsets.all(8),
               decoration: const BoxDecoration(
@@ -173,28 +237,28 @@ class CountStep1Screen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(child: _buildAisleCard('A-01', 'Chờ kiểm tra', false)),
-            const SizedBox(width: 12),
-            Expanded(child: _buildAisleCard('A-02', 'Chờ kiểm tra', false)),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(child: _buildAisleCard('A-03', 'Đang thực hiện', true)),
-            const SizedBox(width: 12),
-            Expanded(child: _buildAisleCard('A-04', 'Chờ kiểm tra', false)),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(child: _buildAisleCard('A-05', 'Chờ kiểm tra', false)),
-            const SizedBox(width: 12),
-            Expanded(child: Container()), // Empty space for alignment
-          ],
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.5,
+          ),
+          itemCount: racks.length,
+          itemBuilder: (context, index) {
+            String rack = racks[index];
+            bool isSelected = _selectedRack == rack;
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedRack = rack;
+                });
+              },
+              child: _buildAisleCard(rack, isSelected ? 'Đã chọn' : 'Chờ kiểm tra', isSelected),
+            );
+          },
         ),
       ],
     );
@@ -206,7 +270,7 @@ class CountStep1Screen extends StatelessWidget {
       decoration: BoxDecoration(
         color: inProgress ? AppColors.surfaceContainerLow : AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: inProgress ? AppColors.outlineVariant : AppColors.surfaceVariant),
+        border: Border.all(color: inProgress ? AppColors.primary : AppColors.surfaceVariant),
       ),
       child: Stack(
         children: [
@@ -216,24 +280,23 @@ class CountStep1Screen extends StatelessWidget {
               top: 0,
               bottom: 0,
               width: 8,
-              child: Container(color: AppColors.tertiary),
+              child: Container(color: AppColors.primary),
             ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onSurface)),
-                    Icon(inProgress ? Icons.pending : Icons.shelves, color: inProgress ? AppColors.tertiary : AppColors.onSurfaceVariant),
+                    Icon(inProgress ? Icons.check_circle : Icons.shelves, color: inProgress ? AppColors.primary : AppColors.onSurfaceVariant),
                   ],
                 ),
-                const SizedBox(height: 16),
-                const Text('Trạng thái', style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
-                const SizedBox(height: 4),
-                Text(status, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: inProgress ? AppColors.tertiary : AppColors.secondary)),
+                const SizedBox(height: 8),
+                Text(status, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: inProgress ? AppColors.primary : AppColors.secondary)),
               ],
             ),
           ),
@@ -243,24 +306,24 @@ class CountStep1Screen extends StatelessWidget {
   }
 
   Widget _buildActionArea(BuildContext context) {
+    bool canProceed = _selectedRack != null;
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+            backgroundColor: canProceed ? AppColors.primary : AppColors.surfaceVariant,
+            foregroundColor: canProceed ? Colors.white : AppColors.onSurfaceVariant,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
-            elevation: 4,
-            shadowColor: AppColors.primary.withOpacity(0.4),
+            elevation: canProceed ? 4 : 0,
           ),
-          onPressed: () {
+          onPressed: canProceed ? () {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const CountStep2Screen()));
-          },
-          child: const Row(
+          } : null,
+          child: Row(
             mainAxisSize: MainAxisSize.min,
-            children: [
+            children: const [
               Text('Tiếp tục Kiểm đếm', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
               SizedBox(width: 8),
               Icon(Icons.arrow_forward),

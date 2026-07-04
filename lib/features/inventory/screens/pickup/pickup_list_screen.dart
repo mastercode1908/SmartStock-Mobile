@@ -1,56 +1,104 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../providers/picking_provider.dart';
+import '../../models/picking_task.dart';
 import 'pickup_step1_screen.dart';
 
-class PickUpListScreen extends StatelessWidget {
+class PickUpListScreen extends StatefulWidget {
   const PickUpListScreen({Key? key}) : super(key: key);
+
+  @override
+  State<PickUpListScreen> createState() => _PickUpListScreenState();
+}
+
+class _PickUpListScreenState extends State<PickUpListScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<PickingProvider>().fetchTasks();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: _buildAppBar(context),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 24),
-            _buildStatusFilters(),
-            const SizedBox(height: 24),
-            _buildTaskList(context),
-            const SizedBox(height: 80), // Padding for bottom nav
-          ],
-        ),
+      body: Consumer<PickingProvider>(
+        builder: (context, provider, child) {
+          if (provider.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (provider.error != null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(provider.error!, style: const TextStyle(color: Colors.red)),
+                  ElevatedButton(
+                    onPressed: () => provider.fetchTasks(),
+                    child: const Text('Thử lại'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 24),
+                _buildStatusFilters(),
+                const SizedBox(height: 24),
+                if (provider.tasks.isEmpty)
+                  const Center(child: Text('Không có nhiệm vụ nào.'))
+                else
+                  ...provider.tasks.map((task) => _buildTaskCard(context, task)).toList(),
+                const SizedBox(height: 80),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: AppColors.surface,
+      backgroundColor: const Color(0xfff9f9f9),
       elevation: 0,
       scrolledUnderElevation: 0,
-      centerTitle: true,
-      leading: IconButton(
-        icon: const Icon(Icons.menu, color: AppColors.onSurfaceVariant),
-        onPressed: () {},
-      ),
-      title: const Text(
-        'Warehouse Pro',
-        style: TextStyle(
-          color: AppColors.primary,
-          fontWeight: FontWeight.bold,
-          fontSize: 24,
-        ),
+      title: Row(
+        children: const [
+          Icon(Icons.inventory_2, color: Color(0xffb02528)),
+          SizedBox(width: 8),
+          Text(
+            'Smart Stock',
+            style: TextStyle(
+              color: Color(0xffb02528),
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+            ),
+          ),
+        ],
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.account_circle, color: AppColors.onSurfaceVariant),
+          icon: const Icon(Icons.notifications, color: Color(0xffb02528)),
           onPressed: () {},
         ),
+        const SizedBox(width: 8),
       ],
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(1.0),
+        child: Container(color: Colors.grey[300], height: 1.0),
+      ),
     );
   }
 
@@ -131,38 +179,12 @@ class PickUpListScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTaskList(BuildContext context) {
-    return Column(
-      children: [
-        _buildTaskCard(
-          context,
-          code: 'BTCH-001',
-          zone: 'Zone A',
-          qty: '156 đơn vị',
-          detail: '08 Đơn - 24 SKU',
-        ),
-        const SizedBox(height: 24),
-        _buildTaskCard(
-          context,
-          code: 'BTCH-002',
-          zone: 'Zone B',
-          qty: '82 đơn vị',
-          detail: '04 Đơn - 12 SKU',
-        ),
-        const SizedBox(height: 24),
-        _buildTaskCard(
-          context,
-          code: 'BTCH-003',
-          zone: 'Zone C',
-          qty: '210 đơn vị',
-          detail: '15 Đơn - 40 SKU',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTaskCard(BuildContext context, {required String code, required String zone, required String qty, required String detail}) {
+  Widget _buildTaskCard(BuildContext context, PickingTask task) {
+    final bool isNew = task.status == 0;
+    int totalItems = task.details?.fold(0, (sum, d) => sum! + d.expectedQuantity) ?? 0;
+    
     return Container(
+      margin: const EdgeInsets.only(bottom: 24),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -180,7 +202,7 @@ class PickUpListScreen extends StatelessWidget {
                   const Icon(Icons.assignment, color: AppColors.primary),
                   const SizedBox(width: 4),
                   Text(
-                    code,
+                    task.taskCode,
                     style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.onSurface),
                   ),
                 ],
@@ -188,12 +210,18 @@ class PickUpListScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.tertiaryContainer.withOpacity(0.2),
+                  color: isNew 
+                      ? AppColors.tertiaryContainer.withOpacity(0.2)
+                      : AppColors.primaryContainer.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Text(
-                  'Mới',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.tertiary),
+                child: Text(
+                  isNew ? 'Mới' : 'Đang làm',
+                  style: TextStyle(
+                    fontSize: 12, 
+                    fontWeight: FontWeight.w500, 
+                    color: isNew ? AppColors.tertiary : AppColors.primary
+                  ),
                 ),
               ),
             ],
@@ -205,8 +233,8 @@ class PickUpListScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('KHU VỰC', style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
-                    Text(zone, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                    const Text('SỐ LƯỢNG', style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                    Text('$totalItems', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                   ],
                 ),
               ),
@@ -214,19 +242,11 @@ class PickUpListScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('SỐ LƯỢNG', style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
-                    Text(qty, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                    const Text('CHI TIẾT', style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                    Text('${task.details?.length ?? 0} SKU', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                   ],
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('CHI TIẾT', style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
-              Text(detail, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
             ],
           ),
           const SizedBox(height: 16),
@@ -238,15 +258,22 @@ class PickUpListScreen extends StatelessWidget {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
               elevation: 0,
             ),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const PickUpStep1Screen()));
+            onPressed: () async {
+              final provider = context.read<PickingProvider>();
+              await provider.fetchTaskDetail(task.taskId);
+              if (isNew) {
+                await provider.startTask(task.taskId);
+              }
+              if (context.mounted) {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const PickUpStep1Screen()));
+              }
             },
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.play_arrow),
-                SizedBox(width: 8),
-                Text('Nhận nhiệm vụ', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                Icon(isNew ? Icons.play_arrow : Icons.arrow_forward),
+                const SizedBox(width: 8),
+                Text(isNew ? 'Nhận nhiệm vụ' : 'Tiếp tục', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
               ],
             ),
           ),

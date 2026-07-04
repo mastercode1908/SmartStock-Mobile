@@ -8,7 +8,7 @@ class InventoryCountDetail {
   final String? serialNumber;
   final int unitId;
   final int systemQuantity;
-  final int countedQuantity;
+  int? actualQuantity;
   final int difference;
   final String status; // MATCHED, DISCREPANCY, REQUIRES_RECOUNT
   final String? notes;
@@ -25,7 +25,7 @@ class InventoryCountDetail {
     this.serialNumber,
     required this.unitId,
     required this.systemQuantity,
-    required this.countedQuantity,
+    this.actualQuantity,
     required this.difference,
     required this.status,
     this.notes,
@@ -61,7 +61,7 @@ class InventoryCountDetail {
       serialNumber: json['SerialNumber'] ?? json['serialNumber'],
       unitId: json['UnitID'] ?? json['unitID'] ?? json['unitId'] ?? json['LocationID'] ?? json['locationID'] ?? 0,
       systemQuantity: json['SystemQuantity'] ?? json['systemQuantity'] ?? 0,
-      countedQuantity: json['ActualQuantity'] ?? json['actualQuantity'] ?? json['CountedQuantity'] ?? json['countedQuantity'] ?? 0,
+      actualQuantity: json['ActualQuantity'] ?? json['actualQuantity'] ?? json['CountedQuantity'] ?? json['countedQuantity'],
       difference: diff,
       status: statusStr,
       notes: json['note'] ?? json['notes'],
@@ -83,7 +83,7 @@ class InventoryCountDetail {
       'serialID': null,
       'locationID': 1, // Hardcoded for now
       'systemQuantity': systemQuantity,
-      'actualQuantity': countedQuantity,
+      'actualQuantity': actualQuantity ?? 0,
       'differenceQuantity': difference,
       'variance': 0,
       'varianceReason': '',

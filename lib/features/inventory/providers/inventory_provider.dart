@@ -94,6 +94,22 @@ class InventoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateActualQuantity(int variantId, int quantity) {
+    final detail = _selectedSession?.details?.firstWhere((d) => d.variantId == variantId);
+    if (detail != null) {
+      detail.actualQuantity = quantity;
+      notifyListeners();
+    } else {
+      // Also check active session in list if _selectedSession is null
+      final session = _sessions.firstWhere((s) => s.id == _activeSessionId);
+      final d = session.details?.firstWhere((dt) => dt.variantId == variantId);
+      if (d != null) {
+        d.actualQuantity = quantity;
+        notifyListeners();
+      }
+    }
+  }
+
   Future<void> loadWarehouses() async {
     try {
       _isLoading = true;

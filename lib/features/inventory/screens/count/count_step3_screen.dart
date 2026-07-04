@@ -1,16 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../models/product_variant.dart';
+import '../../providers/inventory_provider.dart';
 import 'count_step4_screen.dart';
 
 class CountStep3Screen extends StatefulWidget {
-  const CountStep3Screen({Key? key}) : super(key: key);
+  final ProductVariant variant;
+
+  const CountStep3Screen({Key? key, required this.variant}) : super(key: key);
 
   @override
   State<CountStep3Screen> createState() => _CountStep3ScreenState();
 }
 
 class _CountStep3ScreenState extends State<CountStep3Screen> {
-  int _quantity = 50;
+  int _quantity = 0;
+  int _systemQty = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    final provider = context.read<InventoryProvider>();
+    // Fetch system quantity from provider
+    _systemQty = provider.systemQuantities[widget.variant.variantId] ?? 0;
+    
+    // Check if we already have an actual quantity in the session
+    final session = provider.selectedSession ?? provider.sessions.firstWhere((s) => s.id == provider.activeSessionId);
+    try {
+      final detail = session.details?.firstWhere((d) => d.variantId == widget.variant.variantId);
+      if (detail != null && detail.actualQuantity != null) {
+        _quantity = detail.actualQuantity!;
+      } else {
+        _quantity = _systemQty; // Default to system qty
+      }
+    } catch (e) {
+      _quantity = _systemQty;
+    }
+  }
 
   void _increment() {
     setState(() {
@@ -24,6 +51,14 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
         _quantity--;
       });
     }
+  }
+
+  void _saveAndProceed() {
+    context.read<InventoryProvider>().updateActualQuantity(widget.variant.variantId, _quantity);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Đã lưu số lượng!'), backgroundColor: AppColors.primary),
+    );
+    Navigator.pop(context); // Go back to Scanner
   }
 
   @override
@@ -60,8 +95,8 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.close, color: AppColors.primary),
-        onPressed: () => Navigator.popUntil(context, (route) => route.isFirst),
+        icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+        onPressed: () => Navigator.pop(context),
       ),
       centerTitle: true,
       title: const Text(
@@ -72,12 +107,6 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
           fontSize: 20,
         ),
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.help_outline, color: AppColors.primary),
-          onPressed: () {},
-        ),
-      ],
     );
   }
 
@@ -119,6 +148,8 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
   }
 
   Widget _buildProductDetailsCard() {
+    final hasImage = widget.variant.imageUrl != null && widget.variant.imageUrl!.isNotEmpty;
+    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -144,22 +175,26 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
                 decoration: BoxDecoration(
                   color: AppColors.surfaceContainer,
                   borderRadius: BorderRadius.circular(16),
-                  image: const DecorationImage(
-                    image: NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuAwEoDaXP6eOLaXhYLmu1LctAW5sBPE0mjZ0lMqgmadL3iB_Me7zlR4cO-_aPu7eOBk5IE1_13Sw_bM9Ti97UTHEMqnz-dRKOwQ8mTE6UNvCfxW1WG-kzvrOH7w3W_DzI5oo1QgMrcd6LWEktEB0GroDZZ0sdTYOsV6Eq08hy7r4LD6D0gUaeSojZ9FgVesA9JetI9_7AV72u7xYQSOBU2QXOmmlC0pC0rahj3q7d4s2WEe8pn5Mn3qpJnwsopa4AGdVVi8NmiUyy1w'),
+                  image: hasImage ? DecorationImage(
+                    image: NetworkImage(widget.variant.imageUrl!),
                     fit: BoxFit.cover,
-                  ),
+                  ) : null,
                 ),
+                child: !hasImage ? const Icon(Icons.inventory_2, color: AppColors.onSurfaceVariant) : null,
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Găng tay bảo hộ cao cấp', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onSurface)),
+                    Text(
+                      widget.variant.variantName.isNotEmpty ? widget.variant.variantName : widget.variant.productName, 
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onSurface)
+                    ),
                     const SizedBox(height: 4),
-                    const Text('Mã SP: SK-GL-992', style: TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                    Text('SKU: ${widget.variant.sku}', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
                     const SizedBox(height: 2),
-                    const Text('Vị trí: Rack A2, Kệ 04', style: TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                    Text('Tracking: ${widget.variant.trackingMethod == 0 ? 'NONE' : widget.variant.trackingMethod == 1 ? 'BATCH' : 'SERIAL'}', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
                   ],
                 ),
               ),
@@ -177,11 +212,11 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
               children: [
                 const Text('Số lượng hệ thống:', style: TextStyle(fontSize: 16, color: AppColors.onSurfaceVariant)),
                 RichText(
-                  text: const TextSpan(
-                    style: TextStyle(color: AppColors.onSurface),
+                  text: TextSpan(
+                    style: const TextStyle(color: AppColors.onSurface),
                     children: [
-                      TextSpan(text: '50 ', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                      TextSpan(text: 'Cái', style: TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                      TextSpan(text: '$_systemQty ', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                      TextSpan(text: widget.variant.baseUnitSymbol, style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
                     ],
                   ),
                 ),
@@ -286,9 +321,11 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       foregroundColor: AppColors.onSurfaceVariant,
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                       _saveAndProceed(); // Just save and go back for now
+                    },
                     icon: const Icon(Icons.qr_code_scanner, color: AppColors.primary),
-                    label: const Text('Quét lại'),
+                    label: const Text('Quét tiếp'),
                   ),
                 ),
               ],
@@ -304,14 +341,14 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
                 minimumSize: const Size(double.infinity, 56),
               ),
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const CountStep4Screen()));
+                _saveAndProceed();
               },
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Tiếp theo', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text('Lưu & Tiếp tục', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   SizedBox(width: 8),
-                  Icon(Icons.arrow_forward),
+                  Icon(Icons.save),
                 ],
               ),
             ),

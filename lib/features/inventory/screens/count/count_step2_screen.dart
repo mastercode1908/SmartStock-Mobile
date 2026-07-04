@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import 'count_step3_screen.dart';
+import 'count_step4_screen.dart';
+import '../../providers/inventory_provider.dart';
+import '../../models/product_variant.dart';
 
 class CountStep2Screen extends StatefulWidget {
   const CountStep2Screen({Key? key}) : super(key: key);
@@ -27,6 +31,77 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+
+  void _showManualEntryBottomSheet(BuildContext context, InventoryProvider provider) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          maxChildSize: 0.9,
+          minChildSize: 0.4,
+          expand: false,
+          builder: (context, scrollController) {
+            final variants = provider.selectedVariants;
+            return Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.outlineVariant,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Chọn sản phẩm cần đếm',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.onSurface),
+                  ),
+                ),
+                Expanded(
+                  child: variants.isEmpty
+                      ? const Center(child: Text('Không có sản phẩm nào để kiểm đếm.'))
+                      : ListView.builder(
+                          controller: scrollController,
+                          itemCount: variants.length,
+                          itemBuilder: (context, index) {
+                            final variant = variants[index];
+                            return ListTile(
+                              leading: const CircleAvatar(
+                                backgroundColor: AppColors.surfaceContainerHigh,
+                                child: Icon(Icons.inventory_2, color: AppColors.primary),
+                              ),
+                              title: Text(variant.variantName.isNotEmpty ? variant.variantName : variant.productName, style: const TextStyle(fontWeight: FontWeight.w600)),
+                              subtitle: Text('SKU: ${variant.sku}'),
+                              trailing: const Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => CountStep3Screen(variant: variant),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -57,8 +132,8 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.close, color: AppColors.primary),
-                        onPressed: () => Navigator.popUntil(context, (route) => route.isFirst),
+                        icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+                        onPressed: () => Navigator.pop(context),
                       ),
                       IconButton(
                         icon: const Icon(Icons.help_outline, color: AppColors.primary),
@@ -80,39 +155,11 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
             ),
           ),
 
-          // Location Indicator Overlay
-          Positioned(
-            top: 180, // Adjust based on header height
-            left: 16,
-            right: 16,
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceContainerHighest.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppColors.surfaceVariant),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.location_on, color: AppColors.primary, size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      'Khu vực B - Kệ 04 - Tầng 2',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.onSurface),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
           // Scanner Overlay
           Center(
             child: Container(
-              width: 288, // 72 * 4
-              height: 192, // 48 * 4
+              width: 288,
+              height: 192,
               decoration: BoxDecoration(
                 border: Border.all(color: AppColors.primary, width: 2),
                 borderRadius: BorderRadius.circular(16),
@@ -160,7 +207,7 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
             left: 0,
             right: 0,
             child: Container(
-              height: 160,
+              height: 200,
               padding: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -173,45 +220,66 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
                   ],
                 ),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceContainer.withOpacity(0.2),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.outline.withOpacity(0.3)),
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.flashlight_on, color: Colors.white),
-                      onPressed: () {},
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      minimumSize: const Size(double.infinity, 56),
-                      elevation: 4,
-                    ),
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const CountStep3Screen()));
-                    },
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.keyboard),
-                        SizedBox(width: 8),
-                        Text('Nhập thủ công', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ),
-                ],
+              child: Consumer<InventoryProvider>(
+                builder: (context, provider, child) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceContainer.withOpacity(0.2),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: AppColors.outline.withOpacity(0.3)),
+                            ),
+                            child: IconButton(
+                              icon: const Icon(Icons.flashlight_on, color: Colors.white),
+                              onPressed: () {},
+                            ),
+                          ),
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.surface,
+                              foregroundColor: AppColors.primary,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                            ),
+                            onPressed: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => const CountStep4Screen()));
+                            },
+                            icon: const Icon(Icons.checklist),
+                            label: const Text('Xem danh sách'),
+                          )
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          minimumSize: const Size(double.infinity, 56),
+                          elevation: 4,
+                        ),
+                        onPressed: () {
+                          _showManualEntryBottomSheet(context, provider);
+                        },
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.keyboard),
+                            SizedBox(width: 8),
+                            Text('Nhập thủ công', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                }
               ),
             ),
           ),
