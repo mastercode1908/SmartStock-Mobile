@@ -167,7 +167,7 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const WarehouseMapScreen()),
+                MaterialPageRoute(builder: (context) => WarehouseMapScreen(initialWarehouseId: _selectedWarehouseId)),
               );
             },
           ),

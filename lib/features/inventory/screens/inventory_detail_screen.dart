@@ -292,6 +292,7 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
             String trackingStr = 'NONE';
             if (variant.trackingMethod == 1) trackingStr = 'LOT';
             if (variant.trackingMethod == 2) trackingStr = 'SERIAL';
+            if (variant.trackingMethod == 3) trackingStr = 'LOT_SERIAL';
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 8.0),

@@ -3,6 +3,7 @@ import '../../inventory/screens/inventory_list_screen.dart';
 import '../../inventory/screens/inventory_history_screen.dart';
 import '../../notifications/screens/notification_screen.dart';
 import '../../inventory/screens/warehouse_location_screen.dart';
+import '../../inventory/screens/warehouse_map_screen.dart';
 import '../../inventory/screens/incident_report_screen.dart';
 import '../../scanner/screens/scan_screen.dart';
 import '../../profile/screens/profile_screen.dart';
@@ -11,6 +12,7 @@ import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../products/screens/product_list_screen.dart';
 import '../../inventory/providers/inventory_provider.dart';
+import '../../notifications/providers/notification_provider.dart';
 
 class EmployeeDashboardScreen extends StatefulWidget {
   const EmployeeDashboardScreen({Key? key}) : super(key: key);
@@ -53,6 +55,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<InventoryProvider>().loadSessions();
+      context.read<NotificationProvider>().fetchNotifications();
     });
   }
 
@@ -119,17 +122,55 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
         ],
       ),
       actions: [
-        IconButton(
-          icon: Icon(Icons.notifications_none, color: _primary),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const NotificationScreen(),
-              ),
+        Consumer<NotificationProvider>(
+          builder: (context, provider, child) {
+            final unreadCount = provider.unreadCount;
+            final displayCount = unreadCount > 99 ? '99+' : unreadCount.toString();
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.notifications_none, color: _primary),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const NotificationScreen(),
+                      ),
+                    );
+                  },
+                ),
+                if (unreadCount > 0)
+                  Positioned(
+                    right: 4,
+                    top: 4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: _primary,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.white, width: 1.5),
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        displayCount,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
             );
           },
         ),
+        const SizedBox(width: 8),
       ],
     );
   }
@@ -471,6 +512,19 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const WarehouseLocationScreen(),
+                  ),
+                );
+              },
+            ),
+            _buildQuickAccessButton(
+              context,
+              Icons.map_outlined,
+              'Sơ đồ kho',
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const WarehouseMapScreen(),
                   ),
                 );
               },

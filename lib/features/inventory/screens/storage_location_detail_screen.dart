@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/storage_location_provider.dart';
 import 'storage_location_form_screen.dart';
 import '../models/stock_balance.dart';
+import '../models/storage_location.dart';
 
 class StorageLocationDetailScreen extends StatefulWidget {
   final int locationId;
@@ -81,6 +82,22 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
     );
   }
 
+  void _openTransferDialog(BuildContext context, StockBalance item, StorageLocation loc) {
+    showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _TransferBottomSheet(item: item, loc: loc),
+    ).then((success) {
+      if (success == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Chuyển vị trí hàng hóa thành công!'), backgroundColor: Colors.green),
+        );
+        context.read<StorageLocationProvider>().loadLocationDetails(widget.locationId);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<StorageLocationProvider>();
@@ -116,8 +133,8 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
 
     // Statistics calculations
     final totalQuantity = loc.stockBalances.length;
-    final lotQuantity = loc.stockBalances.where((item) => item.trackingMethod == 1).length;
-    final serialQuantity = loc.stockBalances.where((item) => item.trackingMethod == 2).length;
+    final lotQuantity = loc.stockBalances.where((item) => item.trackingMethod == 1 || item.trackingMethod == 3).length;
+    final serialQuantity = loc.stockBalances.where((item) => item.trackingMethod == 2 || item.trackingMethod == 3).length;
     final basicQuantity = loc.stockBalances.where((item) => item.trackingMethod == 0).length;
 
     return Scaffold(
@@ -321,7 +338,7 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
               ...(() {
                 final basicItems = filteredBalances.where((item) => item.trackingMethod == 0).toList();
                 final lotItems = filteredBalances.where((item) => item.trackingMethod == 1).toList();
-                final serialItems = filteredBalances.where((item) => item.trackingMethod == 2).toList();
+                final serialItems = filteredBalances.where((item) => item.trackingMethod == 2 || item.trackingMethod == 3).toList();
                 return [
                   _buildCategorySection('Hàng Thường (Basic)', basicItems, Icons.widgets_outlined, const Color(0xffe67e22)),
                   _buildCategorySection('Hàng Theo Lô (Batch)', lotItems, Icons.receipt_long_outlined, const Color(0xff006a67)),
@@ -453,6 +470,11 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
         text = 'Hàng serial';
         bgColor = Colors.purple.shade50;
         textColor = Colors.purple.shade800;
+        break;
+      case 3:
+        text = 'Lô & Serial';
+        bgColor = Colors.deepPurple.shade50;
+        textColor = Colors.deepPurple.shade800;
         break;
     }
     return Container(
@@ -623,6 +645,57 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
                           ),
                         ],
                       ),
+                      if ((item.trackingMethod == 2 || item.trackingMethod == 3) && item.serialNumbers.isNotEmpty) ...[
+                        const Divider(height: 20),
+                        const Text(
+                          'Danh sách số Serial:',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54),
+                        ),
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: item.serialNumbers.map((sn) => Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xfff1f3f5),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: Colors.grey[300]!),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.qr_code, size: 12, color: Colors.black54),
+                                const SizedBox(width: 4),
+                                Text(
+                                  sn,
+                                  style: const TextStyle(fontSize: 11, fontFamily: 'Courier', fontWeight: FontWeight.bold, color: Colors.black87),
+                                ),
+                              ],
+                            ),
+                          )).toList(),
+                        ),
+                      ],
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            final loc = context.read<StorageLocationProvider>().selectedLocation!;
+                            _openTransferDialog(context, item, loc);
+                          },
+                          icon: const Icon(Icons.swap_horiz, size: 16),
+                          label: const Text('Chuyển vị trí'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xffb3272e),
+                            side: const BorderSide(color: Color(0xffb3272e)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -630,6 +703,423 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
             },
           ),
       ],
+    );
+  }
+}
+
+class _TransferBottomSheet extends StatefulWidget {
+  final StockBalance item;
+  final StorageLocation loc;
+
+  const _TransferBottomSheet({Key? key, required this.item, required this.loc}) : super(key: key);
+
+  @override
+  State<_TransferBottomSheet> createState() => _TransferBottomSheetState();
+}
+
+class _TransferBottomSheetState extends State<_TransferBottomSheet> {
+  int? _targetLocationId;
+  int _quantity = 1;
+  final TextEditingController _qtyController = TextEditingController(text: '1');
+  List<Map<String, dynamic>> _targetLocations = [];
+  List<String> _availableSerials = [];
+  final List<String> _selectedSerials = [];
+  bool _isLoadingLocations = true;
+  bool _isLoadingSerials = false;
+  bool _isSubmitting = false;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  @override
+  void dispose() {
+    _qtyController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadData() async {
+    final provider = context.read<StorageLocationProvider>();
+    setState(() {
+      _isLoadingLocations = true;
+    });
+    
+    // Load locations lookup
+    final locs = await provider.loadLocationsLookupForWarehouse(widget.loc.warehouseId, widget.loc.locationId);
+    
+    setState(() {
+      _targetLocations = locs;
+      _isLoadingLocations = false;
+    });
+
+    // If serial tracking, load available serials
+    if (widget.item.trackingMethod == 2 || widget.item.trackingMethod == 3) {
+      setState(() {
+        _isLoadingSerials = true;
+      });
+      final serials = await provider.loadAvailableSerials(
+        variantId: widget.item.variantId,
+        locationId: widget.loc.locationId,
+        batchId: widget.item.batchId,
+      );
+      setState(() {
+        _availableSerials = serials;
+        _isLoadingSerials = false;
+      });
+    }
+  }
+
+  void _onQtyChanged(String val) {
+    int? parsed = int.tryParse(val);
+    if (parsed != null) {
+      if (parsed > widget.item.quantity) {
+        parsed = widget.item.quantity;
+        _qtyController.text = parsed.toString();
+        _qtyController.selection = TextSelection.fromPosition(TextPosition(offset: _qtyController.text.length));
+      }
+      setState(() {
+        _quantity = parsed!;
+      });
+    }
+  }
+
+  Future<void> _submitTransfer() async {
+    if (_targetLocationId == null) {
+      setState(() {
+        _errorMessage = 'Vui lòng chọn vị trí nhận.';
+      });
+      return;
+    }
+
+    if (_quantity <= 0 || _quantity > widget.item.quantity) {
+      setState(() {
+        _errorMessage = 'Số lượng không hợp lệ.';
+      });
+      return;
+    }
+
+    if ((widget.item.trackingMethod == 2 || widget.item.trackingMethod == 3) && _selectedSerials.length != _quantity) {
+      setState(() {
+        _errorMessage = 'Vui lòng chọn đúng $_quantity số Serial tương ứng.';
+      });
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+
+    final provider = context.read<StorageLocationProvider>();
+    final success = await provider.transferStock(
+      sourceLocationId: widget.loc.locationId,
+      targetLocationId: _targetLocationId!,
+      variantId: widget.item.variantId,
+      batchId: widget.item.batchId,
+      quantity: _quantity,
+      serialNumbers: _selectedSerials,
+    );
+
+    if (success) {
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          _errorMessage = provider.error ?? 'Đã có lỗi xảy ra khi chuyển vị trí.';
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isSerialTracking = widget.item.trackingMethod == 2 || widget.item.trackingMethod == 3;
+    
+    return Container(
+      padding: EdgeInsets.only(
+        left: 16.0,
+        right: 16.0,
+        top: 16.0,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16.0,
+      ),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top Bar Indicator
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Chuyển vị trí hàng hóa',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xffb3272e),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                )
+              ],
+            ),
+            const Divider(),
+            
+            // Info Row
+            Text(
+              widget.item.productName,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            if (widget.item.variantName.isNotEmpty && widget.item.variantName != widget.item.productName) ...[
+              const SizedBox(height: 2),
+              Text(
+                'Biến thể: ${widget.item.variantName}',
+                style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+              ),
+            ],
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: RichText(
+                    text: TextSpan(
+                      style: const TextStyle(fontSize: 13, color: Colors.black87),
+                      children: [
+                        const TextSpan(text: 'Vị trí nguồn: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(text: widget.loc.locationCode),
+                      ],
+                    ),
+                  ),
+                ),
+                RichText(
+                  text: TextSpan(
+                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+                    children: [
+                      const TextSpan(text: 'Hiện có: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                      TextSpan(
+                        text: '${widget.item.quantity}',
+                        style: const TextStyle(color: Color(0xffb3272e), fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            if (widget.item.batchNumber != null) ...[
+              const SizedBox(height: 4),
+              RichText(
+                text: TextSpan(
+                  style: const TextStyle(fontSize: 13, color: Colors.black87),
+                  children: [
+                    const TextSpan(text: 'Số lô: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(text: widget.item.batchNumber!),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: 16),
+
+            // Dropdown chọn vị trí nhận
+            const Text(
+              'Chọn vị trí nhận',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
+            ),
+            const SizedBox(height: 8),
+            _isLoadingLocations
+                ? const Center(child: Padding(padding: EdgeInsets.all(12), child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xffb3272e))))))
+                : _targetLocations.isEmpty
+                    ? Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(color: Colors.amber.shade50, borderRadius: BorderRadius.circular(8)),
+                        child: Text('Không tìm thấy vị trí khả dụng nào khác cùng nhà kho.', style: TextStyle(color: Colors.amber.shade900, fontSize: 13)),
+                      )
+                    : DropdownButtonFormField<int>(
+                        decoration: InputDecoration(
+                          hintText: 'Chọn vị trí đích',
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xffb3272e))),
+                        ),
+                        value: _targetLocationId,
+                        items: _targetLocations.map((l) {
+                          return DropdownMenuItem<int>(
+                            value: l['locationID'] as int,
+                            child: Text(l['locationCode'] as String),
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          setState(() {
+                            _targetLocationId = val;
+                          });
+                        },
+                      ),
+            const SizedBox(height: 16),
+
+            // Số lượng cần chuyển
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Số lượng cần chuyển',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove_circle_outline, color: Color(0xffb3272e)),
+                      onPressed: _quantity > 1
+                          ? () {
+                              setState(() {
+                                _quantity--;
+                                _qtyController.text = _quantity.toString();
+                              });
+                            }
+                          : null,
+                    ),
+                    SizedBox(
+                      width: 60,
+                      child: TextField(
+                        controller: _qtyController,
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.center,
+                        onChanged: _onQtyChanged,
+                        decoration: const InputDecoration(
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(vertical: 8),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add_circle_outline, color: Color(0xffb3272e)),
+                      onPressed: _quantity < widget.item.quantity
+                          ? () {
+                              setState(() {
+                                _quantity++;
+                                _qtyController.text = _quantity.toString();
+                              });
+                            }
+                          : null,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Serial Numbers (if applicable)
+            if (isSerialTracking) ...[
+              Text(
+                'Chọn số Serial tương ứng (Đã chọn ${_selectedSerials.length}/$_quantity)',
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
+              ),
+              const SizedBox(height: 8),
+              _isLoadingSerials
+                  ? const Center(child: Padding(padding: EdgeInsets.all(12), child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xffb3272e))))))
+                  : _availableSerials.isEmpty
+                      ? Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(8)),
+                          child: const Text('Không tìm thấy số serial khả dụng nào.', style: TextStyle(color: Colors.red, fontSize: 13)),
+                        )
+                      : Container(
+                          constraints: const BoxConstraints(maxHeight: 180),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: _availableSerials.length,
+                            itemBuilder: (context, index) {
+                              final sn = _availableSerials[index];
+                              final isSelected = _selectedSerials.contains(sn);
+                              return CheckboxListTile(
+                                title: Text(sn, style: const TextStyle(fontFamily: 'Courier', fontSize: 14)),
+                                value: isSelected,
+                                activeColor: const Color(0xffb3272e),
+                                controlAffinity: ListTileControlAffinity.leading,
+                                onChanged: (val) {
+                                  setState(() {
+                                    if (val == true) {
+                                      if (_selectedSerials.length < _quantity) {
+                                        _selectedSerials.add(sn);
+                                      } else {
+                                        _errorMessage = 'Bạn chỉ được chọn tối đa $_quantity số Serial.';
+                                      }
+                                    } else {
+                                      _selectedSerials.remove(sn);
+                                      _errorMessage = null;
+                                    }
+                                  });
+                                },
+                              );
+                            },
+                          ),
+                        ),
+              const SizedBox(height: 16),
+            ],
+
+            // Error Message
+            if (_errorMessage != null) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(color: Colors.red[50], borderRadius: BorderRadius.circular(8)),
+                child: Text(
+                  _errorMessage!,
+                  style: const TextStyle(color: Colors.red, fontSize: 13),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // Action Button
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: _isSubmitting ? null : _submitTransfer,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xffb3272e),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: _isSubmitting
+                    ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.white))
+                    : const Text('Xác nhận chuyển', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

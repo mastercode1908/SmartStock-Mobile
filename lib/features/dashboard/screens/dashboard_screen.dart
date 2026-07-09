@@ -6,6 +6,13 @@ import '../../inventory/screens/inventory_list_screen.dart';
 import '../../inventory/screens/inventory_history_screen.dart';
 import '../../scanner/screens/scan_screen.dart';
 import '../../profile/screens/profile_screen.dart';
+import '../../notifications/screens/notification_screen.dart';
+import '../../inventory/screens/warehouse_location_screen.dart';
+import '../../inventory/screens/warehouse_map_screen.dart';
+import '../../inventory/screens/create_inventory_screen.dart';
+import '../../inventory/screens/incident_report_screen.dart';
+import '../../notifications/providers/notification_provider.dart';
+
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -19,6 +26,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<InventoryProvider>().loadSessions();
+      context.read<NotificationProvider>().fetchNotifications();
     });
   }
 
@@ -60,9 +68,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Color(0xffb02528)),
-            onPressed: () {},
+          Consumer<NotificationProvider>(
+            builder: (context, provider, child) {
+              final unreadCount = provider.unreadCount;
+              final displayCount = unreadCount > 99 ? '99+' : unreadCount.toString();
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications, color: Color(0xffb02528)),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                      );
+                    },
+                  ),
+                  if (unreadCount > 0)
+                    Positioned(
+                      right: 4,
+                      top: 4,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xffb02528),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.white, width: 1.5),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          displayCount,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
           const SizedBox(width: 8),
         ],
@@ -244,15 +294,86 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 // Quick Access Grid
                 const Text('Truy cập nhanh', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87)),
                 const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  alignment: WrapAlignment.start,
                   children: [
-                _buildQuickAccessButton(icon: Icons.analytics, label: 'Báo cáo', bgColor: const Color(0xffd23e3e), iconColor: Colors.white),
-                _buildQuickAccessButton(icon: Icons.assignment, label: 'Nhiệm vụ', bgColor: const Color(0xffd23e3e), iconColor: Colors.white),
-                _buildQuickAccessButton(icon: Icons.inventory_2, label: 'Kiểm kê', bgColor: const Color(0xffe2e2e2), iconColor: const Color(0xff5a413f), isOutline: true),
-                _buildQuickAccessButton(icon: Icons.location_on, label: 'Vị trí kho', bgColor: const Color(0xffb02528), iconColor: Colors.white),
-              ],
-            ),
+                    _buildQuickAccessButton(
+                      icon: Icons.analytics, 
+                      label: 'Báo cáo', 
+                      bgColor: const Color(0xffd23e3e), 
+                      iconColor: Colors.white,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const IncidentReportScreen()),
+                        );
+                      },
+                    ),
+                    _buildQuickAccessButton(
+                      icon: Icons.assignment, 
+                      label: 'Nhiệm vụ', 
+                      bgColor: const Color(0xffd23e3e), 
+                      iconColor: Colors.white,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const InventoryListScreen()),
+                        );
+                      },
+                    ),
+                    _buildQuickAccessButton(
+                      icon: Icons.inventory_2, 
+                      label: 'Kiểm kê', 
+                      bgColor: const Color(0xffe2e2e2), 
+                      iconColor: const Color(0xff5a413f), 
+                      isOutline: true,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const CreateInventoryScreen()),
+                        );
+                      },
+                    ),
+                    _buildQuickAccessButton(
+                      icon: Icons.location_on, 
+                      label: 'Vị trí lưu trữ', 
+                      bgColor: const Color(0xffb02528), 
+                      iconColor: Colors.white,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const WarehouseLocationScreen()),
+                        );
+                      },
+                    ),
+                    _buildQuickAccessButton(
+                      icon: Icons.map_outlined, 
+                      label: 'Sơ đồ kho', 
+                      bgColor: const Color(0xffb02528), 
+                      iconColor: Colors.white,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const WarehouseMapScreen()),
+                        );
+                      },
+                    ),
+                    _buildQuickAccessButton(
+                      icon: Icons.notifications, 
+                      label: 'Thông báo', 
+                      bgColor: const Color(0xffb02528), 
+                      iconColor: Colors.white,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                        );
+                      },
+                    ),
+                  ],
+                ),
             const SizedBox(height: 24),
 
             // Recent Activity
@@ -309,23 +430,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildQuickAccessButton({required IconData icon, required String label, required Color bgColor, required Color iconColor, bool isOutline = false}) {
-    return Column(
-      children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(12),
-            border: isOutline ? Border.all(color: const Color(0xffe2bebb)) : null,
-            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+  Widget _buildQuickAccessButton({
+    required IconData icon,
+    required String label,
+    required Color bgColor,
+    required Color iconColor,
+    bool isOutline = false,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(12),
+              border: isOutline ? Border.all(color: const Color(0xffe2bebb)) : null,
+              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+            ),
+            child: Icon(icon, color: iconColor),
           ),
-          child: Icon(icon, color: iconColor),
-        ),
-        const SizedBox(height: 8),
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.black87)),
-      ],
+          const SizedBox(height: 8),
+          Text(label, style: const TextStyle(fontSize: 12, color: Colors.black87)),
+        ],
+      ),
     );
   }
 

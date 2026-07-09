@@ -11,6 +11,7 @@ class StockBalance {
   final int quantity;
   final DateTime? lastUpdated;
   final int trackingMethod; // 0 = NONE, 1 = BATCH, 2 = SERIAL
+  final List<String> serialNumbers;
 
   StockBalance({
     required this.stockBalanceId,
@@ -25,9 +26,13 @@ class StockBalance {
     required this.quantity,
     this.lastUpdated,
     required this.trackingMethod,
+    this.serialNumbers = const [],
   });
 
   factory StockBalance.fromJson(Map<String, dynamic> json) {
+    var serialsJson = json['serialNumbers'] as List? ?? [];
+    List<String> serials = serialsJson.map((e) => e.toString()).toList();
+
     return StockBalance(
       stockBalanceId: json['stockBalanceID'] ?? json['stockBalanceId'] ?? 0,
       variantId: json['variantID'] ?? json['variantId'] ?? 0,
@@ -41,6 +46,7 @@ class StockBalance {
       quantity: json['quantity'] ?? 0,
       lastUpdated: json['lastUpdated'] != null ? DateTime.tryParse(json['lastUpdated']) : null,
       trackingMethod: json['trackingMethod'] ?? json['TrackingMethod'] ?? 0,
+      serialNumbers: serials,
     );
   }
 
@@ -58,6 +64,7 @@ class StockBalance {
       'quantity': quantity,
       'lastUpdated': lastUpdated?.toIso8601String(),
       'trackingMethod': trackingMethod,
+      'serialNumbers': serialNumbers,
     };
   }
 }
