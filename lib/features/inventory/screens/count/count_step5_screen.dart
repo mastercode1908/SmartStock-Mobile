@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../providers/inventory_provider.dart';
+import 'count_success_screen.dart';
 
 class CountStep5Screen extends StatefulWidget {
   const CountStep5Screen({Key? key}) : super(key: key);
@@ -22,28 +23,51 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
     });
 
     final provider = context.read<InventoryProvider>();
-    final session = provider.selectedSession ?? provider.sessions.firstWhere((s) => s.id == provider.activeSessionId);
+    final session =
+        provider.selectedSession ??
+        provider.sessions.firstWhere((s) => s.id == provider.activeSessionId);
     final details = session.details ?? [];
 
+    final hasUncounted = details.any((d) => d.actualQuantity == null);
+    if (hasUncounted) {
+      setState(() {
+        _isSyncing = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng kiểm hết tất cả các sản phẩm trước khi gửi duyệt!'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
     // Filter only those with actual quantities
-    final countedDetails = details.where((d) => d.actualQuantity != null).toList();
+    final countedDetails = details
+        .where((d) => d.actualQuantity != null)
+        .toList();
 
     // API calls to submit counted details and then sync the session
-    bool submitSuccess = await provider.submitCountDetails(countedDetails);
-    
+    bool submitSuccess = await provider.submitCountDetails();
+
     if (submitSuccess && mounted) {
       bool syncSuccess = await provider.syncSession(session.id);
-      
+
       if (mounted) {
         if (syncSuccess) {
           setState(() {
             _isSyncing = false;
             _isSynced = true;
           });
-          
+
           await Future.delayed(const Duration(milliseconds: 1000));
           if (mounted) {
-            Navigator.popUntil(context, (route) => route.isFirst);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => CountSuccessScreen(session: session),
+              ),
+            );
           }
         } else {
           setState(() {
@@ -67,17 +91,36 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
       appBar: _buildAppBar(context),
       body: Consumer<InventoryProvider>(
         builder: (context, provider, child) {
-          final session = provider.selectedSession ?? provider.sessions.firstWhere((s) => s.id == provider.activeSessionId);
+          final session =
+              provider.selectedSession ??
+              provider.sessions.firstWhere(
+                (s) => s.id == provider.activeSessionId,
+              );
           final details = session.details ?? [];
 
           final totalSku = details.length;
-          final matched = details.where((d) => d.actualQuantity != null && d.actualQuantity == d.systemQuantity).length;
-          final discrepant = details.where((d) => d.actualQuantity != null && d.actualQuantity != d.systemQuantity).toList();
+          final matched = details
+              .where(
+                (d) =>
+                    d.actualQuantity != null &&
+                    d.actualQuantity == d.systemQuantity,
+              )
+              .length;
+          final discrepant = details
+              .where(
+                (d) =>
+                    d.actualQuantity != null &&
+                    d.actualQuantity != d.systemQuantity,
+              )
+              .toList();
 
           return Stack(
             children: [
               SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 24.0,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -95,14 +138,23 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
                           children: [
                             const Icon(Icons.error, color: AppColors.error),
                             const SizedBox(width: 8),
-                            Expanded(child: Text(_error!, style: const TextStyle(color: AppColors.onErrorContainer))),
+                            Expanded(
+                              child: Text(
+                                _error!,
+                                style: const TextStyle(
+                                  color: AppColors.onErrorContainer,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
                     _buildSummaryGrid(totalSku, matched, discrepant.length),
                     const SizedBox(height: 32),
                     _buildDiscrepancyList(discrepant),
-                    const SizedBox(height: 120), // Padding for sticky bottom area
+                    const SizedBox(
+                      height: 120,
+                    ), // Padding for sticky bottom area
                   ],
                 ),
               ),
@@ -130,7 +182,7 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
       ),
       centerTitle: true,
       title: const Text(
-        'Warehouse Pro',
+        'Smart Stock',
         style: TextStyle(
           color: AppColors.primary,
           fontWeight: FontWeight.bold,
@@ -144,8 +196,12 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
     return Column(
       children: [
         const Text(
-          'Bước 5/5: Hoàn tất & Đồng bộ',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary),
+          'Bước 5/5: Hoàn tất & Gửi duyệt',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: AppColors.primary,
+          ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
@@ -178,42 +234,36 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
   }
 
   Widget _buildSummaryGrid(int total, int matched, int discrepant) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _buildSummaryCard(
-            icon: Icons.dataset,
-            iconColor: AppColors.secondary,
-            title: 'TỔNG SỐ SKU',
-            value: '$total',
-            valueColor: AppColors.onSurface,
-            bgColor: AppColors.surfaceContainerLowest,
-            borderColor: AppColors.outlineVariant.withOpacity(0.3),
-          ),
+        _buildSummaryCard(
+          icon: Icons.dataset,
+          iconColor: AppColors.secondary,
+          title: 'TỔNG SỐ SẢN PHẨM',
+          value: '$total',
+          valueColor: AppColors.onSurface,
+          bgColor: AppColors.surfaceContainerLowest,
+          borderColor: AppColors.outlineVariant.withOpacity(0.3),
         ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _buildSummaryCard(
-            icon: Icons.check_circle,
-            iconColor: AppColors.primary,
-            title: 'ĐÃ KHỚP',
-            value: '$matched',
-            valueColor: AppColors.primary,
-            bgColor: const Color(0xFFFEEBEE).withOpacity(0.4),
-            borderColor: AppColors.outlineVariant.withOpacity(0.3),
-          ),
+        const SizedBox(height: 12),
+        _buildSummaryCard(
+          icon: Icons.check_circle,
+          iconColor: const Color(0xff0f5132),
+          title: 'ĐÃ KHỚP',
+          value: '$matched',
+          valueColor: const Color(0xff0f5132),
+          bgColor: AppColors.surfaceContainerLowest,
+          borderColor: AppColors.outlineVariant.withOpacity(0.3),
         ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _buildSummaryCard(
-            icon: Icons.warning,
-            iconColor: AppColors.error,
-            title: 'CHÊNH LỆCH',
-            value: '$discrepant',
-            valueColor: AppColors.error,
-            bgColor: AppColors.surfaceContainerLowest,
-            borderColor: AppColors.error.withOpacity(0.2),
-          ),
+        const SizedBox(height: 12),
+        _buildSummaryCard(
+          icon: Icons.warning,
+          iconColor: AppColors.error,
+          title: 'CHÊNH LỆCH',
+          value: '$discrepant',
+          valueColor: AppColors.error,
+          bgColor: AppColors.surfaceContainerLowest,
+          borderColor: AppColors.error.withOpacity(0.2),
         ),
       ],
     );
@@ -229,8 +279,7 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
     required Color borderColor,
   }) {
     return Container(
-      height: 140,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(16),
@@ -243,14 +292,38 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
           ),
         ],
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(icon, color: iconColor, size: 32),
-          const SizedBox(height: 8),
-          Text(title, style: const TextStyle(fontSize: 10, color: AppColors.onSurfaceVariant, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-          const SizedBox(height: 4),
-          Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: valueColor)),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: iconColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: iconColor, size: 32),
+              ),
+              const SizedBox(width: 16),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: AppColors.onSurfaceVariant,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 40,
+              fontWeight: FontWeight.bold,
+              color: valueColor,
+            ),
+          ),
         ],
       ),
     );
@@ -277,23 +350,52 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.surfaceContainerLow,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              border: Border(bottom: BorderSide(color: AppColors.outlineVariant.withOpacity(0.2))),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
+              border: Border(
+                bottom: BorderSide(
+                  color: AppColors.outlineVariant.withOpacity(0.2),
+                ),
+              ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Chi tiết chênh lệch', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
-                const Text('Xem tất cả', style: TextStyle(fontSize: 14, color: AppColors.primary, decoration: TextDecoration.underline, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Chi tiết chênh lệch',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.onSurface,
+                  ),
+                ),
+                const Text(
+                  'Xem tất cả',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.primary,
+                    decoration: TextDecoration.underline,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
           ),
-          ...discrepantItems.map((d) => Column(
-            children: [
-              _buildDiscrepancyListItem(d.sku ?? '', 'Dự kiến: ${d.systemQuantity} | Thực tế: ${d.actualQuantity}', '${d.actualQuantity! - d.systemQuantity}'),
-              const Divider(height: 1, color: AppColors.surfaceContainer),
-            ],
-          )).toList(),
+          ...discrepantItems
+              .map(
+                (d) => Column(
+                  children: [
+                    _buildDiscrepancyListItem(
+                      d.sku ?? '',
+                      'Dự kiến: ${d.systemQuantity} | Thực tế: ${d.actualQuantity}',
+                      '${d.actualQuantity! - d.systemQuantity}',
+                    ),
+                    const Divider(height: 1, color: AppColors.surfaceContainer),
+                  ],
+                ),
+              )
+              .toList(),
         ],
       ),
     );
@@ -313,15 +415,32 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
               color: AppColors.errorContainer,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.qr_code, color: AppColors.onErrorContainer, size: 20),
+            child: const Icon(
+              Icons.qr_code,
+              color: AppColors.onErrorContainer,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.onSurface)),
-                Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.onSurface,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.onSurfaceVariant,
+                  ),
+                ),
               ],
             ),
           ),
@@ -331,7 +450,14 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
               color: AppColors.error.withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Text(diffStr, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.error)),
+            child: Text(
+              diffStr,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: AppColors.error,
+              ),
+            ),
           ),
         ],
       ),
@@ -342,27 +468,14 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
     return Row(
       children: [
         Expanded(
-          child: OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              side: const BorderSide(color: AppColors.primary, width: 2),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-              foregroundColor: AppColors.primary,
-            ),
-            onPressed: () {},
-            icon: const Icon(Icons.edit_document),
-            label: const Text('Xem báo cáo', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          flex: 2,
           child: ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
               backgroundColor: _isSynced ? Colors.green : AppColors.primary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
               elevation: 4,
             ),
             onPressed: _isSyncing || _isSynced ? null : _handleSync,
@@ -370,12 +483,17 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
                 ? const SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
                   )
-                : Icon(_isSynced ? Icons.check_circle : Icons.sync),
+                : Icon(_isSynced ? Icons.check_circle : Icons.send_rounded),
             label: Text(
-              _isSyncing ? 'Đang đồng bộ...' : (_isSynced ? 'Đã đồng bộ!' : 'Đồng bộ'),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              _isSyncing
+                  ? 'Đang gửi duyệt...'
+                  : (_isSynced ? 'Đã gửi duyệt!' : 'Gửi duyệt'),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
         ),

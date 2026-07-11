@@ -98,6 +98,22 @@ class InventoryService {
     }
   }
 
+  // Fetch full session detail with location info (zone/rack/shelf) from new /mobile-detail endpoint
+  Future<InventorySession> fetchSessionMobileDetail(int sessionId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/inventory-counts/$sessionId/mobile-detail'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      // Response is a plain JSON object (not OData)
+      return InventorySession.fromJson(data is Map ? data : data['value']);
+    } else {
+      throw Exception('Failed to fetch mobile session detail: ${response.statusCode}');
+    }
+  }
+
   Future<InventorySession> createInventorySession(InventorySession draft) async {
     final response = await http.post(
       Uri.parse('$baseUrl/inventory-counts'),
@@ -113,6 +129,18 @@ class InventoryService {
       return InventorySession.fromJson(jsonResponse);
     } else {
       throw Exception('Failed to create session: ${response.body}');
+    }
+  }
+
+  Future<void> updateSession(int sessionId, InventorySession session) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/inventory-counts/$sessionId'),
+      headers: await _getHeaders(),
+      body: json.encode(session.toJson()),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception(_parseError(response));
     }
   }
 

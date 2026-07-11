@@ -3,6 +3,7 @@ import 'inventory_count_detail.dart';
 class InventorySession {
   final int id; // Backend usually returns int ID
   final int warehouseId;
+  final String? warehouseName;
   final String sessionCode;
   final String countType; // FULL, PARTIAL, LOCATION, PRODUCT
   final String status; // DRAFT, PENDING, APPROVED, REJECTED, CANCELLED, POSTED
@@ -10,12 +11,15 @@ class InventorySession {
   final DateTime startDate;
   final DateTime? endDate;
   final int createdBy;
+  final String? createdByName;
   final int? assignedTo;
+  final String? assignedToName;
   final List<InventoryCountDetail>? details;
 
   InventorySession({
     required this.id,
     required this.warehouseId,
+    this.warehouseName,
     required this.sessionCode,
     required this.countType,
     required this.status,
@@ -23,7 +27,9 @@ class InventorySession {
     required this.startDate,
     this.endDate,
     required this.createdBy,
+    this.createdByName,
     this.assignedTo,
+    this.assignedToName,
     this.details,
   });
 
@@ -61,6 +67,7 @@ class InventorySession {
     return InventorySession(
       id: json['SessionID'] ?? json['sessionID'] ?? json['sessionId'] ?? 0, 
       warehouseId: json['WarehouseID'] ?? json['warehouseID'] ?? json['warehouseId'] ?? 0,
+      warehouseName: json['WarehouseName'] ?? json['warehouseName'],
       sessionCode: (json['SessionCode'] ?? json['sessionCode'])?.toString() ?? '',
       countType: _parseCountType(json['CountType'] ?? json['countType']),
       status: _parseStatus(json['Status'] ?? json['status']),
@@ -68,7 +75,9 @@ class InventorySession {
       startDate: (json['StartDate'] ?? json['startDate']) != null ? DateTime.parse(json['StartDate'] ?? json['startDate']) : DateTime.now(),
       endDate: (json['EndDate'] ?? json['endDate']) != null ? DateTime.parse(json['EndDate'] ?? json['endDate']) : null,
       createdBy: json['CreatedBy'] ?? json['createdBy'] ?? 0,
+      createdByName: json['CreatedByName'] ?? json['createdByName'],
       assignedTo: json['AssignedTo'] ?? json['assignedTo'],
+      assignedToName: json['AssignedToName'] ?? json['assignedToName'],
       details: (json['Details'] ?? json['details']) != null 
           ? List<InventoryCountDetail>.from(((json['Details'] ?? json['details']) as List).map((e) => InventoryCountDetail.fromJson(e as Map<String, dynamic>)))
           : null,
@@ -97,7 +106,7 @@ class InventorySession {
       'endDate': endDate?.toUtc().toIso8601String(),
       'createdBy': createdBy,
       'assignedTo': assignedTo,
-      'details': [],
+      'details': details?.map((d) => d.toJson()).toList() ?? [],
     };
   }
 }

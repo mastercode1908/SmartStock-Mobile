@@ -4,7 +4,10 @@ import '../../../../core/theme/app_colors.dart';
 import 'count_step3_screen.dart';
 import 'count_step4_screen.dart';
 import '../../providers/inventory_provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../models/product_variant.dart';
+import 'package:collection/collection.dart';
 
 class CountStep2Screen extends StatefulWidget {
   const CountStep2Screen({Key? key}) : super(key: key);
@@ -16,10 +19,14 @@ class CountStep2Screen extends StatefulWidget {
 class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
+  late MobileScannerController _scannerController;
+  bool _isFlashOn = false;
+  bool _isProcessing = false;
 
   @override
   void initState() {
     super.initState();
+    _scannerController = MobileScannerController();
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -30,7 +37,58 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
   @override
   void dispose() {
     _animationController.dispose();
+    _scannerController.dispose();
     super.dispose();
+  }
+
+  void _processBarcode(String rawValue, InventoryProvider provider) {
+    if (_isProcessing) return;
+    _isProcessing = true;
+    _scannerController.stop();
+
+    final details = provider.activeLocationGroup;
+    final match = details.firstWhereOrNull((d) => 
+      d.serialNumber == rawValue || 
+      d.batchNumber == rawValue || 
+      d.sku == rawValue || 
+      d.variantId.toString() == rawValue
+    );
+
+    if (match != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => CountStep3Screen(detail: match)),
+      ).then((_) {
+        if (mounted) {
+          _isProcessing = false;
+          _scannerController.start();
+        }
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Không tìm thấy sản phẩm với mã: $rawValue')),
+      );
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          _isProcessing = false;
+          _scannerController.start();
+        }
+      });
+    }
+  }
+
+  Future<void> _scanFromImage(InventoryProvider provider) async {
+    final file = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (file != null) {
+      final capture = await _scannerController.analyzeImage(file.path);
+      if (capture != null && capture.barcodes.isNotEmpty && capture.barcodes.first.rawValue != null) {
+        _processBarcode(capture.barcodes.first.rawValue!, provider);
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không tìm thấy mã vạch nào trong ảnh.')),
+        );
+      }
+    }
   }
 
   void _showManualEntryBottomSheet(BuildContext context, InventoryProvider provider) {
@@ -48,7 +106,7 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
           minChildSize: 0.4,
           expand: false,
           builder: (context, scrollController) {
-            final variants = provider.selectedVariants;
+            final details = provider.activeLocationGroup;
             return Column(
               children: [
                 Container(
@@ -68,27 +126,55 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
                   ),
                 ),
                 Expanded(
-                  child: variants.isEmpty
+                  child: details.isEmpty
                       ? const Center(child: Text('Không có sản phẩm nào để kiểm đếm.'))
                       : ListView.builder(
                           controller: scrollController,
-                          itemCount: variants.length,
+                          itemCount: details.length,
                           itemBuilder: (context, index) {
-                            final variant = variants[index];
+                            final detail = details[index];
+                            final title = (detail.variantName != null && detail.variantName!.isNotEmpty) ? detail.variantName! : (detail.productName ?? 'Unknown');
+                            final skuText = 'SKU: ${detail.sku ?? ""}';
+                            
+                            // Build subtitle with Serial / Batch on new line
+                            List<String> trackingInfo = [];
+                            if (detail.trackingMethod == 1 || detail.trackingMethod == 3) {
+                              if (detail.batchNumber != null && detail.batchNumber!.isNotEmpty) {
+                                trackingInfo.add('Lô: ${detail.batchNumber}');
+                              }
+                            }
+                            if (detail.trackingMethod == 2 || detail.trackingMethod == 3) {
+                              if (detail.serialNumber != null && detail.serialNumber!.isNotEmpty) {
+                                trackingInfo.add('Serial: ${detail.serialNumber}');
+                              }
+                            }
+                            
+                            final hasCounted = detail.actualQuantity != null;
+
                             return ListTile(
                               leading: const CircleAvatar(
                                 backgroundColor: AppColors.surfaceContainerHigh,
                                 child: Icon(Icons.inventory_2, color: AppColors.primary),
                               ),
-                              title: Text(variant.variantName.isNotEmpty ? variant.variantName : variant.productName, style: const TextStyle(fontWeight: FontWeight.w600)),
-                              subtitle: Text('SKU: ${variant.sku}'),
-                              trailing: const Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
+                              title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(skuText),
+                                  if (trackingInfo.isNotEmpty)
+                                    Text(trackingInfo.join(' | ')),
+                                ],
+                              ),
+                              trailing: Icon(
+                                hasCounted ? Icons.check_circle : Icons.chevron_right, 
+                                color: hasCounted ? const Color(0xff0f5132) : AppColors.onSurfaceVariant
+                              ),
                               onTap: () {
                                 Navigator.pop(context);
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => CountStep3Screen(variant: variant),
+                                    builder: (_) => CountStep3Screen(detail: detail),
                                   ),
                                 );
                               },
@@ -110,11 +196,17 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // Background Camera Feed Placeholder
+          // Camera Background
           Positioned.fill(
-            child: Image.network(
-              'https://lh3.googleusercontent.com/aida-public/AB6AXuDAyk0c8uRuF72bB7fS2xeDbNse09i_8fqg8KD_5iOrx11zgoo02chVYmm4cP9KeXyA0HYMGEwnrXGPhGDcQtgQxu3EHnqrKREPVVHbzp0z66xPaZsag20ClodSis4-ZLYRfTtVOGU3IckSH0UXJbBEvOyGRJBH7TDf40mskCgUMBqRRUDc1BwnIbGCPE01KWiYZhFD7l0ujOw_B_Q1MbHjDtI4m0Rot484x4egVLCGJzSpFEV2kkHnK_2OTlx_9aOrsjUdOrypuF12',
-              fit: BoxFit.cover,
+            child: MobileScanner(
+              controller: _scannerController,
+              onDetect: (capture) {
+                final List<Barcode> barcodes = capture.barcodes;
+                if (barcodes.isNotEmpty && barcodes.first.rawValue != null) {
+                  final provider = context.read<InventoryProvider>();
+                  _processBarcode(barcodes.first.rawValue!, provider);
+                }
+              },
             ),
           ),
           
@@ -134,6 +226,14 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
                       IconButton(
                         icon: const Icon(Icons.arrow_back, color: AppColors.primary),
                         onPressed: () => Navigator.pop(context),
+                      ),
+                      const Text(
+                        'Smart Stock',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
                       ),
                       IconButton(
                         icon: const Icon(Icons.help_outline, color: AppColors.primary),
@@ -228,18 +328,41 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: AppColors.surfaceContainer.withOpacity(0.2),
-                              shape: BoxShape.circle,
-                              border: Border.all(color: AppColors.outline.withOpacity(0.3)),
-                            ),
-                            child: IconButton(
-                              icon: const Icon(Icons.flashlight_on, color: Colors.white),
-                              onPressed: () {},
-                            ),
+                          Row(
+                            children: [
+                              Container(
+                                width: 48,
+                                height: 48,
+                                margin: const EdgeInsets.only(right: 12),
+                                decoration: BoxDecoration(
+                                  color: AppColors.surfaceContainer.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: AppColors.outline.withOpacity(0.3)),
+                                ),
+                                child: IconButton(
+                                  icon: Icon(_isFlashOn ? Icons.flashlight_off : Icons.flashlight_on, color: Colors.white),
+                                  onPressed: () {
+                                    _scannerController.toggleTorch();
+                                    setState(() {
+                                      _isFlashOn = !_isFlashOn;
+                                    });
+                                  },
+                                ),
+                              ),
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: AppColors.surfaceContainer.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: AppColors.outline.withOpacity(0.3)),
+                                ),
+                                child: IconButton(
+                                  icon: const Icon(Icons.image, color: Colors.white),
+                                  onPressed: () => _scanFromImage(provider),
+                                ),
+                              ),
+                            ],
                           ),
                           ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(

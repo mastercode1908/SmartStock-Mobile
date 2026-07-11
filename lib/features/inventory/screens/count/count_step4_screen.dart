@@ -97,7 +97,7 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
       ),
       centerTitle: true,
       title: const Text(
-        'Warehouse Pro',
+        'Smart Stock',
         style: TextStyle(
           color: AppColors.primary,
           fontWeight: FontWeight.bold,
@@ -204,12 +204,25 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
     return Column(
       children: discrepant.map((d) => Padding(
         padding: const EdgeInsets.only(bottom: 12.0),
-        child: _buildDiscrepancyItem(d.variantName ?? 'Sản phẩm', d.sku ?? '', '${d.systemQuantity}', '${d.actualQuantity}'),
+        child: _buildDiscrepancyItem(d),
       )).toList(),
     );
   }
 
-  Widget _buildDiscrepancyItem(String name, String sku, String sysQty, String actualQty) {
+  Widget _buildDiscrepancyItem(InventoryCountDetail d) {
+    final name = d.variantName ?? d.productName ?? 'Sản phẩm';
+    final sku = d.sku ?? '';
+    final sysQty = '${d.systemQuantity}';
+    final actualQty = '${d.actualQuantity}';
+    
+    List<String> trackingInfo = [];
+    if (d.trackingMethod == 1 || d.trackingMethod == 3) {
+      if (d.batchNumber != null && d.batchNumber!.isNotEmpty) trackingInfo.add('Lô: ${d.batchNumber}');
+    }
+    if (d.trackingMethod == 2 || d.trackingMethod == 3) {
+      if (d.serialNumber != null && d.serialNumber!.isNotEmpty) trackingInfo.add('Serial: ${d.serialNumber}');
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -243,6 +256,8 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
                 Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.onSurface)),
                 const SizedBox(height: 4),
                 Text('SKU: $sku', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                if (trackingInfo.isNotEmpty)
+                  Text(trackingInfo.join(' | '), style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
               ],
             ),
           ),
@@ -268,11 +283,23 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
   Widget _buildMatchedList(List<InventoryCountDetail> matched) {
     if (matched.isEmpty) return const Text('Không có mục khớp nào.', style: TextStyle(color: AppColors.onSurfaceVariant));
     return Column(
-      children: matched.map((d) => _buildMatchedItem(d.variantName ?? 'Sản phẩm', d.sku ?? '', '${d.actualQuantity}')).toList(),
+      children: matched.map((d) => _buildMatchedItem(d)).toList(),
     );
   }
 
-  Widget _buildMatchedItem(String name, String sku, String qty) {
+  Widget _buildMatchedItem(InventoryCountDetail d) {
+    final name = d.variantName ?? d.productName ?? 'Sản phẩm';
+    final sku = d.sku ?? '';
+    final qty = '${d.actualQuantity}';
+
+    List<String> trackingInfo = [];
+    if (d.trackingMethod == 1 || d.trackingMethod == 3) {
+      if (d.batchNumber != null && d.batchNumber!.isNotEmpty) trackingInfo.add('Lô: ${d.batchNumber}');
+    }
+    if (d.trackingMethod == 2 || d.trackingMethod == 3) {
+      if (d.serialNumber != null && d.serialNumber!.isNotEmpty) trackingInfo.add('Serial: ${d.serialNumber}');
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: const BoxDecoration(
@@ -289,6 +316,8 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
                 Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.onSurface)),
                 const SizedBox(height: 4),
                 Text('SKU: $sku', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                if (trackingInfo.isNotEmpty)
+                  Text(trackingInfo.join(' | '), style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
               ],
             ),
           ),
@@ -301,29 +330,41 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
   Widget _buildPendingList(List<InventoryCountDetail> pending) {
     if (pending.isEmpty) return const Text('Không còn mục nào chờ đếm.', style: TextStyle(color: AppColors.onSurfaceVariant));
     return Column(
-      children: pending.map((d) => Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: const BoxDecoration(
-          border: Border(bottom: BorderSide(color: AppColors.surfaceContainer)),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.hourglass_empty, color: Colors.orange),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(d.variantName ?? 'Sản phẩm', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.onSurface)),
-                  const SizedBox(height: 4),
-                  Text('SKU: ${d.sku}', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
-                ],
+      children: pending.map((d) {
+        List<String> trackingInfo = [];
+        if (d.trackingMethod == 1 || d.trackingMethod == 3) {
+          if (d.batchNumber != null && d.batchNumber!.isNotEmpty) trackingInfo.add('Lô: ${d.batchNumber}');
+        }
+        if (d.trackingMethod == 2 || d.trackingMethod == 3) {
+          if (d.serialNumber != null && d.serialNumber!.isNotEmpty) trackingInfo.add('Serial: ${d.serialNumber}');
+        }
+
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: const BoxDecoration(
+            border: Border(bottom: BorderSide(color: AppColors.surfaceContainer)),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.hourglass_empty, color: Colors.orange),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(d.variantName ?? d.productName ?? 'Sản phẩm', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.onSurface)),
+                    const SizedBox(height: 4),
+                    Text('SKU: ${d.sku ?? ""}', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                    if (trackingInfo.isNotEmpty)
+                      Text(trackingInfo.join(' | '), style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                  ],
+                ),
               ),
-            ),
-            const Text('Chưa đếm', style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic, color: AppColors.onSurfaceVariant)),
-          ],
-        ),
-      )).toList(),
+              const Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 

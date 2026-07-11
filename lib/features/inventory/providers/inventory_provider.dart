@@ -19,6 +19,7 @@ class InventoryProvider extends ChangeNotifier {
   int? _activeSessionId;
   int? _lastSubmittedSessionId;
   InventorySession? _selectedSession;
+  List<InventoryCountDetail> _activeLocationGroup = []; // Products to count at a specific location
 
   bool _isLoading = false;
   String? _error;
@@ -32,6 +33,7 @@ class InventoryProvider extends ChangeNotifier {
   int? get activeSessionId => _activeSessionId;
   int? get lastSubmittedSessionId => _lastSubmittedSessionId;
   InventorySession? get selectedSession => _selectedSession;
+  List<InventoryCountDetail> get activeLocationGroup => _activeLocationGroup;
   
   bool get isLoading => _isLoading;
   String? get error => _error;
@@ -41,23 +43,64 @@ class InventoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Set the list of products at the location the staff is about to count
+  void setActiveLocationGroup(List<InventoryCountDetail> details) {
+    _activeLocationGroup = List.from(details);
+    // Sync _selectedVariants from the group
+    _selectedVariants.clear();
+    _systemQuantities.clear();
+    for (var detail in details) {
+      final variant = _productVariants.firstWhere(
+        (v) => v.variantId == detail.variantId,
+        orElse: () => ProductVariant(
+          variantId: detail.variantId,
+          productId: 0,
+          variantName: detail.variantName ?? 'Unknown',
+          productName: detail.productName ?? '',
+          sku: detail.sku ?? '',
+          barcode: '',
+          imageUrl: '',
+          trackingMethod: 0,
+          baseUnitId: detail.unitId,
+          baseUnitSymbol: '',
+        ),
+      );
+      if (!_selectedVariants.any((v) => v.variantId == variant.variantId)) {
+        _selectedVariants.add(variant);
+        _systemQuantities[variant.variantId] = detail.systemQuantity;
+      }
+    }
+    notifyListeners();
+  }
+
   Future<void> editSession(InventorySession session) async {
     _activeSessionId = session.id;
     _selectedVariants.clear();
     _systemQuantities.clear();
-    
-    // Fetch full session details from API to ensure Details are expanded
+    _activeLocationGroup.clear();
+
+    // Use the new mobile-detail API to get full location data
     try {
-      final fullSession = await _service.fetchSessionDetails(session.id);
+      final fullSession = await _service.fetchSessionMobileDetail(session.id);
+      _selectedSession = fullSession;
       session = fullSession;
     } catch (e) {
-      debugPrint('Failed to fetch full session details: $e');
+      debugPrint('Failed to fetch mobile session detail: $e');
+      // Fallback to old API
+      try {
+        final fallback = await _service.fetchSessionDetails(session.id);
+        _selectedSession = fallback;
+        session = fallback;
+      } catch (e2) {
+        debugPrint('Fallback also failed: $e2');
+      }
     }
 
     if (_productVariants.isEmpty) {
       await loadProductVariants();
     }
-    
+
+    // Populate _selectedVariants from all details (for backwards compat with Step 2+)
     if (session.details != null) {
       for (var detail in session.details!) {
         var variant = _productVariants.firstWhere(
@@ -66,7 +109,7 @@ class InventoryProvider extends ChangeNotifier {
               variantId: detail.variantId,
               productId: 0,
               variantName: detail.variantName ?? 'Unknown',
-              productName: '',
+              productName: detail.productName ?? '',
               sku: detail.sku ?? '',
               barcode: '',
               imageUrl: '',
@@ -75,7 +118,6 @@ class InventoryProvider extends ChangeNotifier {
               baseUnitSymbol: '',
             ),
         );
-        // Avoid duplicate
         if (!_selectedVariants.any((v) => v.variantId == variant.variantId)) {
           _selectedVariants.add(variant);
           _systemQuantities[variant.variantId] = detail.systemQuantity;
@@ -94,21 +136,48 @@ class InventoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateActualQuantity(int variantId, int quantity) {
-    final detail = _selectedSession?.details?.firstWhere((d) => d.variantId == variantId);
-    if (detail != null) {
-      detail.actualQuantity = quantity;
-      notifyListeners();
-    } else {
-      // Also check active session in list if _selectedSession is null
-      final session = _sessions.firstWhere((s) => s.id == _activeSessionId);
-      final d = session.details?.firstWhere((dt) => dt.variantId == variantId);
-      if (d != null) {
-        d.actualQuantity = quantity;
-        notifyListeners();
+  void updateActualQuantity(int countDetailId, int quantity, {InventoryCountDetail? fallbackDetail}) {
+    bool isMatch(InventoryCountDetail d) {
+      if (countDetailId != 0 && d.countDetailId == countDetailId) return true;
+      if (fallbackDetail != null) {
+        return d.variantId == fallbackDetail.variantId &&
+               d.batchNumber == fallbackDetail.batchNumber &&
+               d.serialNumber == fallbackDetail.serialNumber &&
+               d.storageLocationId == fallbackDetail.storageLocationId;
+      }
+      return false;
+    }
+
+    if (_selectedSession != null && _selectedSession!.details != null) {
+      final idx = _selectedSession!.details!.indexWhere(isMatch);
+      if (idx != -1) {
+        _selectedSession!.details![idx].actualQuantity = quantity;
       }
     }
+
+    // Always update in _sessions list as well to ensure data consistency
+    try {
+      final sessionIdx = _sessions.indexWhere((s) => s.id == _activeSessionId);
+      if (sessionIdx != -1 && _sessions[sessionIdx].details != null) {
+        final dIdx = _sessions[sessionIdx].details!.indexWhere(isMatch);
+        if (dIdx != -1) {
+          _sessions[sessionIdx].details![dIdx].actualQuantity = quantity;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error updating session list: $e');
+    }
+
+    // Also update in activeLocationGroup so UI reflects immediately
+    final activeGroupIdx = _activeLocationGroup.indexWhere(isMatch);
+    if (activeGroupIdx != -1) {
+      _activeLocationGroup[activeGroupIdx].actualQuantity = quantity;
+    }
+
+    notifyListeners();
   }
+
+
 
   Future<void> loadWarehouses() async {
     try {
@@ -154,6 +223,11 @@ class InventoryProvider extends ChangeNotifier {
     }
   }
 
+  // Load session detail for readonly view (does not modify provider state)
+  Future<InventorySession> loadSessionReadonly(int sessionId) async {
+    return await _service.fetchSessionMobileDetail(sessionId);
+  }
+
   Future<void> addSession(InventorySession draft) async {
     try {
       _isLoading = true;
@@ -185,14 +259,21 @@ class InventoryProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> submitCountDetails(List<InventoryCountDetail> details) async {
+  Future<bool> submitCountDetails([List<InventoryCountDetail>? details]) async {
     try {
       _isLoading = true;
       _error = null;
       notifyListeners();
 
-      for (var detail in details) {
-        await _service.submitInventoryDetail(detail);
+      if (details != null && details.isNotEmpty) {
+        for (var detail in details) {
+          await _service.submitInventoryDetail(detail);
+        }
+      } else {
+        if (_selectedSession == null) {
+          throw Exception("No active session selected.");
+        }
+        await _service.updateSession(_selectedSession!.id, _selectedSession!);
       }
 
       // Save for sync screen

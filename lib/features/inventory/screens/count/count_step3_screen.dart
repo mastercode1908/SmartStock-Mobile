@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../models/product_variant.dart';
+import '../../models/inventory_count_detail.dart';
 import '../../providers/inventory_provider.dart';
 import 'count_step4_screen.dart';
 
 class CountStep3Screen extends StatefulWidget {
-  final ProductVariant variant;
+  final InventoryCountDetail detail;
 
-  const CountStep3Screen({Key? key, required this.variant}) : super(key: key);
+  const CountStep3Screen({Key? key, required this.detail}) : super(key: key);
 
   @override
   State<CountStep3Screen> createState() => _CountStep3ScreenState();
@@ -21,22 +21,8 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
   @override
   void initState() {
     super.initState();
-    final provider = context.read<InventoryProvider>();
-    // Fetch system quantity from provider
-    _systemQty = provider.systemQuantities[widget.variant.variantId] ?? 0;
-    
-    // Check if we already have an actual quantity in the session
-    final session = provider.selectedSession ?? provider.sessions.firstWhere((s) => s.id == provider.activeSessionId);
-    try {
-      final detail = session.details?.firstWhere((d) => d.variantId == widget.variant.variantId);
-      if (detail != null && detail.actualQuantity != null) {
-        _quantity = detail.actualQuantity!;
-      } else {
-        _quantity = _systemQty; // Default to system qty
-      }
-    } catch (e) {
-      _quantity = _systemQty;
-    }
+    _systemQty = widget.detail.systemQuantity;
+    _quantity = widget.detail.actualQuantity ?? _systemQty;
   }
 
   void _increment() {
@@ -54,7 +40,11 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
   }
 
   void _saveAndProceed() {
-    context.read<InventoryProvider>().updateActualQuantity(widget.variant.variantId, _quantity);
+    context.read<InventoryProvider>().updateActualQuantity(
+      widget.detail.countDetailId, 
+      _quantity,
+      fallbackDetail: widget.detail,
+    );
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Đã lưu số lượng!'), backgroundColor: AppColors.primary),
     );
@@ -100,7 +90,7 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
       ),
       centerTitle: true,
       title: const Text(
-        'Warehouse Pro',
+        'Smart Stock',
         style: TextStyle(
           color: AppColors.primary,
           fontWeight: FontWeight.bold,
@@ -148,8 +138,13 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
   }
 
   Widget _buildProductDetailsCard() {
-    final hasImage = widget.variant.imageUrl != null && widget.variant.imageUrl!.isNotEmpty;
+    final hasImage = widget.detail.imageUrl != null && widget.detail.imageUrl!.isNotEmpty;
     
+    String trackingText = 'NONE';
+    if (widget.detail.trackingMethod == 1) trackingText = 'BATCH';
+    else if (widget.detail.trackingMethod == 2) trackingText = 'SERIAL';
+    else if (widget.detail.trackingMethod == 3) trackingText = 'BATCH & SERIAL';
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -176,7 +171,7 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
                   color: AppColors.surfaceContainer,
                   borderRadius: BorderRadius.circular(16),
                   image: hasImage ? DecorationImage(
-                    image: NetworkImage(widget.variant.imageUrl!),
+                    image: NetworkImage(widget.detail.imageUrl!),
                     fit: BoxFit.cover,
                   ) : null,
                 ),
@@ -188,13 +183,17 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.variant.variantName.isNotEmpty ? widget.variant.variantName : widget.variant.productName, 
+                      (widget.detail.variantName != null && widget.detail.variantName!.isNotEmpty) ? widget.detail.variantName! : (widget.detail.productName ?? 'Unknown'), 
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onSurface)
                     ),
                     const SizedBox(height: 4),
-                    Text('SKU: ${widget.variant.sku}', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                    Text('SKU: ${widget.detail.sku ?? ""}', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
                     const SizedBox(height: 2),
-                    Text('Tracking: ${widget.variant.trackingMethod == 0 ? 'NONE' : widget.variant.trackingMethod == 1 ? 'BATCH' : 'SERIAL'}', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                    Text('Tracking: $trackingText', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                    if ((widget.detail.trackingMethod == 1 || widget.detail.trackingMethod == 3) && widget.detail.batchNumber != null && widget.detail.batchNumber!.isNotEmpty)
+                      Text('Lô: ${widget.detail.batchNumber}', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                    if ((widget.detail.trackingMethod == 2 || widget.detail.trackingMethod == 3) && widget.detail.serialNumber != null && widget.detail.serialNumber!.isNotEmpty)
+                      Text('Serial: ${widget.detail.serialNumber}', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
                   ],
                 ),
               ),
@@ -216,7 +215,7 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
                     style: const TextStyle(color: AppColors.onSurface),
                     children: [
                       TextSpan(text: '$_systemQty ', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                      TextSpan(text: widget.variant.baseUnitSymbol, style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                      TextSpan(text: '', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
                     ],
                   ),
                 ),
@@ -297,40 +296,7 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
         top: false,
         child: Column(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: const BorderSide(color: AppColors.outlineVariant),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      foregroundColor: AppColors.onSurfaceVariant,
-                    ),
-                    onPressed: () {},
-                    icon: const Icon(Icons.report, color: AppColors.primary),
-                    label: const Text('Báo thiếu'),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: const BorderSide(color: AppColors.outlineVariant),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      foregroundColor: AppColors.onSurfaceVariant,
-                    ),
-                    onPressed: () {
-                       _saveAndProceed(); // Just save and go back for now
-                    },
-                    icon: const Icon(Icons.qr_code_scanner, color: AppColors.primary),
-                    label: const Text('Quét tiếp'),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
+
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
