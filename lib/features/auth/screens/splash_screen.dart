@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../main_tab_screen.dart';
 import '../providers/auth_provider.dart';
 import 'login_screen.dart';
 import '../../home/screens/employee_dashboard_screen.dart';
@@ -53,7 +54,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           context,
           PageRouteBuilder(
             pageBuilder: (context, a1, a2) => roleName == 'Staff'
-                ? const EmployeeDashboardScreen()
+                ? const MainTabScreen()
                 : const DashboardScreen(),
             transitionDuration: const Duration(milliseconds: 500),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {

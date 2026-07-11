@@ -13,9 +13,12 @@ class InventoryService {
   // Helper method for headers
   Future<Map<String, String>> _getHeaders() async {
     final token = await AuthProvider.getToken();
+    final user = await AuthProvider.getCurrentUserStatic();
     return {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',
+      if (user != null) 'X-User-Id': user.userId.toString(),
+      if (user != null) 'X-User-Role': user.roleName,
     };
   }
 
@@ -49,7 +52,7 @@ class InventoryService {
 
   Future<List<InventorySession>> fetchInventorySessions() async {
     final response = await http.get(
-      Uri.parse('$baseUrl/inventory-counts'),
+      Uri.parse('$baseUrl/inventory-counts/mobile'),
       headers: await _getHeaders(),
     );
 
@@ -66,6 +69,7 @@ class InventoryService {
       throw Exception('Failed to load inventory sessions: ${response.statusCode}');
     }
   }
+
 
   Future<InventorySession> fetchSessionDetails(int sessionId) async {
     final queryStr = '\$filter=SessionID eq $sessionId&\$expand=Details(\$expand=ProductVariant)';
@@ -94,6 +98,22 @@ class InventoryService {
     }
   }
 
+  // Fetch full session detail with location info (zone/rack/shelf) from new /mobile-detail endpoint
+  Future<InventorySession> fetchSessionMobileDetail(int sessionId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/inventory-counts/$sessionId/mobile-detail'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      // Response is a plain JSON object (not OData)
+      return InventorySession.fromJson(data is Map ? data : data['value']);
+    } else {
+      throw Exception('Failed to fetch mobile session detail: ${response.statusCode}');
+    }
+  }
+
   Future<InventorySession> createInventorySession(InventorySession draft) async {
     final response = await http.post(
       Uri.parse('$baseUrl/inventory-counts'),
@@ -109,6 +129,18 @@ class InventoryService {
       return InventorySession.fromJson(jsonResponse);
     } else {
       throw Exception('Failed to create session: ${response.body}');
+    }
+  }
+
+  Future<void> updateSession(int sessionId, InventorySession session) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/inventory-counts/$sessionId'),
+      headers: await _getHeaders(),
+      body: json.encode(session.toJson()),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception(_parseError(response));
     }
   }
 

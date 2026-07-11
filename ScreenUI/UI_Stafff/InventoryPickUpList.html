@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Smart Stock - Danh sách Nhặt hàng</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Hanken Grotesk', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Custom scrollbar for clean UI */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #e2bebb;
+            border-radius: 10px;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#5a413f",
+                        "surface-bright": "#f9f9f9",
+                        "primary-fixed": "#ffdad7",
+                        "surface-dim": "#dadada",
+                        "surface-container-low": "#f3f3f3",
+                        "surface-container": "#eeeeee",
+                        "on-primary-fixed": "#410004",
+                        "inverse-primary": "#ffb3ae",
+                        "tertiary-container": "#b15878",
+                        "surface-variant": "#e2e2e2",
+                        "on-background": "#1a1c1c",
+                        "secondary-fixed-dim": "#bbc8d0",
+                        "tertiary-fixed": "#ffd9e2",
+                        "surface-tint": "#b3272a",
+                        "on-tertiary-container": "#fffbff",
+                        "on-secondary-fixed": "#111d23",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#93405f",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#ffb0c9",
+                        "on-secondary-container": "#5a666d",
+                        "on-primary-container": "#fffbff",
+                        "secondary": "#546067",
+                        "primary": "#b02528",
+                        "surface": "#f9f9f9",
+                        "secondary-fixed": "#d7e4ec",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#910816",
+                        "surface-container-highest": "#e2e2e2",
+                        "surface-container-high": "#e8e8e8",
+                        "outline": "#8e706e",
+                        "inverse-surface": "#2f3131",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed": "#3e001e",
+                        "inverse-on-surface": "#f1f1f1",
+                        "on-tertiary-fixed-variant": "#792b4a",
+                        "outline-variant": "#e2bebb",
+                        "on-tertiary": "#ffffff",
+                        "on-surface": "#1a1c1c",
+                        "on-secondary-fixed-variant": "#3c494f",
+                        "on-error": "#ffffff",
+                        "background": "#f9f9f9",
+                        "secondary-container": "#d7e4ec",
+                        "primary-container": "#d23e3e",
+                        "on-primary": "#ffffff",
+                        "primary-fixed-dim": "#ffb3ae"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "margin-desktop": "40px",
+                        "2xl": "48px",
+                        "xs": "4px",
+                        "3xl": "64px",
+                        "margin-mobile": "16px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "base": "4px",
+                        "sm": "8px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "label-lg": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "label-md": ["Hanken Grotesk"],
+                        "title-lg": ["Hanken Grotesk"],
+                        "display": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "500" }],
+                        "display": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-background text-on-surface min-h-screen pb-24">
+    <!-- Top AppBar Component -->
+    <header class="fixed top-0 w-full h-16 bg-surface flex items-center justify-between px-margin-mobile z-50"><button
+            class="p-2 text-on-surface-variant hover:bg-surface-variant transition-colors rounded-full active:scale-95 transition-transform"><span
+                class="material-symbols-outlined">menu</span></button>
+        <h1 class="font-headline-md text-headline-md font-bold text-primary">Warehouse Pro</h1><button
+            class="p-2 text-on-surface-variant hover:bg-surface-variant transition-colors rounded-full active:scale-95 transition-transform"><span
+                class="material-symbols-outlined">account_circle</span></button>
+    </header>
+    <!-- Main Content Canvas -->
+    <main class="pt-24 px-margin-mobile max-w-4xl mx-auto">
+        <!-- Welcome & Stats Section -->
+        <div class="mb-lg flex justify-between items-end">
+            <div>
+                <h2
+                    class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface">
+                    Danh sách Nhặt hàng</h2>
+                <p class="font-body-md text-body-md text-on-surface-variant mt-sm">Chọn một danh sách để bắt đầu thực
+                    hiện nhặt hàng.</p>
+            </div>
+            <div class="hidden md:flex gap-sm"><button
+                    class="flex items-center gap-sm px-4 py-2 bg-surface-container-high rounded-full hover:bg-surface-variant transition-colors font-label-lg text-label-lg text-on-surface"><span
+                        class="material-symbols-outlined" style="font-size: 18px;">filter_list</span> Lọc</button></div>
+        </div>
+        <!-- Task Grid (Bento Style) -->
+        <div class="flex gap-sm overflow-x-auto pb-sm mb-lg md:hidden snap-x"><button
+                class="snap-start flex-shrink-0 px-4 py-1.5 bg-primary-container text-on-primary-container rounded-full font-label-lg text-label-lg">Tất
+                cả</button><button
+                class="snap-start flex-shrink-0 px-4 py-1.5 bg-surface-container-highest text-on-surface rounded-full font-label-lg text-label-lg whitespace-nowrap">Mới</button><button
+                class="snap-start flex-shrink-0 px-4 py-1.5 bg-surface-container-highest text-on-surface rounded-full font-label-lg text-label-lg whitespace-nowrap">Đang
+                làm</button></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-lg"><!-- Card 1 -->
+            <div
+                class="bg-surface rounded-DEFAULT border border-outline-variant p-md flex flex-col justify-between hover:shadow-lg transition-shadow duration-300">
+                <div>
+                    <div class="flex justify-between items-start mb-sm">
+                        <div class="flex items-center gap-xs"><span class="material-symbols-outlined text-primary"
+                                style="font-variation-settings: 'FILL' 1;">assignment</span><span
+                                class="font-title-lg text-title-lg font-bold text-on-surface">BTCH-001</span></div><span
+                            class="px-2 py-0.5 bg-tertiary-container/20 text-tertiary font-label-md text-label-md rounded-full">Mới</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-sm mb-md">
+                        <div>
+                            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">KHU
+                                VỰC</p>
+                            <p class="font-body-md text-body-md font-medium">Zone A</p>
+                        </div>
+                        <div>
+                            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">SỐ
+                                LƯỢNG</p>
+                            <p class="font-body-md text-body-md font-medium">156 đơn vị</p>
+                        </div>
+                        <div class="col-span-2">
+                            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">CHI
+                                TIẾT</p>
+                            <p class="font-body-md text-body-md font-medium">08 Đơn - 24 SKU</p>
+                        </div>
+                    </div>
+                </div><button
+                    class="w-full bg-primary hover:bg-surface-tint text-on-primary font-label-lg text-label-lg py-3 rounded-full transition-colors flex items-center justify-center gap-sm active:scale-[0.98]"><span
+                        class="material-symbols-outlined">play_arrow</span> Nhận nhiệm vụ</button>
+            </div><!-- Card 2 -->
+            <div
+                class="bg-surface rounded-DEFAULT border border-outline-variant p-md flex flex-col justify-between hover:shadow-lg transition-shadow duration-300">
+                <div>
+                    <div class="flex justify-between items-start mb-sm">
+                        <div class="flex items-center gap-xs"><span class="material-symbols-outlined text-primary"
+                                style="font-variation-settings: 'FILL' 1;">assignment</span><span
+                                class="font-title-lg text-title-lg font-bold text-on-surface">BTCH-002</span></div><span
+                            class="px-2 py-0.5 bg-tertiary-container/20 text-tertiary font-label-md text-label-md rounded-full">Mới</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-sm mb-md">
+                        <div>
+                            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">KHU
+                                VỰC</p>
+                            <p class="font-body-md text-body-md font-medium">Zone B</p>
+                        </div>
+                        <div>
+                            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">SỐ
+                                LƯỢNG</p>
+                            <p class="font-body-md text-body-md font-medium">82 đơn vị</p>
+                        </div>
+                        <div class="col-span-2">
+                            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">CHI
+                                TIẾT</p>
+                            <p class="font-body-md text-body-md font-medium">04 Đơn - 12 SKU</p>
+                        </div>
+                    </div>
+                </div><button
+                    class="w-full bg-primary hover:bg-surface-tint text-on-primary font-label-lg text-label-lg py-3 rounded-full transition-colors flex items-center justify-center gap-sm active:scale-[0.98]"><span
+                        class="material-symbols-outlined">play_arrow</span> Nhận nhiệm vụ</button>
+            </div><!-- Card 3 -->
+            <div
+                class="bg-surface rounded-DEFAULT border border-outline-variant p-md flex flex-col justify-between hover:shadow-lg transition-shadow duration-300">
+                <div>
+                    <div class="flex justify-between items-start mb-sm">
+                        <div class="flex items-center gap-xs"><span class="material-symbols-outlined text-primary"
+                                style="font-variation-settings: 'FILL' 1;">assignment</span><span
+                                class="font-title-lg text-title-lg font-bold text-on-surface">BTCH-003</span></div><span
+                            class="px-2 py-0.5 bg-tertiary-container/20 text-tertiary font-label-md text-label-md rounded-full">Mới</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-sm mb-md">
+                        <div>
+                            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">KHU
+                                VỰC</p>
+                            <p class="font-body-md text-body-md font-medium">Zone C</p>
+                        </div>
+                        <div>
+                            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">SỐ
+                                LƯỢNG</p>
+                            <p class="font-body-md text-body-md font-medium">210 đơn vị</p>
+                        </div>
+                        <div class="col-span-2">
+                            <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">CHI
+                                TIẾT</p>
+                            <p class="font-body-md text-body-md font-medium">15 Đơn - 40 SKU</p>
+                        </div>
+                    </div>
+                </div><button
+                    class="w-full bg-primary hover:bg-surface-tint text-on-primary font-label-lg text-label-lg py-3 rounded-full transition-colors flex items-center justify-center gap-sm active:scale-[0.98]"><span
+                        class="material-symbols-outlined">play_arrow</span> Nhận nhiệm vụ</button>
+            </div>
+        </div>
+        <!-- Atmospheric Illustration Placeholder -->
+        <div class="mb-lg flex justify-between items-end">
+            <div>
+                <h2
+                    class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface">
+                    Danh sách Nhặt hàng</h2>
+                <p class="font-body-md text-body-md text-on-surface-variant mt-sm">Chọn một danh sách để bắt đầu thực
+                    hiện nhặt hàng.</p>
+            </div>
+            <div class="hidden md:flex gap-sm"><button
+                    class="flex items-center gap-sm px-4 py-2 bg-surface-container-high rounded-full hover:bg-surface-variant transition-colors font-label-lg text-label-lg text-on-surface"><span
+                        class="material-symbols-outlined" style="font-size: 18px;">filter_list</span> Lọc</button></div>
+        </div>
+    </main>
+    <!-- Bottom Navigation Bar Component -->
+    <nav
+        class="fixed bottom-0 left-0 w-full flex justify-around items-center h-20 bg-surface border-t border-outline-variant pb-safe z-50">
+        <a class="active:scale-90 transition-transform hover:bg-secondary-container/50 flex flex-col items-center justify-center text-on-secondary-container px-3 py-1 rounded-lg"
+            href="#"><span class="material-symbols-outlined">home</span><span
+                class="font-label-md text-label-md mt-1">Trang chủ</span></a><a
+            class="active:scale-90 transition-transform flex flex-col items-center justify-center bg-primary text-on-primary rounded-full px-4 py-2"
+            href="#"><span class="material-symbols-outlined filled">conveyor_belt</span><span
+                class="font-label-md text-label-md font-bold mt-1">Nhặt đồ</span></a><a
+            class="active:scale-90 transition-transform hover:bg-secondary-container/50 flex flex-col items-center justify-center text-on-secondary-container px-3 py-1 rounded-lg"
+            href="#"><span class="material-symbols-outlined">inventory_2</span><span
+                class="font-label-md text-label-md mt-1">Kiểm kê</span></a><a
+            class="active:scale-90 transition-transform hover:bg-secondary-container/50 flex flex-col items-center justify-center text-on-secondary-container px-3 py-1 rounded-lg"
+            href="#"><span class="material-symbols-outlined">settings</span><span
+                class="font-label-md text-label-md mt-1">Thiết lập</span></a>
+    </nav>
+    <!-- Floating Action Button for Scan (Optional but relevant for this context) -->
+    <script>
+        // Micro-interaction: Task cards active state logic
+        document.querySelectorAll('button').forEach(btn => {
+            if (btn.innerText === "Nhận nhiệm vụ") {
+                btn.addEventListener('click', function () {
+                    const card = this.closest('div.bg-surface-container-lowest');
+                    const taskCode = card.querySelector('h3').innerText;
+
+                    this.innerHTML = `<span class="flex items-center gap-2"><span class="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span> Đang nhận...</span>`;
+                    this.classList.add('opacity-80');
+
+                    setTimeout(() => {
+                        this.innerText = "Đang thực hiện";
+                        this.classList.replace('bg-primary', 'bg-tertiary');
+                        card.classList.add('ring-2', 'ring-primary', 'border-primary');
+                        console.log(`Assigned task: ${taskCode}`);
+                    }, 800);
+                });
+            }
+        });
+
+        // Simple parallax effect for the illustration
+        window.addEventListener('scroll', () => {
+            const scroll = window.scrollY;
+            const img = document.querySelector('img[data-alt]');
+            if (img) {
+                img.style.transform = `translateY(${scroll * 0.05}px) scale(${1 + scroll * 0.0001})`;
+            }
+        });
+    </script>
+</body>
+
+</html>

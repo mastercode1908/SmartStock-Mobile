@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Bước 3/5: Nhập số lượng - Warehouse Pro</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#1a1c1c",
+                        "tertiary-fixed-dim": "#ffb0c9",
+                        "primary-fixed-dim": "#ffb3ae",
+                        "primary": "#b02528",
+                        "surface-tint": "#b3272a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1a1c1c",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#3c494f",
+                        "tertiary-fixed": "#ffd9e2",
+                        "surface-container-low": "#f3f3f3",
+                        "secondary-fixed": "#d7e4ec",
+                        "on-secondary-fixed": "#111d23",
+                        "on-secondary-container": "#5a666d",
+                        "on-primary": "#ffffff",
+                        "background": "#f9f9f9",
+                        "on-tertiary-container": "#fffbff",
+                        "outline": "#8e706e",
+                        "surface-dim": "#dadada",
+                        "primary-fixed": "#ffdad7",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-primary-container": "#fffbff",
+                        "outline-variant": "#e2bebb",
+                        "on-error-container": "#93000a",
+                        "surface-variant": "#e2e2e2",
+                        "on-surface-variant": "#5a413f",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#910816",
+                        "inverse-on-surface": "#f1f1f1",
+                        "on-tertiary-fixed-variant": "#792b4a",
+                        "surface": "#f9f9f9",
+                        "inverse-primary": "#ffb3ae",
+                        "tertiary-container": "#b15878",
+                        "secondary-container": "#d7e4ec",
+                        "tertiary": "#93405f",
+                        "primary-container": "#d23e3e",
+                        "surface-container-high": "#e8e8e8",
+                        "secondary": "#546067",
+                        "secondary-fixed-dim": "#bbc8d0",
+                        "surface-bright": "#f9f9f9",
+                        "surface-container": "#eeeeee",
+                        "on-tertiary-fixed": "#3e001e",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#2f3131",
+                        "on-primary-fixed": "#410004"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "margin-mobile": "16px",
+                        "lg": "24px",
+                        "3xl": "64px",
+                        "margin-desktop": "40px",
+                        "md": "16px",
+                        "gutter": "24px",
+                        "2xl": "48px",
+                        "sm": "8px",
+                        "xl": "32px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "display": ["Hanken Grotesk"],
+                        "title-lg": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "label-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Hanken Grotesk', sans-serif;
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+    <!-- TopAppBar -->
+    <header
+        class="fixed top-0 w-full z-50 bg-surface dark:bg-surface-dim bg-surface-container-low dark:bg-surface-container-lowest">
+        <div class="flex items-center justify-between px-margin-mobile h-16 w-full">
+            <div class="flex items-center gap-md">
+                <button
+                    class="active:scale-95 transition-transform text-primary dark:text-primary-fixed-dim hover:bg-surface-variant transition-colors p-sm rounded-full flex items-center justify-center">
+                    <span class="material-symbols-outlined" data-icon="close">close</span>
+                </button>
+                <h1 class="font-title-lg text-title-lg text-primary dark:text-primary-fixed-dim font-bold">Warehouse Pro
+                </h1>
+            </div>
+            <button
+                class="active:scale-95 transition-transform text-primary dark:text-primary-fixed-dim hover:bg-surface-variant transition-colors p-sm rounded-full flex items-center justify-center">
+                <span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+            </button>
+        </div>
+    </header>
+    <!-- Main Content Canvas -->
+    <main
+        class="flex-grow pt-24 pb-32 px-margin-mobile md:px-margin-desktop max-w-2xl mx-auto w-full flex flex-col items-center justify-center">
+        <!-- Wizard Header -->
+        <div class="text-center w-full mb-lg">
+            <h2 class="font-headline-md text-headline-md text-primary mb-sm">Bước 3/5: Nhập số lượng</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant">Kiểm đếm và nhập số lượng thực tế tại vị trí
+            </p>
+            <!-- Progress Bar -->
+            <div class="w-full bg-surface-container-high h-2 rounded-full mt-md overflow-hidden">
+                <div class="bg-primary h-full w-3/5 rounded-full transition-all duration-300"></div>
+            </div>
+        </div>
+        <!-- Product Info Card -->
+        <div
+            class="w-full bg-surface-container-lowest border border-outline-variant rounded-[1rem] p-lg mb-xl shadow-[0_4px_16px_rgba(239,83,80,0.08)]">
+            <div class="flex items-start gap-md mb-md">
+                <div class="w-16 h-16 rounded-[1rem] bg-surface-container overflow-hidden shrink-0">
+                    <img alt="Product Image" class="w-full h-full object-cover"
+                        data-alt="A clean, minimalist product photo of industrial safety gloves on a sterile white background. Soft, diffused studio lighting highlights the texture of the material. The image reflects a high-end corporate modern aesthetic with precise focus."
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwEoDaXP6eOLaXhYLmu1LctAW5sBPE0mjZ0lMqgmadL3iB_Me7zlR4cO-_aPu7eOBk5IE1_13Sw_bM9Ti97UTHEMqnz-dRKOwQ8mTE6UNvCfxW1WG-kzvrOH7w3W_DzI5oo1QgMrcd6LWEktEB0GroDZZ0sdTYOsV6Eq08hy7r4LD6D0gUaeSojZ9FgVesA9JetI9_7AV72u7xYQSOBU2QXOmmlC0pC0rahj3q7d4s2WEe8pn5Mn3qpJnwsopa4AGdVVi8NmiUyy1w" />
+                </div>
+                <div class="flex-grow">
+                    <h3 class="font-title-lg text-title-lg text-on-surface mb-xs">Găng tay bảo hộ cao cấp</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant">Mã SP: SK-GL-992</p>
+                    <p class="font-body-md text-body-md text-on-surface-variant">Vị trí: Rack A2, Kệ 04</p>
+                </div>
+            </div>
+            <div class="flex justify-between items-center p-md bg-surface-container rounded-[1rem]">
+                <span class="font-body-lg text-body-lg text-on-surface-variant">Số lượng hệ thống:</span>
+                <span class="font-headline-md text-headline-md text-on-surface">50 <span
+                        class="font-body-md text-body-md text-on-surface-variant">Cái</span></span>
+            </div>
+        </div>
+        <!-- Quantity Input Section -->
+        <div class="w-full flex flex-col items-center mb-xl">
+            <label class="font-title-lg text-title-lg text-on-surface mb-md" for="actual-qty">Số lượng thực tế</label>
+            <div class="flex items-center justify-center gap-md w-full">
+                <button
+                    class="w-16 h-16 rounded-[1rem] bg-surface-container-highest text-on-surface flex items-center justify-center active:scale-95 transition-transform hover:bg-surface-variant shadow-[0_4px_16px_rgba(239,83,80,0.08)]"
+                    onclick="decrementQty()" type="button">
+                    <span class="material-symbols-outlined" data-icon="remove">remove</span>
+                </button>
+                <input
+                    class="w-32 h-20 text-center font-display text-display text-on-surface bg-transparent border-b-2 border-outline focus:border-primary focus:outline-none focus:ring-0 transition-colors bg-[#FEEBEE]/10 rounded-t-[1rem]"
+                    id="actual-qty" type="number" value="50" />
+                <button
+                    class="w-16 h-16 rounded-[1rem] bg-surface-container-highest text-on-surface flex items-center justify-center active:scale-95 transition-transform hover:bg-surface-variant shadow-[0_4px_16px_rgba(239,83,80,0.08)]"
+                    onclick="incrementQty()" type="button">
+                    <span class="material-symbols-outlined" data-icon="add">add</span>
+                </button>
+            </div>
+        </div>
+    </main>
+    <!-- Bottom Action Bar -->
+    <div
+        class="fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant p-margin-mobile flex justify-center z-50 flex-col items-center">
+        <div class="grid grid-cols-2 gap-md w-full max-w-2xl mb-md">
+            <button
+                class="flex items-center justify-center gap-sm p-md rounded-[1rem] border border-outline-variant text-on-surface-variant font-label-lg transition-colors hover:bg-surface-variant active:scale-95">
+                <span class="material-symbols-outlined text-[20px]">report</span>
+                Báo thiếu
+            </button>
+            <button
+                class="flex items-center justify-center gap-sm p-md rounded-[1rem] border border-outline-variant text-on-surface-variant font-label-lg transition-colors hover:bg-surface-variant active:scale-95">
+                <span class="material-symbols-outlined text-[20px]">qr_code_scanner</span>
+                Quét lại
+            </button>
+        </div><button
+            class="w-full max-w-2xl bg-primary text-on-primary font-title-lg text-title-lg py-md rounded-[1rem] active:scale-95 transition-transform shadow-[0_4px_16px_rgba(239,83,80,0.16)] flex justify-center items-center gap-sm">
+            Tiếp theo
+            <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+        </button>
+    </div>
+    <script>
+        const qtyInput = document.getElementById('actual-qty');
+
+        function incrementQty() {
+            let val = parseInt(qtyInput.value) || 0;
+            qtyInput.value = val + 1;
+        }
+
+        function decrementQty() {
+            let val = parseInt(qtyInput.value) || 0;
+            if (val > 0) {
+                qtyInput.value = val - 1;
+            }
+        }
+    </script>
+</body>
+
+</html>
