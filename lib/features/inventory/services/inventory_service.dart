@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/inventory_session.dart';
 import '../models/warehouse.dart';
@@ -164,6 +165,24 @@ class InventoryService {
     } else {
       throw Exception('Failed to load product variants: ${response.statusCode}');
     }
+  }
+
+  /// Single-step scan lookup: calls /api/ProductVariants/scan?code=...
+  /// Backend handles barcode, SKU, and serial number lookup in one query.
+  Future<ProductVariant?> fetchVariantByScan(String code) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/ProductVariants/scan?code=${Uri.encodeQueryComponent(code)}'),
+        headers: await _getHeaders(),
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return ProductVariant.fromJson(data);
+      }
+    } catch (e) {
+      debugPrint('fetchVariantByScan error: $e');
+    }
+    return null;
   }
 
   String _parseError(http.Response response) {

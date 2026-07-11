@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import '../../inventory/providers/inventory_provider.dart';
+import 'package:image_picker/image_picker.dart';
+import '../../inventory/models/product_variant.dart';
+import '../../../main_tab_screen.dart';
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
@@ -16,6 +19,7 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
   late Animation<double> _animation;
 
   bool _isFlashOn = false;
+  bool _isProcessing = false;
 
   @override
   void initState() {
@@ -48,6 +52,175 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
     });
   }
 
+  Future<void> _processBarcode(String rawValue) async {
+    if (_isProcessing) return;
+    setState(() => _isProcessing = true);
+    controller.stop();
+
+    final provider = context.read<InventoryProvider>();
+    
+    // Use the new async lookup that checks local cache -> local sessions -> backend API
+    final match = await provider.lookupVariantByCode(rawValue);
+
+    if (match != null) {
+      _showProductDetails(match);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Không tìm thấy sản phẩm với mã: $rawValue')),
+        );
+      }
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          setState(() => _isProcessing = false);
+          controller.start();
+        }
+      });
+    }
+  }
+
+  Future<void> _scanFromImage() async {
+    final file = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (file != null) {
+      final capture = await controller.analyzeImage(file.path);
+      if (capture != null && capture.barcodes.isNotEmpty && capture.barcodes.first.rawValue != null) {
+        _processBarcode(capture.barcodes.first.rawValue!);
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không tìm thấy mã vạch nào trong ảnh.')),
+        );
+      }
+    }
+  }
+
+  void _showProductDetails(ProductVariant match) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(16),
+                      image: match.imageUrl.isNotEmpty
+                          ? DecorationImage(
+                              image: NetworkImage(match.imageUrl),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
+                    ),
+                    child: match.imageUrl.isEmpty
+                        ? const Icon(Icons.inventory_2, color: Colors.grey, size: 40)
+                        : null,
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          match.variantName.isNotEmpty ? match.variantName : match.productName,
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        Text('SKU: ${match.sku}', style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                        Text('Barcode: ${match.barcode}', style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                        Text('ĐVT: ${match.baseUnitSymbol}', style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.black54, width: 1.5),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context); // Close bottom sheet
+                    if (mounted) {
+                      _isProcessing = false;
+                      controller.start();
+                    }
+                  },
+                  child: const Text('Đóng', style: TextStyle(fontSize: 16, color: Colors.black87, fontWeight: FontWeight.bold)),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    ).then((_) {
+      if (_isProcessing && mounted) {
+        _isProcessing = false;
+        controller.start();
+      }
+    });
+  }
+
+  void _showManualEntryDialog(BuildContext context) {
+    final TextEditingController textController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Nhập mã thủ công'),
+          content: TextField(
+            controller: textController,
+            decoration: const InputDecoration(
+              hintText: 'Nhập Barcode, SKU hoặc Serial...',
+              border: OutlineInputBorder(),
+            ),
+            autofocus: true,
+            onSubmitted: (value) {
+              if (value.isNotEmpty) {
+                Navigator.pop(context);
+                _processBarcode(value);
+              }
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (textController.text.isNotEmpty) {
+                  Navigator.pop(context);
+                  _processBarcode(textController.text);
+                }
+              },
+              child: const Text('Tìm kiếm'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,35 +236,7 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
               for (final barcode in barcodes) {
                 final rawValue = barcode.rawValue;
                 if (rawValue != null) {
-                  debugPrint('Barcode found! $rawValue');
-                  
-                  // Pause scanner to avoid multiple reads
-                  controller.stop();
-                  
-                  final provider = context.read<InventoryProvider>();
-                  final match = provider.productVariants.where((v) => v.barcode == rawValue || v.sku == rawValue).firstOrNull;
-                  
-                  if (match != null) {
-                    if (!provider.selectedVariants.any((v) => v.variantId == match.variantId)) {
-                      provider.toggleVariantSelection(match);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Đã thêm: ${match.variantName}')),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Sản phẩm đã có trong danh sách kiểm đếm')),
-                      );
-                    }
-                    Navigator.pop(context); // Go back after success
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Không tìm thấy sản phẩm với mã: $rawValue')),
-                    );
-                    // Resume scanning if not found
-                    Future.delayed(const Duration(seconds: 2), () {
-                      if (mounted) controller.start();
-                    });
-                  }
+                  _processBarcode(rawValue);
                   break; // Process one barcode at a time
                 }
               }
@@ -163,6 +308,11 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
                       onPressed: () {
                         if (Navigator.canPop(context)) {
                           Navigator.of(context).pop();
+                        } else {
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(builder: (_) => const MainTabScreen()),
+                            (route) => false,
+                          );
                         }
                       },
                     ),
@@ -370,7 +520,7 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
                       // Gallery Upload
                       GestureDetector(
                         onTap: () {
-                          // Implement Gallery upload logic here
+                          _scanFromImage();
                         },
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -410,7 +560,7 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
                     height: 56,
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        // Implement manual entry logic here
+                        _showManualEntryDialog(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xfff1fbff),

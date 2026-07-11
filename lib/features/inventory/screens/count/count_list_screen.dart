@@ -138,12 +138,16 @@ class _CountListScreenState extends State<CountListScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Danh sách Kiểm kê',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.onSurface,
+              const FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Danh sách Kiểm kê',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.onSurface,
+                  ),
                 ),
               ),
               const SizedBox(height: 8),

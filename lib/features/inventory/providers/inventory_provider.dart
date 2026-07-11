@@ -259,6 +259,49 @@ class InventoryProvider extends ChangeNotifier {
     }
   }
 
+  Future<ProductVariant?> lookupVariantByCode(String rawValue) async {
+    // 1. Local Cache - Barcode/SKU/ID
+    ProductVariant? match = _productVariants.where((v) => 
+      v.barcode == rawValue || 
+      v.sku == rawValue || 
+      v.variantId.toString() == rawValue
+    ).firstOrNull;
+
+    if (match != null) return match;
+
+    // 2. Deep search in loaded session details (serial/batch/sku)
+    for (var session in _sessions) {
+      if (session.details != null) {
+        final detailMatch = session.details!.where((d) => 
+          d.serialNumber == rawValue || 
+          d.batchNumber == rawValue || 
+          d.sku == rawValue
+        ).firstOrNull;
+        
+        if (detailMatch != null) {
+          match = _productVariants.where((v) => v.variantId == detailMatch.variantId).firstOrNull;
+          if (match != null) return match;
+        }
+      }
+    }
+
+    // 3. Fallback to backend — handles barcode/SKU/serial in one call
+    try {
+      final remoteVariant = await _service.fetchVariantByScan(rawValue);
+      if (remoteVariant != null) {
+        // Cache locally so next scan is instant
+        if (!_productVariants.any((v) => v.variantId == remoteVariant.variantId)) {
+          _productVariants.add(remoteVariant);
+        }
+        return remoteVariant;
+      }
+    } catch (e) {
+      debugPrint('lookupVariantByCode backend error: $e');
+    }
+
+    return null;
+  }
+
   Future<bool> submitCountDetails([List<InventoryCountDetail>? details]) async {
     try {
       _isLoading = true;
