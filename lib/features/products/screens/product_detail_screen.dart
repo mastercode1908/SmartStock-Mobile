@@ -410,6 +410,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         return 'Theo dõi theo Lô (BATCH)';
       case 2:
         return 'Theo dõi theo Serial (SERIAL)';
+      case 3:
+        return 'Theo dõi theo Lô & Serial (BATCH & SERIAL)';
       default:
         return 'Không theo dõi (NONE)';
     }

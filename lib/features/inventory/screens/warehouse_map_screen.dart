@@ -1,29 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/storage_location_provider.dart';
+import 'storage_location_detail_screen.dart';
 
 class WarehouseMapScreen extends StatefulWidget {
-  const WarehouseMapScreen({super.key});
+  final int? initialWarehouseId;
+
+  const WarehouseMapScreen({super.key, this.initialWarehouseId});
 
   @override
   State<WarehouseMapScreen> createState() => _WarehouseMapScreenState();
 }
 
-class _WarehouseMapScreenState extends State<WarehouseMapScreen> with SingleTickerProviderStateMixin {
+class _WarehouseMapScreenState extends State<WarehouseMapScreen> {
+  int? _selectedWarehouseId;
   final TransformationController _transformationController = TransformationController();
-  late AnimationController _pulseController;
 
   @override
   void initState() {
     super.initState();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat();
+    _selectedWarehouseId = widget.initialWarehouseId;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final provider = context.read<StorageLocationProvider>();
+      
+      // Load warehouses if not loaded
+      if (provider.activeWarehouses.isEmpty) {
+        await provider.loadActiveWarehouses();
+      }
+
+      // If no initial warehouse, pick the first one
+      if (_selectedWarehouseId == null && provider.activeWarehouses.isNotEmpty) {
+        _selectedWarehouseId = provider.activeWarehouses.first['warehouseID'] as int?;
+      }
+
+      if (_selectedWarehouseId != null) {
+        provider.loadMapLocations(_selectedWarehouseId!);
+      }
+    });
   }
 
   @override
   void dispose() {
     _transformationController.dispose();
-    _pulseController.dispose();
     super.dispose();
   }
 
@@ -43,101 +61,122 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> with SingleTick
     _transformationController.value = Matrix4.identity();
   }
 
-  void _showRackTooltip(BuildContext context, String rackName, String category, String capacityText, int capacityValue) {
-    showDialog(
-      context: context,
-      barrierColor: Colors.black26,
-      builder: (context) {
-        Color barColor;
-        Color textColor;
-        if (capacityValue >= 90) {
-          barColor = const Color(0xffff5f5f); // primary-container
-          textColor = const Color(0xffb3272e); // primary
-        } else if (capacityValue > 0) {
-          barColor = const Color(0xff00a7a3); // tertiary-container
-          textColor = const Color(0xff006a67); // tertiary
-        } else {
-          barColor = const Color(0xffd9e4e9); // surface-variant
-          textColor = const Color(0xff59413f); // on-surface-variant
-        }
+  // Parse location code formatted as Zone-Rack-Shelf-Bin
+  Map<String, dynamic> _parseLocationCode(Map<String, dynamic> rawLoc) {
+    final String code = rawLoc['locationCode'] ?? '';
+    final parts = code.split('-');
+    
+    return {
+      'locationId': rawLoc['locationID'] ?? 0,
+      'locationCode': code,
+      'zone': parts.isNotEmpty ? parts[0].trim().toUpperCase() : 'UNKNOWN',
+      'rack': parts.length > 1 ? parts[1].trim().toUpperCase() : '0',
+      'shelf': parts.length > 2 ? parts[2].trim().toUpperCase() : '0',
+      'bin': parts.length > 3 ? parts[3].trim().toUpperCase() : '0',
+    };
+  }
 
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 40),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 32, offset: const Offset(0, 12)),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(rackName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                        Text(category, style: const TextStyle(fontSize: 14, color: Colors.black54)),
-                      ],
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.black54),
-                      onPressed: () => Navigator.pop(context),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Lấp đầy', style: TextStyle(fontSize: 12, color: Colors.black54, fontWeight: FontWeight.w500)),
-                    Text(capacityText, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: textColor)),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Container(
-                  height: 8,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: capacityValue / 100.0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: barColor,
-                        borderRadius: BorderRadius.circular(4),
+  void _showRackDetails(BuildContext context, String zone, String rack, List<Map<String, dynamic>> locations) {
+    // Sort locations by shelf, then bin
+    locations.sort((a, b) {
+      int shelfCompare = (a['shelf'] as String).compareTo(b['shelf'] as String);
+      if (shelfCompare != 0) return shelfCompare;
+      return (a['bin'] as String).compareTo(b['bin'] as String);
+    });
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Khu $zone - Dãy $rack',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xffb3272e)),
                       ),
-                    ),
+                      Text(
+                        'Có ${locations.length} ô lưu trữ (Bin) tại dãy này',
+                        style: const TextStyle(fontSize: 13, color: Colors.black54),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xffb3272e),
-                      side: const BorderSide(color: Colors.black12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: const Text('XEM CHI TIẾT', style: TextStyle(fontWeight: FontWeight.bold)),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(ctx),
                   ),
+                ],
+              ),
+              const Divider(),
+              const SizedBox(height: 8),
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: locations.length,
+                  itemBuilder: (context, idx) {
+                    final item = locations[idx];
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(color: Colors.grey[200]!),
+                      ),
+                      child: ListTile(
+                        leading: const CircleAvatar(
+                          backgroundColor: Color(0xfffef3f2),
+                          foregroundColor: Color(0xffb3272e),
+                          child: Icon(Icons.grid_view_rounded, size: 20),
+                        ),
+                        title: Text(
+                          'Tầng ${item['shelf']} - Ô ${item['bin']}',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        ),
+                        subtitle: Text(
+                          'Mã vị trí: ${item['locationCode']}',
+                          style: const TextStyle(fontSize: 12, color: Colors.black54),
+                        ),
+                        trailing: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(ctx); // Close sheet
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => StorageLocationDetailScreen(locationId: item['locationId'] as int),
+                              ),
+                            ).then((_) {
+                              if (_selectedWarehouseId != null) {
+                                context.read<StorageLocationProvider>().loadMapLocations(_selectedWarehouseId!);
+                              }
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xffb3272e),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          child: const Text('Xem', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
@@ -146,12 +185,105 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> with SingleTick
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<StorageLocationProvider>();
+    final isMapLoading = provider.isMapLoading;
+    final warehouses = provider.activeWarehouses;
+    
+    // Parse all map locations
+    final List<Map<String, dynamic>> parsedLocs = provider.mapLocations.map((l) => _parseLocationCode(l)).toList();
+    
+    // Group locations of selected zone by Zone and Rack
+    final Map<String, Map<String, List<Map<String, dynamic>>>> groupedByZoneAndRack = {};
+    for (var l in parsedLocs) {
+      final String zone = l['zone'] as String;
+      final String rack = l['rack'] as String;
+      
+      if (!groupedByZoneAndRack.containsKey(zone)) {
+        groupedByZoneAndRack[zone] = {};
+      }
+      if (!groupedByZoneAndRack[zone]!.containsKey(rack)) {
+        groupedByZoneAndRack[zone]![rack] = [];
+      }
+      groupedByZoneAndRack[zone]![rack]!.add(l);
+    }
+    
+    final List<String> sortedZones = groupedByZoneAndRack.keys.toList()..sort();
+
+    // Calculate max racks count in any zone to size canvas dynamically
+    int maxRacksCount = 0;
+    for (var zone in groupedByZoneAndRack.keys) {
+      final racksCount = groupedByZoneAndRack[zone]!.keys.length;
+      if (racksCount > maxRacksCount) {
+        maxRacksCount = racksCount;
+      }
+    }
+    if (maxRacksCount < 4) maxRacksCount = 4; // minimum rows height
+
+    final double canvasHeight = (maxRacksCount * 76.0) + 80.0;
+    final double aisleHeight = canvasHeight - 80.0;
+
+    // Build Map Columns dynamically with an Aisle track between EVERY zone column
+    final List<Widget> mapColumns = [];
+    
+    for (int i = 0; i < sortedZones.length; i++) {
+      final zone = sortedZones[i];
+      final zoneRacks = groupedByZoneAndRack[zone] ?? {};
+      final sortedZoneRacks = zoneRacks.keys.toList()..sort();
+      
+      mapColumns.add(
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Khu $zone', 
+              style: const TextStyle(
+                fontSize: 13, 
+                color: Colors.black87, 
+                fontWeight: FontWeight.bold
+              )
+            ),
+            const SizedBox(height: 12),
+            ...sortedZoneRacks.map((rackName) {
+              final locs = zoneRacks[rackName]!;
+              final String fullRackName = '$zone-$rackName';
+              
+              Color blockColor = const Color(0xfff8f9fa);
+              Color blockTextColor = Colors.black87;
+              
+              return _buildRackBlock(
+                context, 
+                fullRackName, 
+                'Khu vực', 
+                '0%', 
+                0, 
+                blockColor, 
+                blockTextColor, 
+                locs,
+                isOutline: true
+              );
+            }).toList(),
+          ],
+        ),
+      );
+      
+      if (i < sortedZones.length - 1) {
+        mapColumns.add(const SizedBox(width: 8));
+        mapColumns.add(_buildAisle(aisleHeight));
+        mapColumns.add(const SizedBox(width: 8));
+      }
+    }
+
+    // Dynamic width calculation for the warehouse sheet canvas to pan/zoom correctly
+    final double canvasWidth = sortedZones.isEmpty
+        ? 300
+        : (sortedZones.length * 100) + ((sortedZones.length - 1) * 46) + 48;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xfff8f9fa),
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
+        elevation: 0.5,
+        scrolledUnderElevation: 0.5,
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xffb3272e)),
@@ -162,160 +294,100 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> with SingleTick
           style: TextStyle(
             color: Color(0xffb3272e),
             fontWeight: FontWeight.bold,
-            fontSize: 24,
+            fontSize: 22,
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            color: Colors.white,
+            child: Row(
+              children: [
+                const Icon(Icons.warehouse, color: Color(0xffb3272e), size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<int>(
+                      value: _selectedWarehouseId,
+                      isExpanded: true,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
+                      hint: const Text('Chọn nhà kho'),
+                      items: warehouses.map((w) {
+                        return DropdownMenuItem<int>(
+                          value: w['warehouseID'] as int,
+                          child: Text(w['warehouseName'] as String),
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        if (val != null) {
+                          setState(() {
+                            _selectedWarehouseId = val;
+                          });
+                          provider.loadMapLocations(val);
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
       body: Stack(
         children: [
-          // Map Canvas
+          // Dynamic Map Canvas sheet
           Positioned.fill(
-            bottom: 120, // Leave space for footer
+            bottom: 0,
             child: InteractiveViewer(
               transformationController: _transformationController,
-              minScale: 0.5,
+              constrained: false,
+              minScale: 0.1, // Allow zooming out very far to see the entire warehouse sheet
               maxScale: 3.0,
-              boundaryMargin: const EdgeInsets.all(100),
-              child: Center(
-                child: Container(
-                  width: 400,
-                  height: 600,
-                  margin: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey[300]!, width: 2),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // Section A
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text('Khu A', style: TextStyle(fontSize: 12, color: Colors.black54)),
-                            const SizedBox(height: 8),
-                            _buildRackBlock('A-10', 'Điện tử', '95%', 95, const Color(0xffff5f5f), Colors.white),
-                            _buildRackBlock('A-11', 'Điện tử', '60%', 60, const Color(0xff00a7a3), Colors.white),
-                            _buildRackBlock('A-12', 'Trống', '0%', 0, const Color(0xffd9e4e9), Colors.black87, isOutline: true),
-                            _buildRackBlock('A-13', 'Gia dụng', '45%', 45, const Color(0xff00a7a3), Colors.white),
-                          ],
-                        ),
-                      ),
-                      // Section B
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text('Khu B', style: TextStyle(fontSize: 12, color: Colors.black54)),
-                            const SizedBox(height: 8),
-                            _buildRackBlock('B-01', 'Phụ tùng', '70%', 70, const Color(0xff00a7a3), Colors.white),
-                            _buildRackBlock('B-02', 'Hóa chất', '98%', 98, const Color(0xffff5f5f), Colors.white),
-                            _buildRackBlock('B-03', 'Phụ tùng', '20%', 20, const Color(0xff00a7a3), Colors.white),
-                            _buildRackBlock('B-04', 'Phụ tùng', '55%', 55, const Color(0xff00a7a3), Colors.white),
-                          ],
-                        ),
-                      ),
-                      // Aisle with pulse
-                      Expanded(
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Container(
-                              width: 16,
-                              height: 300,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: BorderRadius.circular(8),
+              boundaryMargin: const EdgeInsets.all(240), // Large boundary margin so user can pan canvas anywhere
+              child: isMapLoading
+                  ? const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Color(0xffb3272e))))
+                  : parsedLocs.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.map_outlined, size: 64, color: Colors.grey[300]),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Không có vị trí lưu trữ nào.',
+                                style: TextStyle(color: Colors.grey[500], fontSize: 15),
                               ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: List.generate(4, (index) => Container(width: 6, height: 6, decoration: const BoxDecoration(color: Colors.black26, shape: BoxShape.circle))),
+                            ],
+                          ),
+                        )
+                      : Container(
+                          width: canvasWidth,
+                          height: canvasHeight,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.grey[300]!, width: 1.5),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 16,
+                                offset: const Offset(0, 4),
                               ),
-                            ),
-                            Positioned(
-                              top: 100,
-                              child: AnimatedBuilder(
-                                animation: _pulseController,
-                                builder: (context, child) {
-                                  return Container(
-                                    width: 32 + (_pulseController.value * 16),
-                                    height: 32 + (_pulseController.value * 16),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: const Color(0xffff5f5f).withOpacity(1 - _pulseController.value),
-                                        width: 2,
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Container(
-                                        width: 32,
-                                        height: 32,
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xffffb3af),
-                                          shape: BoxShape.circle,
-                                          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
-                                        ),
-                                        child: const Icon(Icons.person, size: 16, color: Color(0xff64000d)),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: mapColumns,
+                          ),
                         ),
-                      ),
-                      // Section C
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text('Khu C', style: TextStyle(fontSize: 12, color: Colors.black54)),
-                            const SizedBox(height: 8),
-                            _buildRackBlock('C-01', 'Trống', '0%', 0, const Color(0xffd9e4e9), Colors.black87, isOutline: true),
-                            _buildRackBlock('C-02', 'Đóng gói', '85%', 85, const Color(0xff00a7a3), Colors.white),
-                            _buildRackBlock('C-03', 'Đóng gói', '40%', 40, const Color(0xff00a7a3), Colors.white),
-                            _buildRackBlock('C-04', 'Lỗi/Trả về', '100%', 100, const Color(0xffff5f5f), Colors.white),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
             ),
           ),
 
-          // Legend
-          Positioned(
-            left: 16,
-            top: 16,
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[200]!),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8)],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('TRẠNG THÁI', style: TextStyle(fontSize: 12, color: Colors.black54, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  _buildLegendItem(const Color(0xffff5f5f), 'Đầy / Cảnh báo (>90%)'),
-                  const SizedBox(height: 4),
-                  _buildLegendItem(const Color(0xff00a7a3), 'Bình thường (<90%)'),
-                  const SizedBox(height: 4),
-                  _buildLegendItem(const Color(0xffd9e4e9), 'Trống', isOutline: true),
-                ],
-              ),
-            ),
-          ),
-
-          // Zoom Controls
+          // Floating Zoom Buttons (Top Right Overlay)
           Positioned(
             right: 16,
             top: 16,
@@ -324,109 +396,80 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> with SingleTick
                 _buildZoomButton(Icons.add, _zoomIn),
                 const SizedBox(height: 8),
                 _buildZoomButton(Icons.remove, _zoomOut),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 _buildZoomButton(Icons.my_location, _resetView),
               ],
             ),
           ),
 
-          // Fixed Bottom Footer
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              padding: EdgeInsets.only(
-                left: 16,
-                right: 16,
-                top: 16,
-                bottom: MediaQuery.of(context).padding.bottom + 16,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.8),
-                border: Border(top: BorderSide(color: Colors.grey[200]!)),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 12, offset: const Offset(0, -4)),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton.icon(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xffb3272e),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        elevation: 0,
-                      ),
-                      icon: const Icon(Icons.qr_code_scanner),
-                      label: const Text('Quét vị trí', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: OutlinedButton.icon(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xffb3272e),
-                        side: const BorderSide(color: Color(0xffb3272e)),
-                        backgroundColor: const Color(0xfff1fbff),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      icon: const Icon(Icons.list_alt),
-                      label: const Text('Danh sách chi tiết', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+
         ],
       ),
     );
   }
 
-  Widget _buildRackBlock(String id, String category, String capText, int capVal, Color color, Color textColor, {bool isOutline = false}) {
+  Widget _buildRackBlock(
+    BuildContext context, 
+    String id, 
+    String category, 
+    String capText, 
+    int capVal, 
+    Color color, 
+    Color textColor, 
+    List<Map<String, dynamic>> locations,
+    {bool isOutline = false}
+  ) {
     return GestureDetector(
-      onTap: () => _showRackTooltip(context, id, category, capText, capVal),
+      onTap: () => _showRackDetails(context, id.split('-')[0], id.split('-')[1], locations),
       child: Container(
+        width: 70,
         height: 64,
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        margin: const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(8),
-          border: isOutline ? Border.all(color: Colors.grey[300]!) : null,
-          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))],
+          borderRadius: BorderRadius.circular(10),
+          border: isOutline ? Border.all(color: Colors.grey[400]!, width: 1.5) : null,
+          boxShadow: const [
+            BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1.5))
+          ],
         ),
         child: Center(
           child: Text(
             id,
-            style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 12),
+            style: TextStyle(
+              color: textColor, 
+              fontWeight: FontWeight.bold, 
+              fontSize: 13
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildLegendItem(Color color, String label, {bool isOutline = false}) {
-    return Row(
-      children: [
-        Container(
+  Widget _buildAisle(double height) {
+    return SizedBox(
+      width: 30,
+      height: height,
+      child: Center(
+        child: Container(
           width: 12,
-          height: 12,
+          height: height > 40 ? height - 40 : height,
           decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-            border: isOutline ? Border.all(color: Colors.grey[400]!) : null,
+            color: const Color(0xfff1f3f5),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: const Color(0xffe9ecef)),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: List.generate(4, (index) => Container(
+              width: 4,
+              height: 4,
+              decoration: const BoxDecoration(color: Colors.black12, shape: BoxShape.circle),
+            )),
           ),
         ),
-        const SizedBox(width: 8),
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.black87)),
-      ],
+      ),
     );
   }
 
@@ -437,11 +480,18 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> with SingleTick
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: IconButton(
         icon: Icon(icon, color: const Color(0xffb3272e), size: 20),
         onPressed: onPressed,
+        padding: EdgeInsets.zero,
       ),
     );
   }

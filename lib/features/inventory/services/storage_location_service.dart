@@ -152,6 +152,80 @@ class StorageLocationService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> fetchStorageLocationsLookup() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/StorageLocations/lookup'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((l) => {
+        'locationID': l['locationID'] ?? l['locationId'] ?? 0,
+        'locationCode': l['locationCode'] ?? '',
+        'warehouseID': l['warehouseID'] ?? l['warehouseId'] ?? 0,
+      }).toList();
+    } else {
+      throw Exception('Không thể tải danh sách vị trí khả dụng');
+    }
+  }
+
+  Future<List<String>> fetchAvailableSerials({
+    required int variantId,
+    required int locationId,
+    int? batchId,
+  }) async {
+    String url = '$baseUrl/Serials/available?variantId=$variantId&locationId=$locationId';
+    if (batchId != null && batchId > 0) {
+      url += '&batchId=$batchId';
+    }
+
+    final response = await http.get(
+      Uri.parse(url),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((e) => e.toString()).toList();
+    } else {
+      throw Exception('Không thể tải danh sách số serial khả dụng');
+    }
+  }
+
+  Future<bool> transferStock({
+    required int sourceLocationId,
+    required int targetLocationId,
+    required int variantId,
+    int? batchId,
+    required int quantity,
+    required List<String> serialNumbers,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/StockBalances/transfer'),
+      headers: await _getHeaders(),
+      body: json.encode({
+        'sourceLocationID': sourceLocationId,
+        'targetLocationID': targetLocationId,
+        'variantID': variantId,
+        'batchID': batchId,
+        'quantity': quantity,
+        'serialNumbers': serialNumbers,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      if (jsonResponse['success'] == true) {
+        return true;
+      }
+      throw Exception(jsonResponse['message'] ?? 'Chuyển vị trí thất bại');
+    } else {
+      _handleErrorResponse(response);
+      throw Exception('Chuyển vị trí thất bại (${response.statusCode})');
+    }
+  }
+
   void _handleErrorResponse(http.Response response) {
     try {
       final jsonResponse = json.decode(response.body);

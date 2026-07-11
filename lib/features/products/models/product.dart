@@ -10,7 +10,7 @@ class Product {
   final int baseUnitId;
   final String imageUrl;
   final String productName;
-  final int trackingMethod; // 0 = NONE, 1 = BATCH, 2 = SERIAL
+  final int trackingMethod; // 0 = NONE, 1 = BATCH, 2 = SERIAL, 3 = BATCH_AND_SERIAL
   final String description;
   final int status; // 0 = DRAFT, 1 = ACTIVE, 2 = INACTIVE, 3 = DISCONTINUED
 

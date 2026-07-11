@@ -12,7 +12,7 @@ class PickUpStep1Screen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: _buildAppBar(context),
-      body: Consumer<PickingProvider>(
+      body: Consumer<InventoryPickingProvider>(
         builder: (context, provider, child) {
           final task = provider.currentTask;
           if (task == null) {

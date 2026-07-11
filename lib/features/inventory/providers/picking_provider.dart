@@ -5,13 +5,13 @@ import '../../auth/providers/auth_provider.dart';
 import '../models/picking_task.dart';
 import '../models/picking_detail.dart';
 
-class PickingProvider extends ChangeNotifier {
+class InventoryPickingProvider extends ChangeNotifier {
   final String baseUrl = 'https://10.0.2.2:7207/api';
-  
+
   List<PickingTask> _tasks = [];
   bool _isLoading = false;
   String? _error;
-  
+
   PickingTask? _currentTask;
 
   List<PickingTask> get tasks => _tasks;
@@ -93,7 +93,7 @@ class PickingProvider extends ChangeNotifier {
         Uri.parse('$baseUrl/picking-tasks/$taskId/start'),
         headers: await _getHeaders(),
       );
-      
+
       if (response.statusCode == 200) {
         if (_currentTask != null) {
           _currentTask = PickingTask(
@@ -125,7 +125,9 @@ class PickingProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         // Update local state
         if (_currentTask != null && _currentTask!.details != null) {
-          final idx = _currentTask!.details!.indexWhere((d) => d.pickingDetailId == detailId);
+          final idx = _currentTask!.details!.indexWhere(
+            (d) => d.pickingDetailId == detailId,
+          );
           if (idx != -1) {
             _currentTask!.details![idx].pickedQuantity = pickedQuantity;
             notifyListeners();

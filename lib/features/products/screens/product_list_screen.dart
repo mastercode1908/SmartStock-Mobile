@@ -135,6 +135,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
                           _tempTrackingMethod == 2,
                           () => setModalState(() => _tempTrackingMethod = 2),
                         ),
+                        _buildFilterOption(
+                          'Lô & Serial',
+                          _tempTrackingMethod == 3,
+                          () => setModalState(() => _tempTrackingMethod = 3),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -678,6 +683,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
       label = 'SERIAL';
       color = const Color(0xff006a67);
       bg = const Color(0xff00a7a3).withOpacity(0.1);
+    } else if (trackingMethod == 3) {
+      label = 'LÔ & SERIAL';
+      color = Colors.purple[800]!;
+      bg = Colors.purple[100]!;
     }
 
     return Container(

@@ -17,7 +17,7 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PickingProvider>().fetchTasks();
+      context.read<InventoryPickingProvider>().fetchTasks();
     });
   }
 
@@ -26,7 +26,7 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: _buildAppBar(context),
-      body: Consumer<PickingProvider>(
+      body: Consumer<InventoryPickingProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -259,7 +259,7 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
               elevation: 0,
             ),
             onPressed: () async {
-              final provider = context.read<PickingProvider>();
+              final provider = context.read<InventoryPickingProvider>();
               await provider.fetchTaskDetail(task.taskId);
               if (isNew) {
                 await provider.startTask(task.taskId);

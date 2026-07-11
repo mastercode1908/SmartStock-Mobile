@@ -6,13 +6,17 @@ import 'features/inventory/providers/storage_location_provider.dart';
 import 'features/inventory/providers/picking_provider.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'features/products/providers/product_provider.dart';
+import 'features/notifications/providers/notification_provider.dart';
+import 'features/picking/providers/picking_provider.dart';
+import 'features/inventory/providers/incident_provider.dart';
 import 'features/auth/screens/splash_screen.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
     return super.createHttpClient(context)
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }
 
@@ -25,7 +29,10 @@ void main() {
         ChangeNotifierProvider(create: (_) => InventoryProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => StorageLocationProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => PickingProvider()),
+        ChangeNotifierProvider(create: (_) => InventoryPickingProvider()),
+        ChangeNotifierProvider(create: (_) => IncidentProvider()),
       ],
       child: const MyApp(),
     ),

@@ -265,4 +265,86 @@ class StorageLocationProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<List<Map<String, dynamic>>> loadLocationsLookupForWarehouse(int warehouseId, int excludeLocationId) async {
+    try {
+      final list = await _service.fetchStorageLocationsLookup();
+      return list.where((l) => l['warehouseID'] == warehouseId && l['locationID'] != excludeLocationId).toList();
+    } catch (e) {
+      debugPrint('Error loading locations lookup: $e');
+      return [];
+    }
+  }
+
+  Future<List<String>> loadAvailableSerials({
+    required int variantId,
+    required int locationId,
+    int? batchId,
+  }) async {
+    try {
+      return await _service.fetchAvailableSerials(
+        variantId: variantId,
+        locationId: locationId,
+        batchId: batchId,
+      );
+    } catch (e) {
+      debugPrint('Error loading available serials: $e');
+      return [];
+    }
+  }
+
+  List<Map<String, dynamic>> _mapLocations = [];
+  bool _isMapLoading = false;
+
+  List<Map<String, dynamic>> get mapLocations => _mapLocations;
+  bool get isMapLoading => _isMapLoading;
+
+  Future<void> loadMapLocations(int warehouseId) async {
+    try {
+      _isMapLoading = true;
+      _error = null;
+      notifyListeners();
+
+      final list = await _service.fetchStorageLocationsLookup();
+      _mapLocations = list.where((l) => l['warehouseID'] == warehouseId).toList();
+    } catch (e) {
+      _error = e.toString().replaceAll('Exception: ', '');
+      debugPrint('Error loading map locations: $e');
+    } finally {
+      _isMapLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> transferStock({
+    required int sourceLocationId,
+    required int targetLocationId,
+    required int variantId,
+    int? batchId,
+    required int quantity,
+    required List<String> serialNumbers,
+  }) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      final success = await _service.transferStock(
+        sourceLocationId: sourceLocationId,
+        targetLocationId: targetLocationId,
+        variantId: variantId,
+        batchId: batchId,
+        quantity: quantity,
+        serialNumbers: serialNumbers,
+      );
+      
+      return success;
+    } catch (e) {
+      _error = e.toString().replaceAll('Exception: ', '');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }
