@@ -46,7 +46,7 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
         } catch (_) {}
         
         _quantityControllers[v.variantId] = TextEditingController(
-          text: (detail != null && detail.countedQuantity > 0) ? detail.countedQuantity.toString() : ''
+          text: (detail != null && detail.actualQuantity != null && detail.actualQuantity! > 0) ? detail.actualQuantity.toString() : ''
         );
         _imageUrl[v.variantId] = detail?.imageUrl;
         _isUploading[v.variantId] = false;
@@ -120,7 +120,7 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
         variantId: variant.variantId,
         unitId: variant.baseUnitId,
         systemQuantity: systemQty,
-        countedQuantity: countedQty,
+        actualQuantity: countedQty,
         difference: diff,
         status: status,
         imageUrl: _imageUrl[variant.variantId],

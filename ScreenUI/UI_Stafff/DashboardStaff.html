@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Warehouse Pro Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#1a1c1c",
+                        "tertiary-fixed-dim": "#ffb0c9",
+                        "primary-fixed-dim": "#ffb3ae",
+                        "primary": "#b02528",
+                        "surface-tint": "#b3272a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1a1c1c",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#3c494f",
+                        "tertiary-fixed": "#ffd9e2",
+                        "surface-container-low": "#f3f3f3",
+                        "secondary-fixed": "#d7e4ec",
+                        "on-secondary-fixed": "#111d23",
+                        "on-secondary-container": "#5a666d",
+                        "on-primary": "#ffffff",
+                        "background": "#f9f9f9",
+                        "on-tertiary-container": "#fffbff",
+                        "outline": "#8e706e",
+                        "surface-dim": "#dadada",
+                        "primary-fixed": "#ffdad7",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-primary-container": "#fffbff",
+                        "outline-variant": "#e2bebb",
+                        "on-error-container": "#93000a",
+                        "surface-variant": "#e2e2e2",
+                        "on-surface-variant": "#5a413f",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#910816",
+                        "inverse-on-surface": "#f1f1f1",
+                        "on-tertiary-fixed-variant": "#792b4a",
+                        "surface": "#f9f9f9",
+                        "inverse-primary": "#ffb3ae",
+                        "tertiary-container": "#b15878",
+                        "secondary-container": "#d7e4ec",
+                        "tertiary": "#93405f",
+                        "primary-container": "#d23e3e",
+                        "surface-container-high": "#e8e8e8",
+                        "secondary": "#546067",
+                        "secondary-fixed-dim": "#bbc8d0",
+                        "surface-bright": "#f9f9f9",
+                        "surface-container": "#eeeeee",
+                        "on-tertiary-fixed": "#3e001e",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#2f3131",
+                        "on-primary-fixed": "#410004"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "margin-mobile": "16px",
+                        "lg": "24px",
+                        "3xl": "64px",
+                        "margin-desktop": "40px",
+                        "md": "16px",
+                        "gutter": "24px",
+                        "2xl": "48px",
+                        "sm": "8px",
+                        "xl": "32px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "display": ["Hanken Grotesk"],
+                        "title-lg": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "label-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Hanken Grotesk', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+
+        /* Utility for safe area padding on mobile */
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+        }
+
+        /* Subtle ambient shadow for cards */
+        .ambient-shadow {
+            box-shadow: 0 4px 32px 0 rgba(239, 83, 80, 0.08);
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-background text-on-background min-h-screen flex flex-col pt-16 pb-24 md:pb-0 md:pl-80">
+    <!-- TopAppBar (Mobile) -->
+    <header
+        class="fixed top-0 w-full z-50 bg-surface dark:bg-surface-dim bg-surface-container-low dark:bg-surface-container-lowest flex items-center justify-between px-margin-mobile h-16 md:hidden">
+        <button
+            class="active:scale-95 transition-transform p-2 rounded-full hover:bg-surface-variant transition-colors text-on-surface-variant">
+            <span class="material-symbols-outlined">menu</span>
+        </button>
+        <div class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">
+            Warehouse Pro
+        </div>
+        <button
+            class="active:scale-95 transition-transform p-2 rounded-full hover:bg-surface-variant transition-colors text-on-surface-variant">
+            <span class="material-symbols-outlined">account_circle</span>
+        </button>
+    </header>
+    <!-- TopAppBar (Desktop - slightly adjusted for layout) -->
+    <header
+        class="hidden md:flex fixed top-0 left-80 right-0 z-50 bg-surface/90 backdrop-blur-md items-center justify-between px-margin-desktop h-20 border-b border-surface-container">
+        <div class="font-title-lg text-title-lg text-on-surface">
+            Dashboard
+        </div>
+        <div class="flex items-center gap-4">
+            <button
+                class="p-2 rounded-full hover:bg-surface-variant transition-colors text-on-surface-variant relative">
+                <span class="material-symbols-outlined">notifications</span>
+                <span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+            </button>
+            <div class="flex items-center gap-3">
+                <img class="w-10 h-10 rounded-full object-cover border-2 border-primary-container"
+                    data-alt="A small, circular avatar portrait of a modern warehouse worker with a red cap, light background, corporate modern style."
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIVRIA2oaIE-78hQx3tAxo_wLPQTapAPwr3qpboaGsYNCWdesyKRDZbBaSB3ecnwnCaWpuP_tTZQ0ER6Yhtbvh3QgM2OoJlWFZLuQZbIHTwsszIJEaQhapHW_fceeqdr6OSYmzsLOBok22rx7PJDCjyAlOFCks8SVWUigV-h57S7jkqBNA0Vgis-_AsmroOPkGKxM8hwv4GEGY9NbkWhwfC79dWbrqucHqdW2o9tKq7FPitdP2sGEVG34LavbqtqBWYZiJtdxNC_Oa">
+                <div class="hidden lg:block">
+                    <p class="font-label-lg text-label-lg text-on-surface">Nguyễn Văn A</p>
+                    <p class="font-label-md text-label-md text-on-surface-variant">Operator #42</p>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- NavigationDrawer (Desktop) -->
+    <aside
+        class="hidden md:flex h-full w-80 rounded-r-lg bg-surface dark:bg-surface-dim bg-surface-container dark:bg-surface-container-low shadow-md flex-col py-lg fixed left-0 top-0 bottom-0 z-40">
+        <!-- Header Profile -->
+        <div class="px-6 mb-8 flex items-center gap-4">
+            <img class="w-12 h-12 rounded-full object-cover"
+                data-alt="A small, circular avatar portrait of a modern warehouse worker with a red cap, light background, corporate modern style."
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuf3HwzQskpG_DLsebU6hsKWrKwu0f-vhgbpnzPzIzjTdjYN0d4HITvGfLU7YgJqe5rcGAALD5MrwtSjMB8HBp496WPCiTb_T-WRUFH-yIIhxWf8WZuaMtWTKCEulh49sK0QkMF3DRXN4s4wvmILhQ1pWlFwaoibWnlzpq-bQyiI3Qs_MPS0oPigJVz1Mtmd52TEuB6DEfWRtiOZhQdqjy-IE8Pvjby68coCb9R2qcsVgwEwk1wZzlGtPhpZze8WXsTbNsS06E7LZm">
+            <div>
+                <div class="font-title-lg text-title-lg text-primary font-bold">Operator #42</div>
+                <div class="font-body-md text-body-md text-on-surface-variant">Shift A - North Wing</div>
+                <div class="font-label-md text-label-md text-primary mt-1 flex items-center gap-1">
+                    <span class="w-2 h-2 rounded-full bg-primary"></span> Active
+                </div>
+            </div>
+        </div>
+        <!-- Navigation Links -->
+        <nav class="flex-1 flex flex-col gap-2 px-2">
+            <!-- Active Tab: Dashboard -->
+            <a class="bg-primary-container text-on-primary-container font-bold rounded-full mx-2 px-4 py-3 flex items-center gap-4 transition-all duration-200"
+                href="#">
+                <span class="material-symbols-outlined filled">dashboard</span>
+                <span class="font-body-lg text-body-lg">Dashboard</span>
+            </a>
+            <a class="text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-full mx-2 flex items-center gap-4 transition-all duration-200"
+                href="#">
+                <span class="material-symbols-outlined">assignment</span>
+                <span class="font-body-lg text-body-lg">Task Queue</span>
+            </a>
+            <a class="text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-full mx-2 flex items-center gap-4 transition-all duration-200"
+                href="#">
+                <span class="material-symbols-outlined">history</span>
+                <span class="font-body-lg text-body-lg">Batch History</span>
+            </a>
+            <a class="text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-full mx-2 flex items-center gap-4 transition-all duration-200"
+                href="#">
+                <span class="material-symbols-outlined">fact_check</span>
+                <span class="font-body-lg text-body-lg">Stock Check</span>
+            </a>
+            <a class="text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-full mx-2 flex items-center gap-4 transition-all duration-200"
+                href="#">
+                <span class="material-symbols-outlined">map</span>
+                <span class="font-body-lg text-body-lg">Warehouse Map</span>
+            </a>
+            <a class="text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-full mx-2 flex items-center gap-4 transition-all duration-200 mt-auto"
+                href="#">
+                <span class="material-symbols-outlined">help</span>
+                <span class="font-body-lg text-body-lg">Help Support</span>
+            </a>
+        </nav>
+    </aside>
+    <!-- Main Content Canvas -->
+    <main class="flex-1 px-margin-mobile md:px-margin-desktop py-lg md:py-2xl md:mt-20 max-w-7xl mx-auto w-full">
+        <!-- Greeting -->
+        <div class="mb-8 md:mb-12">
+            <h1
+                class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
+                Chào, Nguyễn Văn A</h1>
+            <p class="font-body-lg text-body-lg text-on-surface-variant mt-2">Tổng quan công việc hôm nay của bạn.</p>
+        </div>
+        <!-- Bento Grid: Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <!-- Primary Card: Đơn kiểm kê -->
+            <div
+                class="bg-primary text-on-primary rounded-[2rem] p-4 shadow-lg relative overflow-hidden flex flex-col justify-between min-h-[120px]">
+                <!-- Decorative subtle pattern -->
+                <div class="absolute inset-0 opacity-10"
+                    style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 20px 20px;">
+                </div>
+                <div class="relative z-10 flex items-center gap-3 mb-2">
+                    <span class="material-symbols-outlined bg-white/20 p-2 rounded-full">inventory_2</span>
+                    <span class="font-label-lg text-label-lg">Đơn kiểm kê hôm nay</span>
+                </div>
+                <div class="relative z-10 font-display font-bold text-5xl">
+                    124
+                </div>
+            </div>
+            <!-- Secondary Card: Đã quét -->
+            <div
+                class="bg-surface-container-lowest border border-outline-variant rounded-[2rem] p-4 ambient-shadow flex flex-col justify-between min-h-[120px]">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3 text-on-surface-variant">
+                        <span
+                            class="material-symbols-outlined text-primary p-2 bg-primary-fixed rounded-full">bar_chart</span>
+                        <span class="font-label-lg text-label-lg">Đã quét</span>
+                    </div>
+                    <span class="font-body-md text-body-md text-secondary">+12%</span>
+                </div>
+                <div class="font-display font-bold text-on-surface text-5xl">
+                    8,432
+                </div>
+                <!-- Simple mock chart bar -->
+                <div class="w-full h-2 bg-surface-container mt-4 rounded-full overflow-hidden">
+                    <div class="h-full bg-primary w-3/4 rounded-full"></div>
+                </div>
+            </div>
+            <!-- Tertiary Card: Lệch tồn -->
+            <div
+                class="bg-surface-container-lowest border border-outline-variant rounded-[2rem] p-4 ambient-shadow flex flex-col justify-between min-h-[120px]">
+                <div class="font-display font-bold text-error text-5xl">
+                    <div class="flex items-center gap-3 text-on-surface-variant">
+                        <span
+                            class="material-symbols-outlined text-error p-2 bg-error-container rounded-full">warning</span>
+                        <span class="font-label-lg text-label-lg">Lệch tồn</span>
+                    </div>
+                </div>
+                <div class="font-display font-bold text-error text-5xl">
+                    3
+                </div>
+                <p class="font-label-md text-label-md text-on-surface-variant mt-4">Cần xử lý trong ca</p>
+            </div>
+        </div>
+        <!-- Quick Access Section -->
+        <section class="mb-12">
+            <h2 class="font-title-lg text-title-lg text-on-surface mb-6">Truy cập nhanh</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <button
+                    class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 flex flex-col items-center justify-center gap-3 hover:bg-surface-container transition-colors ambient-shadow group active:scale-95">
+                    <div
+                        class="w-12 h-12 rounded-full bg-primary-fixed text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined">conveyor_belt</span>
+                    </div>
+                    <span class="font-label-lg text-label-lg text-on-surface">Nhặt đồ</span>
+                </button>
+                <button
+                    class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 flex flex-col items-center justify-center gap-3 hover:bg-surface-container transition-colors ambient-shadow group active:scale-95">
+                    <div
+                        class="w-12 h-12 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center group-hover:bg-secondary group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined">play_arrow</span>
+                    </div>
+                    <span class="font-label-lg text-label-lg text-on-surface">Tiếp tục</span>
+                </button>
+                <button
+                    class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 flex flex-col items-center justify-center gap-3 hover:bg-surface-container transition-colors ambient-shadow group active:scale-95">
+                    <div
+                        class="w-12 h-12 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center group-hover:bg-outline group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined">qr_code_scanner</span>
+                    </div>
+                    <span class="font-label-lg text-label-lg text-on-surface">Quét mã</span>
+                </button>
+                <button
+                    class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-4 flex flex-col items-center justify-center gap-3 hover:bg-surface-container transition-colors ambient-shadow group active:scale-95">
+                    <div
+                        class="w-12 h-12 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center group-hover:bg-outline group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined">manage_search</span>
+                    </div>
+                    <span class="font-label-lg text-label-lg text-on-surface">Lịch sử</span>
+                </button>
+            </div>
+        </section>
+        <!-- Recent Activity List -->
+        <section>
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="font-title-lg text-title-lg text-on-surface">Hoạt động gần đây</h2>
+                <a class="font-label-lg text-label-lg text-primary hover:underline" href="#">Xem tất cả</a>
+            </div>
+            <div
+                class="bg-surface-container-lowest rounded-2xl border border-outline-variant overflow-hidden ambient-shadow">
+                <!-- List Item 1 -->
+                <div
+                    class="p-4 border-b border-surface-container flex items-center gap-4 hover:bg-surface-container-low transition-colors">
+                    <div
+                        class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">inventory_2</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between mb-1">
+                            <span class="font-label-lg text-label-lg text-on-surface">Khu vực A - Kệ 04</span>
+                            <span class="font-label-md text-label-md text-on-surface-variant">10 phút trước</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 h-1.5 bg-surface-variant rounded-full overflow-hidden">
+                                <div class="h-full bg-primary w-full rounded-full"></div>
+                            </div>
+                            <span class="font-label-md text-label-md text-primary">Hoàn thành</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- List Item 2 -->
+                <div
+                    class="p-4 border-b border-surface-container flex items-center gap-4 hover:bg-surface-container-low transition-colors">
+                    <div
+                        class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">conveyor_belt</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between mb-1">
+                            <span class="font-label-lg text-label-lg text-on-surface">Khu vực B - Kệ 12</span>
+                            <span class="font-label-md text-label-md text-on-surface-variant">45 phút trước</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 h-1.5 bg-surface-variant rounded-full overflow-hidden">
+                                <div class="h-full bg-primary w-1/2 rounded-full"></div>
+                            </div>
+                            <span class="font-label-md text-label-md text-on-surface-variant">50%</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- List Item 3 -->
+                <div class="p-4 flex items-center gap-4 hover:bg-surface-container-low transition-colors">
+                    <div
+                        class="w-10 h-10 rounded-full bg-error-container text-error flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">warning</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between mb-1">
+                            <span class="font-label-lg text-label-lg text-on-surface">Khu vực C - Kệ 01 (Lệch
+                                tồn)</span>
+                            <span class="font-label-md text-label-md text-on-surface-variant">2 giờ trước</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-label-md text-label-md text-error">Chờ xử lý</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- BottomNavBar (Mobile) -->
+    <nav
+        class="md:hidden fixed bottom-0 left-0 w-full z-50 bg-surface dark:bg-surface-dim bg-surface-container-high dark:bg-surface-container-highest flex justify-around items-center h-20 px-2 pb-safe">
+        <a class="active:scale-90 transition-transform flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-lg px-3 py-1"
+            href="#">
+            <span class="material-symbols-outlined filled">home</span>
+            <span class="font-label-md text-label-md font-bold mt-1">Trang chủ</span>
+        </a>
+        <a class="active:scale-90 transition-transform hover:bg-secondary-container/50 flex flex-col items-center justify-center text-on-secondary-container px-3 py-1 rounded-lg"
+            href="#">
+            <span class="material-symbols-outlined">conveyor_belt</span>
+            <span class="font-label-md text-label-md mt-1">Nhặt đồ</span>
+        </a>
+        <a class="active:scale-95 transition-transform flex flex-col items-center justify-center bg-primary text-on-primary rounded-full w-16 h-16 -mt-8 shadow-lg"
+            href="#">
+            <span class="material-symbols-outlined text-3xl">qr_code_scanner</span>
+        </a>
+        <a class="active:scale-90 transition-transform hover:bg-secondary-container/50 flex flex-col items-center justify-center text-on-secondary-container px-3 py-1 rounded-lg"
+            href="#">
+            <span class="material-symbols-outlined">inventory_2</span>
+            <span class="font-label-md text-label-md mt-1">Kiểm kê</span>
+        </a>
+        <a class="active:scale-90 transition-transform hover:bg-secondary-container/50 flex flex-col items-center justify-center text-on-secondary-container px-3 py-1 rounded-lg"
+            href="#">
+            <span class="material-symbols-outlined">settings</span>
+            <span class="font-label-md text-label-md mt-1">Thiết lập</span>
+        </a>
+    </nav>
+
+
+
+
+</body>
+
+</html>

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../main_tab_screen.dart';
 import '../providers/auth_provider.dart';
 import '../../home/screens/employee_dashboard_screen.dart';
 import '../../dashboard/screens/dashboard_screen.dart';
@@ -54,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
         context,
         MaterialPageRoute(
           builder: (context) => roleName == 'Staff'
-              ? const EmployeeDashboardScreen()
+              ? const MainTabScreen()
               : const DashboardScreen(),
         ),
       );

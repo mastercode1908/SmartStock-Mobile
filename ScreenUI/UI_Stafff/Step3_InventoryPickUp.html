@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html class="light" lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#ffb3ae",
+                        "secondary-container": "#d7e4ec",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f1f1f1",
+                        "primary-fixed": "#ffdad7",
+                        "primary": "#b02528",
+                        "on-primary-fixed-variant": "#910816",
+                        "error": "#ba1a1a",
+                        "on-surface": "#1a1c1c",
+                        "primary-container": "#d23e3e",
+                        "surface-bright": "#f9f9f9",
+                        "surface-container-low": "#f3f3f3",
+                        "surface": "#f9f9f9",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#111d23",
+                        "secondary": "#546067",
+                        "surface-container": "#eeeeee",
+                        "tertiary": "#93405f",
+                        "inverse-primary": "#ffb3ae",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#b15878",
+                        "surface-container-high": "#e8e8e8",
+                        "outline-variant": "#e2bebb",
+                        "secondary-fixed": "#d7e4ec",
+                        "on-tertiary-fixed": "#3e001e",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed-dim": "#ffb0c9",
+                        "on-secondary": "#ffffff",
+                        "outline": "#8e706e",
+                        "surface-dim": "#dadada",
+                        "surface-tint": "#b3272a",
+                        "on-secondary-fixed-variant": "#3c494f",
+                        "tertiary-fixed": "#ffd9e2",
+                        "on-primary-fixed": "#410004",
+                        "inverse-surface": "#2f3131",
+                        "on-secondary-container": "#5a666d",
+                        "surface-variant": "#e2e2e2",
+                        "on-tertiary-fixed-variant": "#792b4a",
+                        "on-primary-container": "#fffbff",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-background": "#1a1c1c",
+                        "on-surface-variant": "#5a413f",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#bbc8d0",
+                        "background": "#f9f9f9",
+                        "on-tertiary-container": "#fffbff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "xl": "32px",
+                        "margin-desktop": "40px",
+                        "2xl": "48px",
+                        "lg": "24px",
+                        "3xl": "64px",
+                        "xs": "4px",
+                        "base": "4px",
+                        "sm": "8px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "label-md": ["Hanken Grotesk"],
+                        "label-lg": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "display": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "title-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "500" }]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Hanken Grotesk', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .step-progress-bar {
+            height: 4px;
+            background: #e2e2e2;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .step-progress-fill {
+            height: 100%;
+            background: #b02528;
+            width: 60%;
+            /* Step 3/5 = 60% */
+            transition: width 0.3s ease-out;
+        }
+
+        .card-ambient {
+            box-shadow: 0 0 32px 0 rgba(239, 83, 80, 0.08);
+            border: 1px solid #FEEBEE;
+        }
+
+        .input-bottom-border {
+            border-bottom: 2px solid #e2bebb;
+            background-color: #FEEBEE;
+            transition: border-color 0.2s ease;
+        }
+
+        .input-bottom-border:focus-within {
+            border-bottom-color: #b02528;
+            outline: none;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+    <!-- TopAppBar -->
+    <header class="fixed top-0 w-full h-16 bg-surface flex items-center justify-between px-margin-mobile z-50">
+        <div class="flex items-center justify-between px-margin-mobile h-16 w-full">
+            <div class="flex items-center gap-md"><button
+                    class="active:scale-95 transition-transform text-primary hover:bg-surface-variant p-sm rounded-full flex items-center justify-center"><span
+                        class="material-symbols-outlined">close</span></button>
+                <h1 class="font-title-lg text-title-lg text-primary font-bold">Warehouse Pro</h1>
+            </div><button
+                class="active:scale-95 transition-transform text-primary hover:bg-surface-variant p-sm rounded-full flex items-center justify-center"><span
+                    class="material-symbols-outlined">help_outline</span></button>
+        </div>
+    </header>
+    <!-- Main Content Canvas -->
+    <main class="flex-1 mt-16 mb-20 px-margin-mobile py-lg max-w-lg mx-auto w-full pb-32">
+        <!-- Screen Title & Progress -->
+        <div class="text-center w-full mb-lg">
+            <h2 class="font-headline-md text-headline-md text-primary mb-sm">Bước 3/5: Nhập số lượng</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant">Kiểm đếm và nhập số lượng thực tế tại vị trí
+            </p>
+            <div class="w-full bg-surface-container-high h-2 rounded-full mt-md overflow-hidden">
+                <div class="bg-primary h-full w-3/5 rounded-full transition-all duration-300"></div>
+            </div>
+        </div>
+        <!-- Product Details Card -->
+        <div
+            class="w-full bg-surface-container-lowest border border-outline-variant rounded-[1rem] p-lg mb-xl shadow-[0_4px_16px_rgba(239,83,80,0.08)]">
+            <div class="flex items-start gap-md mb-md">
+                <div class="w-16 h-16 rounded-[1rem] bg-surface-container overflow-hidden shrink-0"><img
+                        alt="Product Image" class="w-full h-full object-cover"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQTn5BVhleKT0tnr2bZE1coZ1m0lJy4aScatSYS8Cgl3uicQYGohAPzY4g_Am86Y6n9Lo5MHi8di7bcnuqXkGv2x8nJgGzgmeMV6wcfdhadGDfZyrUMXwJvlFyIMjITJHrgLkZAcbkrd5kAvrtYQvpN1hMsRqq7FXbKYZ2cx5uZCDyb43PDNzGZFvWL4uDGH8XQfQPDYbU6KwE44mR4MbGiRBJ7RQhpJt4T2BuHEifoia6Q3FPhHbxRK-RZrogFyAeL-zk26Ll6mAk">
+                </div>
+                <div class="flex-grow">
+                    <h3 class="font-title-lg text-title-lg text-on-surface mb-xs">Máy Khoan Pin Cầm Tay Pro-X1</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant">Mã SP: SK-99203-BX</p>
+                    <p class="font-body-md text-body-md text-on-surface-variant">Vị trí: Khu vực A, Kệ 04</p>
+                </div>
+            </div>
+            <div class="flex justify-between items-center p-md bg-surface-container rounded-[1rem]"><span
+                    class="font-body-lg text-body-lg text-on-surface-variant">Số lượng hệ thống:</span><span
+                    class="font-headline-md text-headline-md text-on-surface">10 <span
+                        class="font-body-md text-body-md text-on-surface-variant">Cái</span></span></div>
+        </div>
+        <!-- Picking Control -->
+        <div class="w-full flex flex-col items-center mb-xl"><label
+                class="font-title-lg text-title-lg text-on-surface mb-md" for="actual-qty">Số lượng thực tế</label>
+            <div class="flex items-center justify-center gap-md w-full"><button
+                    class="w-16 h-16 rounded-[1rem] bg-surface-container-highest text-on-surface flex items-center justify-center active:scale-95 transition-transform hover:bg-surface-variant shadow-[0_4px_16px_rgba(239,83,80,0.08)]"
+                    onclick="decrement()" type="button"><span
+                        class="material-symbols-outlined">remove</span></button><input
+                    class="w-32 h-20 text-center font-display text-display text-on-surface bg-transparent border-b-2 border-outline focus:border-primary focus:outline-none focus:ring-0 transition-colors bg-[#FEEBEE]/10 rounded-t-[1rem]"
+                    id="qty-input" readonly="" type="number" value="0"><button
+                    class="w-16 h-16 rounded-[1rem] bg-surface-container-highest text-on-surface flex items-center justify-center active:scale-95 transition-transform hover:bg-surface-variant shadow-[0_4px_16px_rgba(239,83,80,0.08)]"
+                    onclick="increment()" type="button"><span class="material-symbols-outlined">add</span></button>
+            </div>
+        </div>
+        <!-- Quick Actions -->
+        <div
+            class="fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant p-margin-mobile pb-safe flex justify-center z-50 flex-col items-center">
+            <div class="grid grid-cols-2 gap-md w-full max-w-2xl mb-md">
+                <button
+                    class="flex items-center justify-center gap-sm p-md rounded-[1rem] border border-outline-variant text-on-surface-variant font-label-lg transition-colors hover:bg-surface-variant active:scale-95">
+                    <span class="material-symbols-outlined text-[20px] text-primary">report</span>
+                    Báo thiếu
+                </button>
+                <button
+                    class="flex items-center justify-center gap-sm p-md rounded-[1rem] border border-outline-variant text-on-surface-variant font-label-lg transition-colors hover:bg-surface-variant active:scale-95">
+                    <span class="material-symbols-outlined text-[20px] text-primary">qr_code_scanner</span>
+                    Quét lại
+                </button>
+            </div>
+            <button
+                class="w-full max-w-2xl bg-primary text-on-primary font-title-lg text-title-lg py-md rounded-[1rem] active:scale-95 transition-transform shadow-[0_4px_16px_rgba(239,83,80,0.16)] flex justify-center items-center gap-sm">
+                Tiếp theo
+                <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+        </div>
+    </main>
+    <!-- BottomNavBar -->
+
+    <script>
+        const input = document.getElementById('qty-input');
+        const display = document.getElementById('current-qty');
+        const statusChip = document.getElementById('status-chip');
+        const maxQty = 10;
+
+        function updateUI(val) {
+            input.value = val;
+            display.innerText = val;
+
+            if (val >= maxQty) {
+                statusChip.classList.remove('opacity-0');
+                display.classList.add('text-primary');
+            } else {
+                statusChip.classList.add('opacity-0');
+                display.classList.remove('text-primary');
+            }
+        }
+
+        function increment() {
+            let val = parseInt(input.value);
+            if (val < maxQty) {
+                val++;
+                updateUI(val);
+                // Simple vibrate effect if supported
+                if (window.navigator.vibrate) window.navigator.vibrate(10);
+            }
+        }
+
+        function decrement() {
+            let val = parseInt(input.value);
+            if (val > 0) {
+                val--;
+                updateUI(val);
+                if (window.navigator.vibrate) window.navigator.vibrate(5);
+            }
+        }
+    </script>
+
+
+
+
+</body>
+
+</html>
