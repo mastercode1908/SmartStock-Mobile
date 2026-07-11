@@ -28,13 +28,15 @@ class InventorySession {
   });
 
   static String _parseStatus(dynamic value) {
-    if (value is String) return value;
+    if (value is String) return value.toUpperCase();
     if (value is int) {
       switch (value) {
         case 0: return 'DRAFT';
-        case 1: return 'IN_PROGRESS';
-        case 2: return 'COMPLETED';
-        case 3: return 'CANCELLED';
+        case 1: return 'PENDING';
+        case 2: return 'APPROVED';
+        case 3: return 'REJECTED';
+        case 4: return 'CANCELLED';
+        case 5: return 'POSTED';
         default: return 'UNKNOWN';
       }
     }
@@ -42,7 +44,7 @@ class InventorySession {
   }
 
   static String _parseCountType(dynamic value) {
-    if (value is String) return value;
+    if (value is String) return value.toUpperCase();
     if (value is int) {
       switch (value) {
         case 0: return 'FULL';

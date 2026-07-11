@@ -34,13 +34,13 @@ class _CountListScreenState extends State<CountListScreen> {
             return const Center(child: CircularProgressIndicator(color: AppColors.primary));
           }
 
-          // Filter sessions: only show DRAFT or IN_PROGRESS
-          var activeSessions = provider.sessions.where((s) => s.status == 'DRAFT' || s.status == 'IN_PROGRESS').toList();
+          // Show all sessions (backend already filters by assignedTo for Staff)
+          var activeSessions = provider.sessions.toList();
 
           if (_currentFilter == 'Mới') {
-            activeSessions = activeSessions.where((s) => s.status == 'DRAFT').toList();
+            activeSessions = activeSessions.where((s) => s.status == 'DRAFT' || s.status == 'PENDING').toList();
           } else if (_currentFilter == 'Đang làm') {
-            activeSessions = activeSessions.where((s) => s.status == 'IN_PROGRESS').toList();
+            activeSessions = activeSessions.where((s) => s.status == 'APPROVED').toList();
           }
 
           return RefreshIndicator(

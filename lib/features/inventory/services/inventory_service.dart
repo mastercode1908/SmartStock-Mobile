@@ -13,9 +13,12 @@ class InventoryService {
   // Helper method for headers
   Future<Map<String, String>> _getHeaders() async {
     final token = await AuthProvider.getToken();
+    final user = await AuthProvider.getCurrentUserStatic();
     return {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',
+      if (user != null) 'X-User-Id': user.userId.toString(),
+      if (user != null) 'X-User-Role': user.roleName,
     };
   }
 
@@ -49,7 +52,7 @@ class InventoryService {
 
   Future<List<InventorySession>> fetchInventorySessions() async {
     final response = await http.get(
-      Uri.parse('$baseUrl/inventory-counts'),
+      Uri.parse('$baseUrl/inventory-counts/mobile'),
       headers: await _getHeaders(),
     );
 
@@ -66,6 +69,7 @@ class InventoryService {
       throw Exception('Failed to load inventory sessions: ${response.statusCode}');
     }
   }
+
 
   Future<InventorySession> fetchSessionDetails(int sessionId) async {
     final queryStr = '\$filter=SessionID eq $sessionId&\$expand=Details(\$expand=ProductVariant)';

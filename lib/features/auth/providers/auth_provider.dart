@@ -127,4 +127,11 @@ class AuthProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('auth_token');
   }
+
+  static Future<UserModel?> getCurrentUserStatic() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!prefs.containsKey('user_data')) return null;
+    final data = json.decode(prefs.getString('user_data')!) as Map<String, dynamic>;
+    return UserModel.fromJson(data);
+  }
 }
