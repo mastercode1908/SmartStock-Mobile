@@ -13,6 +13,7 @@ import '../../auth/providers/auth_provider.dart';
 import '../../products/screens/product_list_screen.dart';
 import '../../inventory/providers/inventory_provider.dart';
 import '../../notifications/providers/notification_provider.dart';
+import '../../picking/screens/picking_list_screen.dart';
 
 class EmployeeDashboardScreen extends StatefulWidget {
   const EmployeeDashboardScreen({Key? key}) : super(key: key);
@@ -500,6 +501,14 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const CreateInventoryScreen(),
+                ),
+              );
+            }),
+            _buildQuickAccessButton(context, Icons.directions_walk, 'Nhặt hàng', () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PickingListScreen(),
                 ),
               );
             }),

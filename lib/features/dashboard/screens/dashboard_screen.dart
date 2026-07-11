@@ -12,6 +12,7 @@ import '../../inventory/screens/warehouse_map_screen.dart';
 import '../../inventory/screens/create_inventory_screen.dart';
 import '../../inventory/screens/incident_report_screen.dart';
 import '../../notifications/providers/notification_provider.dart';
+import '../../picking/screens/picking_list_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -333,6 +334,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => const CreateInventoryScreen()),
+                        );
+                      },
+                    ),
+                    _buildQuickAccessButton(
+                      icon: Icons.directions_walk, 
+                      label: 'Nhặt hàng', 
+                      bgColor: const Color(0xffb02528), 
+                      iconColor: Colors.white,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const PickingListScreen()),
                         );
                       },
                     ),
