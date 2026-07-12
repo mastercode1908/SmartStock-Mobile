@@ -6,11 +6,8 @@ import '../../auth/providers/auth_provider.dart';
 import '../../auth/screens/login_screen.dart';
 import 'change_password_screen.dart';
 import 'static_pages.dart';
-<<<<<<< HEAD
 import '../../../core/providers/theme_provider.dart';
-=======
 import 'create_user_screen.dart';
->>>>>>> main
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -101,7 +98,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         height: 96,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: colorScheme.surfaceContainerHigh),
+                          border: Border.all(
+                            color: colorScheme.surfaceContainerHigh,
+                          ),
                           image: DecorationImage(
                             image: NetworkImage(
                               user.avatarUrl.isNotEmpty
@@ -174,18 +173,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).brightness == Brightness.light ? Colors.grey[100] : Theme.of(context).colorScheme.surfaceContainerLow,
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Colors.grey[100]
+                          : Theme.of(context).colorScheme.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Theme.of(context).colorScheme.surfaceContainer),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.surfaceContainer,
+                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.warehouse, size: 16, color: colorScheme.onSurfaceVariant),
+                        Icon(
+                          Icons.warehouse,
+                          size: 16,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           'Kho Chính - Tầng 1',
-                          style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ],
                     ),
@@ -217,7 +227,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   'Đổi mật khẩu',
                   hasArrow: true,
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ChangePasswordScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ChangePasswordScreen(),
+                      ),
+                    );
                   },
                 ),
                 if (user.roleName == 'Admin') ...[
@@ -278,7 +293,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   'Hướng dẫn sử dụng',
                   hasArrow: true,
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const UserManualScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const UserManualScreen(),
+                      ),
+                    );
                   },
                 ),
                 _buildDivider(),
@@ -287,7 +307,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   'Chính sách bảo mật',
                   hasArrow: true,
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const PrivacyPolicyScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PrivacyPolicyScreen(),
+                      ),
+                    );
                   },
                 ),
                 _buildDivider(),
@@ -296,7 +321,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   'Phản hồi lỗi',
                   hasArrow: true,
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const BugReportScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BugReportScreen(),
+                      ),
+                    );
                   },
                 ),
               ],
@@ -364,7 +394,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHigh),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
+            ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.1),
@@ -399,27 +431,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Theme.of(context).brightness == Brightness.light ? Colors.grey[100] : Theme.of(context).colorScheme.surfaceContainerLow,
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Colors.grey[100]
+                    : Theme.of(context).colorScheme.surfaceContainerLow,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
+              child: Icon(
+                icon,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
                 title,
-                style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
             ),
             if (trailingText != null)
               Text(
                 trailingText,
-                style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             if (hasArrow)
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
-                child: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                child: Icon(
+                  Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             if (hasSwitch)
               Switch(
@@ -434,7 +481,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildDivider() {
-    return Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.surfaceContainerHigh);
+    return Divider(
+      height: 1,
+      thickness: 1,
+      color: Theme.of(context).colorScheme.surfaceContainerHigh,
+    );
   }
 
   void _showEditProfileDialog(
@@ -456,7 +507,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              backgroundColor: DialogTheme.of(context).backgroundColor ?? Theme.of(context).cardColor,
+              backgroundColor:
+                  DialogTheme.of(context).backgroundColor ??
+                  Theme.of(context).cardColor,
               title: const Text(
                 'Cập nhật thông tin',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
@@ -468,7 +521,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     GestureDetector(
                       onTap: () async {
                         final ImagePicker picker = ImagePicker();
-                        final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+                        final XFile? image = await picker.pickImage(
+                          source: ImageSource.gallery,
+                        );
                         if (image != null) {
                           setState(() {
                             selectedImage = File(image.path);
@@ -484,13 +539,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.grey[300]!),
                               image: DecorationImage(
-                                image: selectedImage != null 
-                                  ? FileImage(selectedImage!) as ImageProvider
-                                  : NetworkImage(
-                                      currentAvatar.isNotEmpty
-                                          ? currentAvatar
-                                          : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
-                                    ),
+                                image: selectedImage != null
+                                    ? FileImage(selectedImage!) as ImageProvider
+                                    : NetworkImage(
+                                        currentAvatar.isNotEmpty
+                                            ? currentAvatar
+                                            : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+                                      ),
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -546,17 +601,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ? null
                       : () async {
                           setState(() => isLoading = true);
-                          
+
                           String avatarToSave = currentAvatar;
                           if (selectedImage != null) {
-                            final uploadedUrl = await provider.uploadAvatar(selectedImage!.path);
+                            final uploadedUrl = await provider.uploadAvatar(
+                              selectedImage!.path,
+                            );
                             if (uploadedUrl != null) {
                               avatarToSave = uploadedUrl;
                             } else {
                               setState(() => isLoading = false);
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Lỗi upload ảnh: ${provider.error}')),
+                                  SnackBar(
+                                    content: Text(
+                                      'Lỗi upload ảnh: ${provider.error}',
+                                    ),
+                                  ),
                                 );
                               }
                               return;

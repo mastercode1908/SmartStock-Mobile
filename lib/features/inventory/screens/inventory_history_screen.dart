@@ -191,9 +191,9 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
         final user = context.watch<AuthProvider>().currentUser;
         var completedSessions = provider.sessions.where((s) => s.status == 'POSTED').toList();
         
-        // Staff filter
-        if (auth.currentUser?.roleName == 'Staff') {
-          completedSessions = completedSessions.where((s) => s.createdBy == user?.userId).toList();
+        // Employee filter
+        if (auth.currentUser?.roleName == 'Staff' || auth.currentUser?.roleName == 'Employee') {
+          completedSessions = completedSessions.where((s) => s.createdBy == user?.userId || s.assignedTo == user?.userId).toList();
         }
 
         // Apply search query

@@ -95,7 +95,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       children: [
                         const Text(
                           'Bộ lọc sản phẩm',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
                         ),
                         IconButton(
                           icon: const Icon(Icons.close, color: Colors.black54),
@@ -108,7 +112,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     // Tracking Method Filter
                     const Text(
                       'Phương thức theo dõi',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black54),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black54,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Wrap(
@@ -147,23 +155,37 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     // Category Filter Dropdown
                     const Text(
                       'Danh mục',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black54),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black54,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<int>(
                       value: _tempCategoryId,
                       isExpanded: true,
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                       ),
                       hint: const Text('Tất cả danh mục'),
                       items: [
-                        const DropdownMenuItem<int>(value: null, child: Text('Tất cả danh mục')),
-                        ...provider.categories.map((cat) => DropdownMenuItem<int>(
-                              value: cat.categoryId,
-                              child: Text(cat.categoryName),
-                            )),
+                        const DropdownMenuItem<int>(
+                          value: null,
+                          child: Text('Tất cả danh mục'),
+                        ),
+                        ...provider.categories.map(
+                          (cat) => DropdownMenuItem<int>(
+                            value: cat.categoryId,
+                            child: Text(cat.categoryName),
+                          ),
+                        ),
                       ],
                       onChanged: (val) {
                         setModalState(() {
@@ -176,23 +198,37 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     // Brand Filter Dropdown
                     const Text(
                       'Thương hiệu',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black54),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black54,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<int>(
                       value: _tempBrandId,
                       isExpanded: true,
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                       ),
                       hint: const Text('Tất cả thương hiệu'),
                       items: [
-                        const DropdownMenuItem<int>(value: null, child: Text('Tất cả thương hiệu')),
-                        ...provider.brands.map((br) => DropdownMenuItem<int>(
-                              value: br.brandId,
-                              child: Text(br.brandName),
-                            )),
+                        const DropdownMenuItem<int>(
+                          value: null,
+                          child: Text('Tất cả thương hiệu'),
+                        ),
+                        ...provider.brands.map(
+                          (br) => DropdownMenuItem<int>(
+                            value: br.brandId,
+                            child: Text(br.brandName),
+                          ),
+                        ),
                       ],
                       onChanged: (val) {
                         setModalState(() {
@@ -216,9 +252,14 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             },
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
-                            child: const Text('Đặt lại', style: TextStyle(color: Colors.black54)),
+                            child: const Text(
+                              'Đặt lại',
+                              style: TextStyle(color: Colors.black54),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -236,9 +277,14 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _primary,
                               padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
-                            child: const Text('Áp dụng', style: TextStyle(color: Colors.white)),
+                            child: const Text(
+                              'Áp dụng',
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                       ],
@@ -261,7 +307,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? _primaryContainer.withOpacity(0.1) : Colors.grey[100],
+          color: isSelected
+              ? _primaryContainer.withOpacity(0.1)
+              : Colors.grey[100],
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelected ? _primary : Colors.transparent,
@@ -328,7 +376,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             border: Border.all(color: Colors.grey[300]!),
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
-                              BoxShadow(color: Colors.black.withOpacity(0.01), blurRadius: 4, offset: const Offset(0, 2)),
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.01),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
                             ],
                           ),
                           child: TextField(
@@ -337,11 +389,20 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             onSubmitted: _onSearchSubmit,
                             decoration: InputDecoration(
                               hintText: 'Tìm kiếm sản phẩm, SKU...',
-                              hintStyle: const TextStyle(color: Colors.black38, fontSize: 14),
-                              prefixIcon: const Icon(Icons.search, color: Colors.black38),
+                              hintStyle: const TextStyle(
+                                color: Colors.black38,
+                                fontSize: 14,
+                              ),
+                              prefixIcon: const Icon(
+                                Icons.search,
+                                color: Colors.black38,
+                              ),
                               suffixIcon: _searchController.text.isNotEmpty
                                   ? IconButton(
-                                      icon: const Icon(Icons.clear, color: Colors.black38),
+                                      icon: const Icon(
+                                        Icons.clear,
+                                        color: Colors.black38,
+                                      ),
                                       onPressed: () {
                                         _searchController.clear();
                                         _onSearchSubmit('');
@@ -349,7 +410,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                     )
                                   : null,
                               border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                              ),
                             ),
                           ),
                         ),
@@ -368,7 +431,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                           ),
                           child: Icon(
                             Icons.tune,
-                            color: (provider.selectedBrandId != null ||
+                            color:
+                                (provider.selectedBrandId != null ||
                                     provider.selectedTrackingMethod != null)
                                 ? _primary
                                 : Colors.black54,
@@ -390,7 +454,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       itemCount: provider.categories.length + 1,
                       itemBuilder: (context, idx) {
                         if (idx == 0) {
-                          final isSelected = provider.selectedCategoryId == null;
+                          final isSelected =
+                              provider.selectedCategoryId == null;
                           return Padding(
                             padding: const EdgeInsets.only(right: 8.0),
                             child: _buildChip(
@@ -402,7 +467,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         }
 
                         final cat = provider.categories[idx - 1];
-                        final isSelected = provider.selectedCategoryId == cat.categoryId;
+                        final isSelected =
+                            provider.selectedCategoryId == cat.categoryId;
                         return Padding(
                           padding: const EdgeInsets.only(right: 8.0),
                           child: _buildChip(
@@ -421,27 +487,34 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   child: provider.isLoading && provider.products.isEmpty
                       ? const Center(child: CircularProgressIndicator())
                       : provider.products.isEmpty
-                          ? Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.inventory_2_outlined, size: 64, color: Colors.grey[300]),
-                                  const SizedBox(height: 16),
-                                  const Text('Không tìm thấy sản phẩm nào', style: TextStyle(color: Colors.black54)),
-                                ],
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.inventory_2_outlined,
+                                size: 64,
+                                color: Colors.grey[300],
                               ),
-                            )
-                          : ListView.builder(
-                              padding: const EdgeInsets.all(16),
-                              itemCount: provider.products.length,
-                              itemBuilder: (context, index) {
-                                final product = provider.products[index];
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 12.0),
-                                  child: _buildParentProductCard(product),
-                                );
-                              },
-                            ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'Không tìm thấy sản phẩm nào',
+                                style: TextStyle(color: Colors.black54),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: provider.products.length,
+                          itemBuilder: (context, index) {
+                            final product = provider.products[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: _buildParentProductCard(product),
+                            );
+                          },
+                        ),
                 ),
               ],
             ),
@@ -452,24 +525,34 @@ class _ProductListScreenState extends State<ProductListScreen> {
     );
   }
 
-  Widget _buildChip(String label, {required bool isSelected, required VoidCallback onTap}) {
+  Widget _buildChip(
+    String label, {
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(24),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? _primaryContainer.withValues(alpha: 0.1) : Theme.of(context).cardColor,
+          color: isSelected
+              ? _primaryContainer.withValues(alpha: 0.1)
+              : Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isSelected ? _primaryContainer.withValues(alpha: 0.2) : Theme.of(context).colorScheme.surfaceContainerHigh,
+            color: isSelected
+                ? _primaryContainer.withValues(alpha: 0.2)
+                : Theme.of(context).colorScheme.surfaceContainerHigh,
           ),
         ),
         child: Center(
           child: Text(
             label,
             style: TextStyle(
-              color: isSelected ? _primary : Theme.of(context).colorScheme.onSurfaceVariant,
+              color: isSelected
+                  ? _primary
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w600,
               fontSize: 13,
             ),
@@ -484,9 +567,15 @@ class _ProductListScreenState extends State<ProductListScreen> {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHigh),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        ),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2)),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: ClipRRect(
@@ -513,83 +602,97 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 : Container(
                     width: 48,
                     height: 48,
-                    color: Colors.grey[100],
-                    child: const Icon(Icons.image, color: Colors.grey),
+                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                    child: Icon(Icons.image, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
           ),
           title: Text(
             product.productName,
-<<<<<<< HEAD
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
-=======
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.black),
->>>>>>> main
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 4),
-              Row(
-                children: [
-                  Text(
-                    product.category?.categoryName ?? 'Chưa phân loại',
-                    style: const TextStyle(fontSize: 12, color: Colors.black54, fontWeight: FontWeight.w500),
-                  ),
-                  if (product.brand != null) ...[
-                    const SizedBox(width: 6),
-                    const Text('•', style: TextStyle(color: Colors.black26)),
-                    const SizedBox(width: 6),
-                    Text(
-                      product.brand!.brandName,
-                      style: const TextStyle(fontSize: 12, color: Colors.black54, fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ],
+              Text(
+                '${product.category?.categoryName ?? 'Chưa phân loại'}${product.brand != null ? ' • ${product.brand!.brandName}' : ''}',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 4),
               Row(
                 children: [
-                  const Icon(Icons.scale_outlined, size: 14, color: Colors.black45),
+                  Icon(
+                    Icons.scale_outlined,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                   const SizedBox(width: 4),
-                  Text(
-                    product.baseUnit != null
-                        ? '${product.baseUnit!.unitName} (${product.baseUnit!.symbol})'
-                        : 'ĐVT: Chưa có',
-                    style: const TextStyle(fontSize: 11, color: Colors.black54),
+                  Expanded(
+                    child: Text(
+                      product.baseUnit != null
+                          ? '${product.baseUnit!.unitName} (${product.baseUnit!.symbol})'
+                          : 'ĐVT: Chưa có',
+                      style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   _buildStatusBadge(product.status),
                 ],
               ),
               const SizedBox(height: 6),
-              Row(
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   _buildTrackingBadge(product.trackingMethod),
-                  const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: _primary.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
                       '${product.productVariants.length} biến thể',
-                      style: TextStyle(fontSize: 11, color: _primary, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: _primary,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
               ),
             ],
           ),
-          trailing: const Icon(Icons.expand_more, color: Colors.black45),
+          trailing: Icon(Icons.expand_more, color: Theme.of(context).colorScheme.onSurfaceVariant),
           children: [
-            Container(color: Colors.grey[50], height: 1),
+            Container(color: Theme.of(context).colorScheme.surfaceContainerHigh, height: 1),
             if (product.productVariants.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(16.0),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
                 child: Text(
                   'Sản phẩm chưa có biến thể',
-                  style: TextStyle(color: Colors.black38, fontSize: 13, fontStyle: FontStyle.italic),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 14,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               )
             else
@@ -597,14 +700,22 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: product.productVariants.length,
-                separatorBuilder: (context, idx) => Divider(height: 1, color: Colors.grey[200]),
+                separatorBuilder: (context, idx) =>
+                    Divider(height: 1, color: Theme.of(context).colorScheme.surfaceContainerHigh),
                 itemBuilder: (context, idx) {
                   final variant = product.productVariants[idx];
                   return ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     title: Text(
                       variant.variantName,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -612,13 +723,20 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         const SizedBox(height: 4),
                         Text(
                           'SKU: ${variant.sku}',
-                          style: const TextStyle(fontSize: 13, color: Colors.black54, fontFamily: 'JetBrains Mono'),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontFamily: 'JetBrains Mono',
+                          ),
                         ),
                         if (variant.barcode.isNotEmpty) ...[
                           const SizedBox(height: 2),
                           Text(
                             'Barcode: ${variant.barcode}',
-                            style: const TextStyle(fontSize: 13, color: Colors.black54),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         ],
                       ],
@@ -629,15 +747,21 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       children: [
                         Text(
                           currencyFormat.format(variant.costPrice),
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: _primary),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: _primary,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           variant.status == 1 ? 'ĐANG BÁN' : 'NGƯNG BÁN',
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: variant.status == 1 ? Colors.green[700] : Colors.red[700],
+                            color: variant.status == 1
+                                ? Colors.green
+                                : Colors.red,
                           ),
                         ),
                       ],
@@ -651,12 +775,20 @@ class _ProductListScreenState extends State<ProductListScreen> {
               child: ListTile(
                 title: const Text(
                   'Xem chi tiết sản phẩm',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black54),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black54,
+                  ),
                 ),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.black54),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 14,
+                  color: Colors.black54,
+                ),
                 onTap: () => _navigateToDetails(product.productId),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -671,7 +803,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
       ),
     );
     if (result == true) {
-      Provider.of<ProductProvider>(context, listen: false).loadProducts(isRefresh: true);
+      Provider.of<ProductProvider>(
+        context,
+        listen: false,
+      ).loadProducts(isRefresh: true);
     }
   }
 
@@ -715,7 +850,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     String label = 'Đang kinh doanh';
     Color color = Colors.green[800]!;
     Color bg = Colors.green[50]!;
-    
+
     if (status == 0) {
       label = 'Nháp';
       color = Colors.orange[800]!;
@@ -729,7 +864,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       color = Colors.grey[800]!;
       bg = Colors.grey[200]!;
     }
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
@@ -765,7 +900,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
             context,
             PageRouteBuilder(
               opaque: false,
-              pageBuilder: (context, a1, a2) => const InventoryListScreen(), 
+              pageBuilder: (context, a1, a2) => const InventoryListScreen(),
               transitionDuration: Duration.zero,
               reverseTransitionDuration: Duration.zero,
             ),
@@ -775,7 +910,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
             context,
             PageRouteBuilder(
               opaque: false,
-              pageBuilder: (context, a1, a2) => const ScanScreen(), 
+              pageBuilder: (context, a1, a2) => const ScanScreen(),
               transitionDuration: Duration.zero,
               reverseTransitionDuration: Duration.zero,
             ),
@@ -785,7 +920,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
             context,
             PageRouteBuilder(
               opaque: false,
-              pageBuilder: (context, a1, a2) => const InventoryHistoryScreen(), 
+              pageBuilder: (context, a1, a2) => const InventoryHistoryScreen(),
               transitionDuration: Duration.zero,
               reverseTransitionDuration: Duration.zero,
             ),
@@ -795,7 +930,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
             context,
             PageRouteBuilder(
               opaque: false,
-              pageBuilder: (context, a1, a2) => const ProfileScreen(), 
+              pageBuilder: (context, a1, a2) => const ProfileScreen(),
               transitionDuration: Duration.zero,
               reverseTransitionDuration: Duration.zero,
             ),
@@ -803,11 +938,26 @@ class _ProductListScreenState extends State<ProductListScreen> {
         }
       },
       items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Trang chủ'),
-        BottomNavigationBarItem(icon: Icon(Icons.inventory_2_outlined), label: 'Kiểm kê'),
-        BottomNavigationBarItem(icon: Icon(Icons.qr_code_scanner), label: 'Scan'),
-        BottomNavigationBarItem(icon: Icon(Icons.history_outlined), label: 'Lịch sử'),
-        BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Cá nhân'),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home_outlined),
+          label: 'Trang chủ',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.inventory_2_outlined),
+          label: 'Kiểm kê',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.qr_code_scanner),
+          label: 'Scan',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.history_outlined),
+          label: 'Lịch sử',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person_outline),
+          label: 'Cá nhân',
+        ),
       ],
     );
   }
