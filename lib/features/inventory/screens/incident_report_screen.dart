@@ -201,24 +201,23 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> with Single
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Type (Title) and Status
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     report.title,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87),
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87),
                                   ),
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: _getStatusBgColor(report.status),
-                                      borderRadius: BorderRadius.circular(20),
+                                      color: _getStatusColor(report.status).withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(
                                       _getStatusText(report.status),
                                       style: TextStyle(
-                                        fontSize: 11,
+                                        fontSize: 13,
                                         fontWeight: FontWeight.bold,
                                         color: _getStatusColor(report.status),
                                       ),
@@ -227,19 +226,15 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> with Single
                                 ],
                               ),
                               const SizedBox(height: 8),
-
-                              // Product
                               Text(
                                 productName,
-                                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54),
+                                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.black54),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 12),
                               const Divider(height: 1),
                               const SizedBox(height: 12),
-
-                              // Location and Qty details
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
@@ -249,17 +244,16 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> with Single
                                       const SizedBox(width: 4),
                                       Text(
                                         locationName,
-                                        style: const TextStyle(color: Colors.black54, fontSize: 12),
+                                        style: const TextStyle(color: Colors.black54, fontSize: 14),
                                       ),
                                     ],
                                   ),
                                   Text(
                                     'Số lượng: ${report.quantity}',
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xffb3272e)),
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xffb3272e)),
                                   ),
                                 ],
                               ),
-
                               const SizedBox(height: 6),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -270,13 +264,13 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> with Single
                                       const SizedBox(width: 4),
                                       Text(
                                         'Người báo: $reporter',
-                                        style: const TextStyle(color: Colors.black54, fontSize: 12),
+                                        style: const TextStyle(color: Colors.black54, fontSize: 14),
                                       ),
                                     ],
                                   ),
                                   Text(
                                     dateStr,
-                                    style: const TextStyle(color: Colors.black38, fontSize: 11),
+                                    style: const TextStyle(color: Colors.black38, fontSize: 13),
                                   ),
                                 ],
                               ),
@@ -299,7 +293,7 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> with Single
           const SizedBox(height: 12),
           Text(
             'Không có báo cáo sự cố nào.',
-            style: TextStyle(color: Colors.grey[500], fontSize: 15),
+            style: TextStyle(color: Colors.grey[500], fontSize: 16),
             textAlign: TextAlign.center,
           ),
         ],

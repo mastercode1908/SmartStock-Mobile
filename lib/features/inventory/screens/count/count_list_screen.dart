@@ -379,13 +379,7 @@ class _CountListScreenState extends State<CountListScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (progress != null)
-            LinearProgressIndicator(
-              value: progress,
-              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-              color: AppColors.primary,
-              minHeight: 4,
-            ),
+          // LinearProgressIndicator removed to simplify UI
           Padding(
             padding: EdgeInsets.all(16.0),
             child: Column(

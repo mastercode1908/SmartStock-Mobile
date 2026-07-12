@@ -12,6 +12,7 @@ import 'features/inventory/providers/incident_provider.dart';
 import 'features/auth/screens/splash_screen.dart';
 import 'core/providers/theme_provider.dart';
 import 'core/theme/app_theme.dart';
+import 'core/services/offline_sync_service.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -22,7 +23,9 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  OfflineSyncService().init();
   HttpOverrides.global = MyHttpOverrides();
   runApp(
     MultiProvider(

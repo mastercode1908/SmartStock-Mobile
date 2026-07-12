@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../models/inventory_session.dart';
 import '../../providers/inventory_provider.dart';
 import 'count_success_screen.dart';
+import '../../../sync/screens/pending_sync_screen.dart';
 
 class CountStep5Screen extends StatefulWidget {
   const CountStep5Screen({Key? key}) : super(key: key);
@@ -62,12 +64,21 @@ class _CountStep5ScreenState extends State<CountStep5Screen> {
 
           await Future.delayed(const Duration(milliseconds: 1000));
           if (mounted) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => CountSuccessScreen(session: session),
-              ),
-            );
+            if (provider.isOfflineSaved) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const PendingSyncScreen(),
+                ),
+              );
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CountSuccessScreen(session: session),
+                ),
+              );
+            }
           }
         } else {
           setState(() {

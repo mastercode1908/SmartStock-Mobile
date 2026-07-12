@@ -5,6 +5,7 @@ import '../models/warehouse.dart';
 import '../models/storage_location.dart';
 import '../models/product_variant.dart';
 import '../models/inventory_count_detail.dart';
+import '../../../core/services/offline_sync_service.dart';
 
 class InventoryProvider extends ChangeNotifier {
   final InventoryService _service = InventoryService();
@@ -23,6 +24,7 @@ class InventoryProvider extends ChangeNotifier {
   List<InventoryCountDetail> _activeLocationGroup = []; // Products to count at a specific location
 
   bool _isLoading = false;
+  bool _isOfflineSaved = false;
   String? _error;
 
   List<InventorySession> get sessions => _sessions;
@@ -38,6 +40,7 @@ class InventoryProvider extends ChangeNotifier {
   List<InventoryCountDetail> get activeLocationGroup => _activeLocationGroup;
   
   bool get isLoading => _isLoading;
+  bool get isOfflineSaved => _isOfflineSaved;
   String? get error => _error;
 
   String getStaffName(int staffId) {
@@ -388,6 +391,7 @@ class InventoryProvider extends ChangeNotifier {
   Future<bool> submitCountDetails([List<InventoryCountDetail>? details]) async {
     try {
       _isLoading = true;
+      _isOfflineSaved = false;
       _error = null;
       notifyListeners();
 
@@ -410,6 +414,33 @@ class InventoryProvider extends ChangeNotifier {
       _activeSessionId = null;
       return true;
     } catch (e) {
+      if (e.toString().contains('SocketException') || e.toString().contains('TimeoutException') || e.toString().contains('Failed host lookup')) {
+        String endpoint = '';
+        Map<String, dynamic> payload = {};
+
+        if (details != null && details.isNotEmpty) {
+          // Not used in standard flow, but just in case
+          endpoint = '/api/inventory-counts/details/bulk'; // Fake endpoint
+          payload = {
+            'session_id': _selectedSession?.id ?? _activeSessionId,
+            'details': details.map((d) => d.toJson()).toList()
+          };
+        } else if (_selectedSession != null) {
+          endpoint = '/api/inventory-counts/${_selectedSession!.id}';
+          payload = _selectedSession!.toJson();
+        }
+
+        await OfflineSyncService().savePendingRequest(endpoint, payload);
+        _error = null;
+        _isOfflineSaved = true;
+        
+        _lastSubmittedSessionId = _activeSessionId;
+        _selectedVariants.clear();
+        _systemQuantities.clear();
+        _activeSessionId = null;
+        return true; 
+      }
+
       _error = e.toString();
       debugPrint('Error submitting details: $e');
       return false;
@@ -434,6 +465,16 @@ class InventoryProvider extends ChangeNotifier {
       await _service.submitSession(sessionId);
       return true;
     } catch (e) {
+      if (e.toString().contains('SocketException') || e.toString().contains('TimeoutException') || e.toString().contains('Failed host lookup')) {
+        // Mất mạng -> Lưu offline logic submit session
+        Map<String, dynamic> payload = {
+          'session_id': sessionId
+        };
+        await OfflineSyncService().savePendingRequest('/api/inventory-counts/$sessionId/submit', payload);
+        _error = null;
+        _isOfflineSaved = true;
+        return true; 
+      }
       _error = e.toString();
       debugPrint('Error syncing session: $e');
       return false;

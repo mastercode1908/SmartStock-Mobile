@@ -5,6 +5,8 @@ import 'features/scanner/screens/scan_screen.dart';
 import 'features/inventory/screens/pickup/pickup_list_screen.dart';
 import 'features/inventory/screens/count/count_list_screen.dart';
 import 'features/ai_assistant/screens/chat_bot_screen.dart';
+import 'package:provider/provider.dart';
+import 'features/inventory/providers/inventory_provider.dart';
 
 class MainTabScreen extends StatefulWidget {
   const MainTabScreen({Key? key}) : super(key: key);
@@ -34,6 +36,11 @@ class _MainTabScreenState extends State<MainTabScreen> {
     setState(() {
       _currentIndex = index;
     });
+    
+    // Auto-reload data when tapping specific tabs
+    if (index == 3) { // Kim k
+      context.read<InventoryProvider>().loadSessions();
+    }
   }
 
   @override

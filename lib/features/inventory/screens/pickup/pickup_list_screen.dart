@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../providers/picking_provider.dart';
 import '../../models/picking_task.dart';
+import 'pickup_readonly_screen.dart';
 import 'pickup_step1_screen.dart';
 import '../../../notifications/providers/notification_provider.dart';
 import '../../../notifications/screens/notification_screen.dart';
@@ -362,49 +363,63 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
             ],
           ),
           SizedBox(height: 16),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isHistorical ? Colors.blueGrey : AppColors.primary,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-              padding: EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-              elevation: 0,
-            ),
-            onPressed: () async {
-              final provider = context.read<InventoryPickingProvider>();
-              await provider.fetchTaskDetail(task.taskId);
-              if (isNew) {
-                await provider.startTask(task.taskId);
-              }
-              if (context.mounted) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const PickUpStep1Screen()),
-                ).then((_) {
-                  provider.fetchTasks();
-                });
-              }
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(isHistorical
-                    ? Icons.visibility
-                    : isNew
-                        ? Icons.play_arrow
-                        : Icons.arrow_forward),
-                SizedBox(width: 8),
-                Text(
-                  isHistorical
-                      ? 'Xem chi tiết'
-                      : isNew
-                          ? 'Nhận nhiệm vụ'
-                          : 'Tiếp tục',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          isHistorical 
+            ? OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  side: BorderSide(color: AppColors.primary, width: 2),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                  foregroundColor: AppColors.primary,
                 ),
-              ],
-            ),
-          ),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (_) => PickUpReadOnlyScreen(task: task),
+                  ));
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.visibility),
+                    SizedBox(width: 8),
+                    Text('Xem chi tiết', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              )
+            : ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                  elevation: 0,
+                ),
+                onPressed: () async {
+                  final provider = context.read<InventoryPickingProvider>();
+                  await provider.fetchTaskDetail(task.taskId);
+                  if (isNew) {
+                    await provider.startTask(task.taskId);
+                  }
+                  if (context.mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const PickUpStep1Screen()),
+                    ).then((_) {
+                      provider.fetchTasks();
+                    });
+                  }
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(isNew ? Icons.play_arrow : Icons.arrow_forward),
+                    SizedBox(width: 8),
+                    Text(
+                      isNew ? 'Nhận nhiệm vụ' : 'Tiếp tục',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
         ],
       ),
     );

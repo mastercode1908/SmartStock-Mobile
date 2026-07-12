@@ -174,7 +174,7 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                           children: [
                             Text(
                               report.title,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black87),
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -185,7 +185,7 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                               child: Text(
                                 _getStatusText(report.status),
                                 style: TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.bold,
                                   color: _getStatusColor(report.status),
                                 ),
@@ -207,14 +207,14 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                   const SizedBox(height: 16),
 
                   // Product Details Card
-                  const Text('Sản phẩm & Vị trí', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87)),
+                  const Text('Sản phẩm & Vị trí', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.black87)),
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[200]!),
+                      border: Border.all(color: Colors.grey.withOpacity(0.2)),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,10 +241,10 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                             children: [
                               Text(
                                 name,
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black87),
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
                               ),
                               const SizedBox(height: 4),
-                              Text('SKU: $sku | Barcode: $barcode', style: const TextStyle(fontSize: 11, color: Colors.black54)),
+                              Text('SKU: $sku | Barcode: $barcode', style: const TextStyle(fontSize: 13, color: Colors.black54)),
                               const SizedBox(height: 8),
                               const Divider(height: 1),
                               const SizedBox(height: 8),
@@ -254,7 +254,7 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                                   const SizedBox(width: 4),
                                   if (zone.isNotEmpty)
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                       margin: const EdgeInsets.only(right: 6),
                                       decoration: BoxDecoration(
                                         color: const Color(0xffb3272e).withOpacity(0.1),
@@ -262,12 +262,12 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                                       ),
                                       child: Text(
                                         zone,
-                                        style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xffb3272e)),
+                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xffb3272e)),
                                       ),
                                     ),
                                   Text(
                                     locationText,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87),
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87),
                                   ),
                                 ],
                               ),
@@ -277,7 +277,7 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                                   children: [
                                     const Icon(Icons.layers_outlined, size: 16, color: Colors.blue),
                                     const SizedBox(width: 4),
-                                    Text('Lô hàng: ${batch.batchNumber}', style: const TextStyle(fontSize: 12, color: Colors.black87)),
+                                    Text('Lô hàng: ${batch.batchNumber}', style: const TextStyle(fontSize: 14, color: Colors.black87)),
                                   ],
                                 ),
                               ],
@@ -302,11 +302,11 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                       children: [
                         const Text(
                           'Số lượng ảnh hưởng:',
-                          style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xff991b1b), fontSize: 14),
+                          style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xff991b1b), fontSize: 16),
                         ),
                         Text(
                           '${report.quantity} sản phẩm',
-                          style: const TextStyle(fontWeight: FontWeight.w800, color: Color(0xff991b1b), fontSize: 16),
+                          style: const TextStyle(fontWeight: FontWeight.w800, color: Color(0xff991b1b), fontSize: 18),
                         ),
                       ],
                     ),
@@ -315,7 +315,7 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
 
                   // Linked Serials Card
                   if (detail.linkedSerials.isNotEmpty) ...[
-                    const Text('Danh sách mã Serial', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87)),
+                    const Text('Danh sách mã Serial', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.black87)),
                     const SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.all(12),
@@ -340,11 +340,11 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                                   children: [
                                     const Icon(Icons.qr_code, size: 18, color: Colors.black54),
                                     const SizedBox(width: 8),
-                                    Text(serial.serialNumber, style: const TextStyle(fontFamily: 'monospace', fontSize: 13)),
+                                    Text(serial.serialNumber, style: const TextStyle(fontFamily: 'monospace', fontSize: 15)),
                                   ],
                                 ),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                   decoration: BoxDecoration(
                                     color: serial.status == 4 ? const Color(0xfffee2e2) : const Color(0xffd1fae5),
                                     borderRadius: BorderRadius.circular(4),
@@ -352,7 +352,7 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                                   child: Text(
                                     serial.status == 4 ? 'Hư hỏng (DAMAGED)' : 'Đang xử lý',
                                     style: TextStyle(
-                                      fontSize: 10,
+                                      fontSize: 12,
                                       fontWeight: FontWeight.bold,
                                       color: serial.status == 4 ? const Color(0xff991b1b) : const Color(0xff065f46),
                                     ),
@@ -368,7 +368,7 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                   ],
 
                   // Notes Description
-                  const Text('Mô tả & Ghi chú', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87)),
+                  const Text('Mô tả & Ghi chú', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.black87)),
                   const SizedBox(height: 8),
                   Container(
                     width: double.infinity,
@@ -380,14 +380,14 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                     ),
                     child: Text(
                       report.description.isNotEmpty ? report.description : 'Không có mô tả chi tiết.',
-                      style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.4),
+                      style: const TextStyle(fontSize: 16, color: Colors.black87, height: 1.4),
                     ),
                   ),
                   const SizedBox(height: 16),
 
                   // Image Evidence Card
                   if (report.imageUrl.isNotEmpty) ...[
-                    const Text('Hình ảnh bằng chứng', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87)),
+                    const Text('Hình ảnh bằng chứng', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.black87)),
                     const SizedBox(height: 8),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
@@ -420,16 +420,16 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
   Widget _buildMetaRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: Colors.black54),
+        Icon(icon, size: 18, color: Colors.black54),
         const SizedBox(width: 8),
         Text(
           '$label ',
-          style: const TextStyle(color: Colors.black54, fontSize: 13),
+          style: const TextStyle(color: Colors.black54, fontSize: 15),
         ),
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w600, fontSize: 13),
+            style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w600, fontSize: 15),
           ),
         ),
       ],
@@ -464,7 +464,7 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
               child: ElevatedButton(
                 onPressed: () => _approveIncident(provider, id),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff10b981),
+                  backgroundColor: const Color(0xffb3272e),
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -492,7 +492,7 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('DUYỆT', style: TextStyle(color: Color(0xff10b981), fontWeight: FontWeight.bold)),
+            child: const Text('DUYỆT', style: TextStyle(color: Color(0xffb3272e), fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -504,7 +504,7 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
       await provider.approveIncident(id);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Đã phê duyệt báo cáo sự cố và trừ kho thành công!'), backgroundColor: Color(0xff006a67)),
+          const SnackBar(content: Text('Đã phê duyệt báo cáo sự cố và trừ kho thành công!'), backgroundColor: Color(0xffb3272e)),
         );
         Navigator.pop(context);
       }
