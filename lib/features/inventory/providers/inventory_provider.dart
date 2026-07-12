@@ -40,6 +40,24 @@ class InventoryProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
+  String getStaffName(int staffId) {
+    if (staffId <= 0) return 'Chưa rõ';
+    try {
+      final staff = _staffs.firstWhere((s) {
+        final Map<String, dynamic> lowerCaseKeys = s.map((k, v) => MapEntry(k.toLowerCase(), v));
+        final idValue = lowerCaseKeys['userid'] ?? lowerCaseKeys['id'];
+        return idValue?.toString() == staffId.toString();
+      }, orElse: () => <String, dynamic>{});
+      if (staff.isNotEmpty) {
+        final Map<String, dynamic> lowerCaseKeys = staff.map((k, v) => MapEntry(k.toLowerCase(), v));
+        return lowerCaseKeys['fullname'] ?? lowerCaseKeys['name'] ?? lowerCaseKeys['username'] ?? 'Nhân viên $staffId';
+      }
+      return 'Quản trị viên ($staffId)';
+    } catch (e) {
+      return 'ID: $staffId';
+    }
+  }
+
   void setActiveSession(int id) {
     _activeSessionId = id;
     notifyListeners();
@@ -246,6 +264,41 @@ class InventoryProvider extends ChangeNotifier {
   // Load session detail for readonly view (does not modify provider state)
   Future<InventorySession> loadSessionReadonly(int sessionId) async {
     return await _service.fetchSessionMobileDetail(sessionId);
+  }
+
+  Future<bool> updateSessionStatus(InventorySession session, String newStatus) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      
+      final updatedSession = InventorySession(
+        id: session.id,
+        sessionCode: session.sessionCode,
+        warehouseId: session.warehouseId,
+        warehouseName: session.warehouseName,
+        countType: session.countType,
+        startDate: session.startDate,
+        endDate: session.endDate,
+        description: session.description,
+        status: newStatus,
+        countDate: session.countDate,
+        createdBy: session.createdBy,
+        createdByName: session.createdByName,
+        assignedTo: session.assignedTo,
+        assignedToName: session.assignedToName,
+      );
+
+      await _service.updateSession(session.id, updatedSession);
+      await loadSessions();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      debugPrint('Error updating session status: $e');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<InventorySession> addSession(InventorySession draft) async {

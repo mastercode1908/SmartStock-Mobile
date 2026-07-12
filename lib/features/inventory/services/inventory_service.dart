@@ -75,8 +75,16 @@ class InventoryService {
     );
 
     if (response.statusCode == 200) {
-      List<dynamic> jsonResponse = json.decode(response.body);
-      return jsonResponse.cast<Map<String, dynamic>>();
+      var jsonResponse = json.decode(response.body);
+      List<dynamic> dataList = [];
+      if (jsonResponse is Map && jsonResponse.containsKey('data')) {
+        dataList = jsonResponse['data'];
+      } else if (jsonResponse is Map && jsonResponse.containsKey('value')) {
+        dataList = jsonResponse['value'];
+      } else if (jsonResponse is List) {
+        dataList = jsonResponse;
+      }
+      return dataList.cast<Map<String, dynamic>>();
     } else {
       throw Exception('Failed to load staffs');
     }

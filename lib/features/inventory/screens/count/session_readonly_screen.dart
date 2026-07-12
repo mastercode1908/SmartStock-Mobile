@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../providers/inventory_provider.dart';
 import '../../models/inventory_session.dart';
 import '../../models/inventory_count_detail.dart';
+import '../../../auth/providers/auth_provider.dart';
 
 String _getTrackingLabel(int trackingMethod) {
   switch (trackingMethod) {
@@ -70,7 +71,63 @@ class _SessionReadonlyScreenState extends State<SessionReadonlyScreen> {
           : _error != null
               ? Center(child: Text('Lỗi: $_error', style: const TextStyle(color: Colors.red)))
               : _buildBody(session),
+      bottomNavigationBar: _loading || _error != null ? null : _buildBottomBar(context, session),
     );
+  }
+
+  Widget? _buildBottomBar(BuildContext context, InventorySession session) {
+    final role = context.read<AuthProvider>().currentUser?.roleName ?? '';
+    final isManager = role.toLowerCase().contains('admin') || role.toLowerCase().contains('manager');
+
+    if (!isManager || session.status != 'PENDING') return null;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Colors.black.withOpacity(0.05))),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: OutlinedButton(
+              onPressed: () => _updateStatus(session, 'REJECTED'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.error,
+                side: BorderSide(color: AppColors.error.withOpacity(0.5)),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('TỪ CHỐI', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: ElevatedButton(
+              onPressed: () => _updateStatus(session, 'APPROVED'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff0f5132),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('DUYỆT', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _updateStatus(InventorySession session, String newStatus) async {
+    final provider = context.read<InventoryProvider>();
+    final success = await provider.updateSessionStatus(session, newStatus);
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cập nhật trạng thái thành công!')));
+      _loadDetail();
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi cập nhật: ${provider.error}')));
+    }
   }
 
   Widget _buildBody(InventorySession session) {
@@ -121,16 +178,16 @@ class _SessionReadonlyScreenState extends State<SessionReadonlyScreen> {
                 const SizedBox(height: 12),
                 const Divider(height: 1),
                 const SizedBox(height: 12),
-                _infoRow(Icons.warehouse_outlined, 'Kho', session.warehouseName?.isNotEmpty == true ? session.warehouseName! : 'ID ${session.warehouseId}'),
+                _infoRow(Icons.warehouse_outlined, 'Kho', session.warehouseName?.isNotEmpty == true ? session.warehouseName! : 'Chưa rõ'),
                 const SizedBox(height: 8),
                 _infoRow(Icons.category_outlined, 'Loại kiểm kê', session.countType),
                 const SizedBox(height: 8),
                 _infoRow(Icons.calendar_today, 'Ngày tạo', _formatDate(session.startDate)),
                 const SizedBox(height: 8),
-                _infoRow(Icons.person_outline, 'Người tạo', session.createdByName?.isNotEmpty == true ? session.createdByName! : 'ID ${session.createdBy}'),
+                _infoRow(Icons.person_outline, 'Người tạo', session.createdByName?.isNotEmpty == true ? session.createdByName! : context.read<InventoryProvider>().getStaffName(session.createdBy)),
                 if (session.assignedTo != null) ...[
                   const SizedBox(height: 8),
-                  _infoRow(Icons.assignment_ind_outlined, 'Người được giao', session.assignedToName?.isNotEmpty == true ? session.assignedToName! : 'ID ${session.assignedTo}'),
+                  _infoRow(Icons.assignment_ind_outlined, 'Người được giao', session.assignedToName?.isNotEmpty == true ? session.assignedToName! : context.read<InventoryProvider>().getStaffName(session.assignedTo!)),
                 ],
                 if (session.endDate != null) ...[
                   const SizedBox(height: 8),
@@ -144,6 +201,7 @@ class _SessionReadonlyScreenState extends State<SessionReadonlyScreen> {
             ),
           ),
           if (session.status != 'DRAFT') ...[
+            const SizedBox(height: 16), // Thêm khoảng cách cho giao diện dịch xuống
             // Summary row
             Row(children: [
               _summaryCard('Tổng SP', '${session.details?.length ?? 0}', Icons.inventory_2, AppColors.primary),
@@ -164,6 +222,7 @@ class _SessionReadonlyScreenState extends State<SessionReadonlyScreen> {
             ]),
             const SizedBox(height: 24),
           ],
+          const SizedBox(height: 24), // Thêm khoảng cách cho giao diện dịch xuống
           if (locationKeys.isEmpty)
             const Center(child: Text('Không có sản phẩm nào.', style: TextStyle(color: AppColors.onSurfaceVariant)))
           else ...[

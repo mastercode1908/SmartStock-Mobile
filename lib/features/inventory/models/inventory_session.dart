@@ -108,9 +108,11 @@ class InventorySession {
 
   Map<String, dynamic> toJson() {
     int statusInt = 0;
-    if (status == 'IN_PROGRESS') statusInt = 1;
-    if (status == 'COMPLETED') statusInt = 2;
-    if (status == 'CANCELLED') statusInt = 3;
+    if (status == 'PENDING') statusInt = 1;
+    if (status == 'APPROVED') statusInt = 2;
+    if (status == 'REJECTED') statusInt = 3;
+    if (status == 'CANCELLED') statusInt = 4;
+    if (status == 'POSTED') statusInt = 5;
 
     int countTypeInt = 0;
     if (countType == 'PARTIAL') countTypeInt = 1;

@@ -11,6 +11,8 @@ import '../../scanner/screens/scan_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 import '../providers/inventory_provider.dart';
 import '../models/inventory_session.dart';
+import 'count/session_readonly_screen.dart';
+import 'count/count_step1_screen.dart';
 
 class InventoryListScreen extends StatefulWidget {
   const InventoryListScreen({Key? key}) : super(key: key);
@@ -42,7 +44,11 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<InventoryProvider>().loadSessions();
+      final provider = context.read<InventoryProvider>();
+      provider.loadSessions();
+      if (provider.staffs.isEmpty) {
+        provider.loadStaffs();
+      }
     });
   }
 
@@ -320,8 +326,8 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
               statusWidget = Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Đã đồng bộ', style: TextStyle(color: _secondary, fontSize: 12, fontWeight: FontWeight.w500)),
-                  Text('XEM BÁO CÁO', style: TextStyle(color: _secondary, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('Đã ghi nhận', style: TextStyle(color: _secondary, fontSize: 12, fontWeight: FontWeight.w500)),
+                  Text('CHI TIẾT', style: TextStyle(color: _secondary, fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
               );
             } else if (session.status == 'PENDING') {
@@ -332,6 +338,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Chờ quản lý duyệt', style: TextStyle(color: Colors.orange, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('CHI TIẾT', style: TextStyle(color: Colors.orange, fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
               );
             } else if (session.status == 'APPROVED') {
@@ -342,7 +349,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Đã duyệt', style: TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('ĐỒNG BỘ KHO', style: TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('CHI TIẾT', style: TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
               );
             } else if (session.status == 'REJECTED') {
@@ -353,7 +360,19 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Bị từ chối', style: TextStyle(color: _primary, fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('ĐẾM LẠI', style: TextStyle(color: _primary, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('CHI TIẾT', style: TextStyle(color: _primary, fontSize: 12, fontWeight: FontWeight.bold)),
+                ],
+              );
+            } else if (session.status == 'CANCELLED') {
+              icon = Icons.cancel;
+              iconColor = Colors.grey;
+              iconBg = Colors.grey.withOpacity(0.1);
+              isCompleted = true;
+              statusWidget = Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Đã hủy', style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('CHI TIẾT', style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
               );
             } else {
@@ -361,23 +380,43 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
               icon = Icons.inventory;
               iconColor = _tertiary;
               iconBg = _tertiary.withOpacity(0.1);
+              
+              final role = context.read<AuthProvider>().currentUser?.roleName ?? '';
+              final isManager = role.toLowerCase().contains('admin') || role.toLowerCase().contains('manager');
+
               statusWidget = Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Bản nháp (Đang kiểm)', style: TextStyle(color: _tertiary, fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('TIẾP TỤC', style: TextStyle(color: _tertiary, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text(isManager ? 'CHI TIẾT' : 'TIẾP TỤC', style: TextStyle(color: _tertiary, fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
               );
             }
 
             return InkWell(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => InventoryHistoryDetailScreen(sessionId: session.id),
-                  ),
-                );
+                final role = context.read<AuthProvider>().currentUser?.roleName ?? '';
+                final isManager = role.toLowerCase().contains('admin') || role.toLowerCase().contains('manager');
+
+                if (session.status == 'DRAFT' && !isManager) {
+                  // Gọi provider load chi tiết session trước khi vào đếm
+                  context.read<InventoryProvider>().editSession(session).then((_) {
+                    if (!context.mounted) return;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CountStep1Screen(),
+                      ),
+                    );
+                  });
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SessionReadonlyScreen(session: session),
+                    ),
+                  );
+                }
               },
               borderRadius: BorderRadius.circular(16),
               child: _buildInventoryCard(
@@ -386,6 +425,17 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                 iconBg: iconBg,
                 title: session.sessionCode,
                 date: dateStr,
+                warehouseName: session.warehouseName?.isNotEmpty == true ? session.warehouseName! : 'Chưa rõ',
+                countType: session.countType,
+                createdBy: session.assignedToName?.isNotEmpty == true 
+                    ? session.assignedToName! 
+                    : (session.assignedTo != null 
+                        ? (session.assignedTo == context.read<AuthProvider>().currentUser?.userId 
+                            ? (context.read<AuthProvider>().currentUser!.fullName.isNotEmpty 
+                                ? context.read<AuthProvider>().currentUser!.fullName 
+                                : context.read<AuthProvider>().currentUser!.email)
+                            : provider.getStaffName(session.assignedTo!))
+                        : 'Chưa giao'),
                 statusWidget: statusWidget,
                 isCompleted: isCompleted,
               ),
@@ -402,6 +452,9 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
     required Color iconBg,
     required String title,
     required String date,
+    required String warehouseName,
+    required String countType,
+    required String createdBy,
     required Widget statusWidget,
     bool isCompleted = false,
   }) {
@@ -450,14 +503,48 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                     ),
                     Text(
                       date,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: _onSurfaceVariant,
+                      style: TextStyle(fontSize: 12, color: _secondary),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Icon(Icons.warehouse_outlined, size: 14, color: _secondary),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        warehouseName,
+                        style: TextStyle(fontSize: 13, color: _secondary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(Icons.category_outlined, size: 14, color: _secondary),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Loại: $countType',
+                      style: TextStyle(fontSize: 13, color: _secondary),
+                    ),
+                    const SizedBox(width: 12),
+                    Icon(Icons.person_outline, size: 14, color: _secondary),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        createdBy,
+                        style: TextStyle(fontSize: 13, color: _secondary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
                 statusWidget,
               ],
             ),
