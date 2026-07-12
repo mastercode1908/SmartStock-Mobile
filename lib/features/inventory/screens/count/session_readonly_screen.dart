@@ -143,26 +143,27 @@ class _SessionReadonlyScreenState extends State<SessionReadonlyScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          // Summary row
-          Row(children: [
-            _summaryCard('Tổng SP', '${session.details?.length ?? 0}', Icons.inventory_2, AppColors.primary),
-            const SizedBox(width: 12),
-            _summaryCard(
-              'Đã đếm',
-              '${session.details?.where((d) => d.actualQuantity != null).length ?? 0}',
-              Icons.check_circle,
-              const Color(0xff0f5132),
-            ),
-            const SizedBox(width: 12),
-            _summaryCard(
-              'Chênh lệch',
-              '${session.details?.where((d) => d.actualQuantity != null && (d.actualQuantity! - d.systemQuantity) != 0).length ?? 0}',
-              Icons.warning_rounded,
-              AppColors.error,
-            ),
-          ]),
-          const SizedBox(height: 24),
+          if (session.status != 'DRAFT') ...[
+            // Summary row
+            Row(children: [
+              _summaryCard('Tổng SP', '${session.details?.length ?? 0}', Icons.inventory_2, AppColors.primary),
+              const SizedBox(width: 12),
+              _summaryCard(
+                'Đã đếm',
+                '${session.details?.where((d) => d.actualQuantity != null).length ?? 0}',
+                Icons.check_circle,
+                const Color(0xff0f5132),
+              ),
+              const SizedBox(width: 12),
+              _summaryCard(
+                'Chênh lệch',
+                '${session.details?.where((d) => d.actualQuantity != null && (d.actualQuantity! - d.systemQuantity) != 0).length ?? 0}',
+                Icons.warning_rounded,
+                AppColors.error,
+              ),
+            ]),
+            const SizedBox(height: 24),
+          ],
           if (locationKeys.isEmpty)
             const Center(child: Text('Không có sản phẩm nào.', style: TextStyle(color: AppColors.onSurfaceVariant)))
           else ...[
@@ -171,7 +172,7 @@ class _SessionReadonlyScreenState extends State<SessionReadonlyScreen> {
             const SizedBox(height: 12),
             ...locationKeys.map((key) => Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: _buildLocationCard(key, locationGroups[key]!),
+              child: _buildLocationCard(key, locationGroups[key]!, session.status),
             )).toList(),
           ],
           const SizedBox(height: 80),
@@ -221,7 +222,7 @@ class _SessionReadonlyScreenState extends State<SessionReadonlyScreen> {
     );
   }
 
-  Widget _buildLocationCard(String locationKey, List<InventoryCountDetail> details) {
+  Widget _buildLocationCard(String locationKey, List<InventoryCountDetail> details, String status) {
     final first = details.first;
     final label = _locationLabel(first);
     final counted = details.where((d) => d.actualQuantity != null).length;
@@ -245,13 +246,13 @@ class _SessionReadonlyScreenState extends State<SessionReadonlyScreen> {
           leading: const Icon(Icons.location_on, color: AppColors.primary),
           title: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.onSurface)),
           subtitle: Text('$counted/${details.length} sản phẩm', style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
-          children: details.map((d) => _buildDetailRow(d)).toList(),
+          children: details.map((d) => _buildDetailRow(d, status)).toList(),
         ),
       ),
     );
   }
 
-  Widget _buildDetailRow(InventoryCountDetail d) {
+  Widget _buildDetailRow(InventoryCountDetail d, String status) {
     final diff = d.actualQuantity != null ? d.actualQuantity! - d.systemQuantity : null;
     Color diffColor = AppColors.onSurface;
     if (diff != null) {
@@ -302,27 +303,31 @@ class _SessionReadonlyScreenState extends State<SessionReadonlyScreen> {
           ),
           _detailCol('Hệ thống', '${d.systemQuantity}', AppColors.onSurfaceVariant),
           const SizedBox(width: 8),
-          _detailCol('Thực tế', d.actualQuantity != null ? '${d.actualQuantity}' : '--', AppColors.onSurface),
-          const SizedBox(width: 8),
-          _detailCol(
-            'Chênh lệch',
-            diff != null ? (diff >= 0 ? '+$diff' : '$diff') : '--',
-            diffColor,
-          ),
+          if (status == 'DRAFT') ...[
+            _detailCol('Thực tế', 'Chưa kiểm', AppColors.onSurfaceVariant, isText: true),
+          ] else ...[
+            _detailCol('Thực tế', d.actualQuantity != null ? '${d.actualQuantity}' : '--', AppColors.onSurface),
+            const SizedBox(width: 8),
+            _detailCol(
+              'Chênh lệch',
+              diff != null ? (diff >= 0 ? '+$diff' : '$diff') : '--',
+              diffColor,
+            ),
+          ]
         ],
       ),
     );
   }
 
-  Widget _detailCol(String label, String value, Color valueColor) {
+  Widget _detailCol(String label, String value, Color valueColor, {bool isText = false}) {
     return SizedBox(
-      width: 64,
+      width: isText ? 72 : 64,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(label, style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
           const SizedBox(height: 4),
-          Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: valueColor)),
+          Text(value, style: TextStyle(fontSize: isText ? 13 : 18, fontWeight: FontWeight.bold, color: valueColor)),
         ],
       ),
     );

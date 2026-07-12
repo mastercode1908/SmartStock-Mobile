@@ -51,6 +51,37 @@ class InventoryService {
     }
   }
 
+  Future<Map<String, dynamic>> fetchLocationDetails(int locationId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/StorageLocations/$locationId'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      if (jsonResponse is Map && jsonResponse.containsKey('data')) {
+         return jsonResponse['data'];
+      }
+      return jsonResponse as Map<String, dynamic>;
+    } else {
+      throw Exception('Failed to load location details');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchStaffs() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/Users/staffs'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> jsonResponse = json.decode(response.body);
+      return jsonResponse.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to load staffs');
+    }
+  }
+
   Future<List<InventorySession>> fetchInventorySessions() async {
     final response = await http.get(
       Uri.parse('$baseUrl/inventory-counts/mobile'),

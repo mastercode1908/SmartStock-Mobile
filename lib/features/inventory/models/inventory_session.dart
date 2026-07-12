@@ -10,6 +10,7 @@ class InventorySession {
   final String description;
   final DateTime startDate;
   final DateTime? endDate;
+  final DateTime countDate;
   final int createdBy;
   final String? createdByName;
   final int? assignedTo;
@@ -26,6 +27,7 @@ class InventorySession {
     required this.description,
     required this.startDate,
     this.endDate,
+    required this.countDate,
     required this.createdBy,
     this.createdByName,
     this.assignedTo,
@@ -63,7 +65,26 @@ class InventorySession {
     return 'FULL';
   }
 
+  static DateTime? _parseDate(dynamic dateStr) {
+    if (dateStr == null) return null;
+    try {
+      String s = dateStr.toString();
+      if (s.endsWith('Z')) {
+        s = s.substring(0, s.length - 1);
+      }
+      DateTime parsed = DateTime.parse(s);
+      if (parsed.year < 2000) return null; // Ignore invalid 0001-01-01
+      return parsed;
+    } catch (_) {
+      return null;
+    }
+  }
+
   factory InventorySession.fromJson(Map<String, dynamic> json) {
+    DateTime? parsedStartDate = _parseDate(json['StartDate'] ?? json['startDate']);
+    DateTime? parsedCreatedAt = _parseDate(json['CreatedAt'] ?? json['createdAt']);
+    DateTime? parsedCountDate = _parseDate(json['CountDate'] ?? json['countDate']);
+
     return InventorySession(
       id: json['SessionID'] ?? json['sessionID'] ?? json['sessionId'] ?? 0, 
       warehouseId: json['WarehouseID'] ?? json['warehouseID'] ?? json['warehouseId'] ?? 0,
@@ -72,8 +93,9 @@ class InventorySession {
       countType: _parseCountType(json['CountType'] ?? json['countType']),
       status: _parseStatus(json['Status'] ?? json['status']),
       description: (json['Description'] ?? json['description'])?.toString() ?? '',
-      startDate: (json['StartDate'] ?? json['startDate']) != null ? DateTime.parse(json['StartDate'] ?? json['startDate']) : DateTime.now(),
-      endDate: (json['EndDate'] ?? json['endDate']) != null ? DateTime.parse(json['EndDate'] ?? json['endDate']) : null,
+      startDate: parsedStartDate ?? parsedCreatedAt ?? parsedCountDate ?? DateTime.now(),
+      endDate: _parseDate(json['EndDate'] ?? json['endDate']),
+      countDate: parsedCountDate ?? parsedStartDate ?? parsedCreatedAt ?? DateTime.now(),
       createdBy: json['CreatedBy'] ?? json['createdBy'] ?? 0,
       createdByName: json['CreatedByName'] ?? json['createdByName'],
       assignedTo: json['AssignedTo'] ?? json['assignedTo'],
@@ -102,8 +124,9 @@ class InventorySession {
       'countType': countTypeInt,
       'status': statusInt,
       'description': description,
-      'startDate': startDate.toUtc().toIso8601String(),
-      'endDate': endDate?.toUtc().toIso8601String(),
+      'startDate': startDate.toUtc().add(const Duration(hours: 7)).toIso8601String(),
+      'endDate': endDate?.toUtc().add(const Duration(hours: 7)).toIso8601String(),
+      'countDate': countDate.toUtc().add(const Duration(hours: 7)).toIso8601String(),
       'createdBy': createdBy,
       'assignedTo': assignedTo,
       'details': details?.map((d) => d.toJson()).toList() ?? [],

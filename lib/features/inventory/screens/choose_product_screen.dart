@@ -5,7 +5,9 @@ import '../providers/inventory_provider.dart';
 import '../models/product_variant.dart';
 
 class ChooseProductScreen extends StatefulWidget {
-  const ChooseProductScreen({Key? key}) : super(key: key);
+  final bool returnSelectedIds;
+  final Set<int>? restrictToVariantIds;
+  const ChooseProductScreen({Key? key, this.returnSelectedIds = false, this.restrictToVariantIds}) : super(key: key);
 
   @override
   _ChooseProductScreenState createState() => _ChooseProductScreenState();
@@ -23,6 +25,10 @@ class _ChooseProductScreenState extends State<ChooseProductScreen> {
   final Color _secondary = const Color(0xFF586062);
   final Color _secondaryContainer = const Color(0xFFDAE1E3);
   final Color _background = const Color(0xFFF1FBFF);
+
+  String _searchQuery = '';
+  int _selectedTrackingMethod = -1; // -1: All, 0: None, 1: Lot, 2: Serial
+
 
   @override
   void initState() {
@@ -77,52 +83,36 @@ class _ChooseProductScreenState extends State<ChooseProductScreen> {
   }
 
   Widget _buildSearchAndFilter() {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 40,
-            decoration: BoxDecoration(
-              color: _surfaceContainerLowest,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: _outlineVariant.withOpacity(0.5)),
+    return Container(
+      height: 40,
+      decoration: BoxDecoration(
+        color: _surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: _outlineVariant.withOpacity(0.5)),
+      ),
+      child: Row(
+        children: [
+          const SizedBox(width: 8),
+          Icon(Icons.search, color: _onSurfaceVariant.withOpacity(0.5), size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+              decoration: InputDecoration(
+                hintText: 'Tìm tên, SKU...',
+                hintStyle: TextStyle(color: _onSurfaceVariant.withOpacity(0.5), fontSize: 14),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
             ),
-            child: Row(
-              children: [
-                const SizedBox(width: 8),
-                Icon(Icons.search, color: _onSurfaceVariant.withOpacity(0.5), size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Tìm tên, SKU...',
-                      hintStyle: TextStyle(color: _onSurfaceVariant.withOpacity(0.5), fontSize: 14),
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
-        ),
-        const SizedBox(width: 16),
-        Container(
-          height: 40,
-          width: 40,
-          decoration: BoxDecoration(
-            color: _surfaceContainerLowest,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: _outlineVariant.withOpacity(0.5)),
-          ),
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            icon: Icon(Icons.tune, color: _onSurfaceVariant, size: 20),
-            onPressed: () {},
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -131,29 +121,39 @@ class _ChooseProductScreenState extends State<ChooseProductScreen> {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          _buildChip('Tất cả', true),
+          _buildChip('Tất cả', -1),
           const SizedBox(width: 8),
-          _buildChip('Đang theo dõi', false),
+          _buildChip('Không theo dõi', 0),
           const SizedBox(width: 8),
-          _buildChip('Lot/Serial', false),
+          _buildChip('Batch/Lot', 1),
+          const SizedBox(width: 8),
+          _buildChip('Serial', 2),
         ],
       ),
     );
   }
 
-  Widget _buildChip(String label, bool isSelected) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: isSelected ? _primary : _surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: isSelected ? Colors.white : _onSurfaceVariant,
+  Widget _buildChip(String label, int trackingMethod) {
+    bool isSelected = _selectedTrackingMethod == trackingMethod;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedTrackingMethod = trackingMethod;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        decoration: BoxDecoration(
+          color: isSelected ? _primary : _surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: isSelected ? Colors.white : _onSurfaceVariant,
+          ),
         ),
       ),
     );
@@ -166,11 +166,28 @@ class _ChooseProductScreenState extends State<ChooseProductScreen> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        if (provider.productVariants.isEmpty) {
+        var filteredVariants = provider.productVariants.where((v) {
+          if (widget.restrictToVariantIds != null && !widget.restrictToVariantIds!.contains(v.variantId)) {
+            return false;
+          }
+          bool matchesSearch = true;
+          if (_searchQuery.trim().isNotEmpty) {
+            final query = _searchQuery.toLowerCase();
+            matchesSearch = v.productName.toLowerCase().contains(query) ||
+                v.sku.toLowerCase().contains(query);
+          }
+          bool matchesTracking = true;
+          if (_selectedTrackingMethod != -1) {
+            matchesTracking = v.trackingMethod == _selectedTrackingMethod;
+          }
+          return matchesSearch && matchesTracking;
+        }).toList();
+
+        if (filteredVariants.isEmpty) {
           return const Center(
             child: Padding(
               padding: EdgeInsets.all(32.0),
-              child: Text('Không có sản phẩm nào.'),
+              child: Text('Không có sản phẩm nào phù hợp.'),
             ),
           );
         }
@@ -178,10 +195,10 @@ class _ChooseProductScreenState extends State<ChooseProductScreen> {
         return ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: provider.productVariants.length,
+          itemCount: filteredVariants.length,
           separatorBuilder: (context, index) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
-            final variant = provider.productVariants[index];
+            final variant = filteredVariants[index];
             final isChecked = provider.selectedVariants.any((v) => v.variantId == variant.variantId);
             
             String trackingStr = 'NONE';
@@ -336,10 +353,14 @@ class _ChooseProductScreenState extends State<ChooseProductScreen> {
                       );
                       return;
                     }
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const InventoryDetailScreen()),
-                    );
+                    if (widget.returnSelectedIds) {
+                      Navigator.pop(context, provider.selectedVariants);
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const InventoryDetailScreen()),
+                      );
+                    }
                   },
                   icon: const Icon(Icons.check_circle),
                   label: Text('Xác nhận chọn (${provider.selectedVariants.length})', style: const TextStyle(fontSize: 16)),

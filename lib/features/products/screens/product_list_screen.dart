@@ -754,14 +754,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       unselectedLabelStyle: const TextStyle(fontSize: 12),
       onTap: (index) {
         if (index == 0) {
-          if (Navigator.canPop(context)) {
-            Navigator.pop(context);
-          } else {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const EmployeeDashboardScreen()),
-            );
-          }
+          Navigator.popUntil(context, (route) => route.isFirst);
         } else if (index == 1) {
           Navigator.push(
             context,

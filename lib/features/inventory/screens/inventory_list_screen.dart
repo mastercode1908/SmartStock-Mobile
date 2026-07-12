@@ -479,15 +479,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
       unselectedLabelStyle: const TextStyle(fontSize: 12),
       onTap: (index) {
         if (index == 0) {
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              opaque: false,
-              pageBuilder: (context, a1, a2) => const EmployeeDashboardScreen(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ),
-          );
+          Navigator.popUntil(context, (route) => route.isFirst);
         } else if (index == 2) {
           Navigator.push(
             context,
