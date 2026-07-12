@@ -31,12 +31,12 @@ class _CountListScreenState extends State<CountListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: _buildAppBar(context),
       body: Consumer<InventoryProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading && provider.sessions.isEmpty) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+            return Center(child: CircularProgressIndicator(color: AppColors.primary));
           }
 
           // Show all sessions (backend already filters by assignedTo for Staff)
@@ -68,27 +68,27 @@ class _CountListScreenState extends State<CountListScreen> {
             color: AppColors.primary,
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _buildHeader(),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   _buildStatusFilters(),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   if (activeSessions.isEmpty)
-                    const Center(
+                    Center(
                       child: Padding(
                         padding: EdgeInsets.all(32.0),
                         child: Text(
                           'Không có nhiệm vụ kiểm kê nào.',
-                          style: TextStyle(color: AppColors.onSurfaceVariant),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ),
                       ),
                     )
                   else
                     _buildTaskList(context, activeSessions),
-                  const SizedBox(height: 80), // Padding for bottom nav
+                  SizedBox(height: 80), // Padding for bottom nav
                 ],
               ),
             ),
@@ -100,11 +100,11 @@ class _CountListScreenState extends State<CountListScreen> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: const Color(0xfff9f9f9),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 0,
       scrolledUnderElevation: 0,
       title: Row(
-        children: const [
+        children: [
           Icon(Icons.inventory_2, color: Color(0xffb02528)),
           SizedBox(width: 8),
           Text(
@@ -126,7 +126,7 @@ class _CountListScreenState extends State<CountListScreen> {
               alignment: Alignment.center,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.notifications, color: Color(0xffb02528)),
+                  icon: Icon(Icons.notifications, color: Color(0xffb02528)),
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -139,7 +139,7 @@ class _CountListScreenState extends State<CountListScreen> {
                     right: 4,
                     top: 4,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                       decoration: BoxDecoration(
                         color: const Color(0xffb02528),
                         borderRadius: BorderRadius.circular(10),
@@ -163,7 +163,7 @@ class _CountListScreenState extends State<CountListScreen> {
             );
           },
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
       ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1.0),
@@ -181,7 +181,7 @@ class _CountListScreenState extends State<CountListScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const FittedBox(
+              FittedBox(
                 fit: BoxFit.scaleDown,
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -189,19 +189,19 @@ class _CountListScreenState extends State<CountListScreen> {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.onSurface,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
-              const Text(
+              SizedBox(height: 8),
+              Text(
                 'Chọn một danh sách để bắt đầu xác minh kho.',
-                style: TextStyle(fontSize: 16, color: AppColors.onSurfaceVariant),
+                style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ],
           ),
         ),
-        const SizedBox(width: 16),
+        SizedBox(width: 16),
         GestureDetector(
           onTap: () async {
             final result = await showDateRangePicker(
@@ -212,10 +212,10 @@ class _CountListScreenState extends State<CountListScreen> {
               builder: (context, child) {
                 return Theme(
                   data: Theme.of(context).copyWith(
-                    colorScheme: const ColorScheme.light(
+                    colorScheme: ColorScheme.light(
                       primary: AppColors.primary,
-                      onPrimary: Colors.white,
-                      onSurface: AppColors.onSurface,
+                      onPrimary: Theme.of(context).colorScheme.surface,
+                      onSurface: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   child: child!,
@@ -230,18 +230,18 @@ class _CountListScreenState extends State<CountListScreen> {
             }
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: AppColors.surfaceContainerHigh,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(24),
             ),
             child: Row(
               children: [
-                const Icon(Icons.calendar_month, size: 18, color: AppColors.onSurface),
-                const SizedBox(width: 8),
+                Icon(Icons.calendar_month, size: 18, color: Theme.of(context).colorScheme.onSurface),
+                SizedBox(width: 8),
                 Text(
                   _startDate != null ? '${_startDate!.day}/${_startDate!.month} - ${_endDate!.day}/${_endDate!.month}' : 'Chọn ngày',
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.onSurface)
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)
                 ),
               ],
             ),
@@ -257,17 +257,17 @@ class _CountListScreenState extends State<CountListScreen> {
       child: Row(
         children: [
           _buildFilterChip('Tất cả'),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           _buildFilterChip('Nháp'),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           _buildFilterChip('Chờ duyệt'),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           _buildFilterChip('Đã duyệt'),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           _buildFilterChip('Từ chối'),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           _buildFilterChip('Đã hủy'),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           _buildFilterChip('Đã ghi nhận'),
         ],
       ),
@@ -283,9 +283,9 @@ class _CountListScreenState extends State<CountListScreen> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryContainer : AppColors.surfaceContainerHighest,
+          color: isSelected ? AppColors.primaryContainer : Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(24),
         ),
         child: Text(
@@ -293,7 +293,7 @@ class _CountListScreenState extends State<CountListScreen> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: isSelected ? AppColors.onPrimaryContainer : AppColors.onSurface,
+            color: isSelected ? AppColors.onPrimaryContainer : Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ),
@@ -305,7 +305,7 @@ class _CountListScreenState extends State<CountListScreen> {
       children: sessions.map((session) {
         bool isNew = session.status == 'DRAFT';
         return Padding(
-          padding: const EdgeInsets.only(bottom: 16.0),
+          padding: EdgeInsets.only(bottom: 16.0),
           child: _buildTaskCard(
             context,
             session: session,
@@ -333,8 +333,8 @@ class _CountListScreenState extends State<CountListScreen> {
     }
 
     String statusLabel = 'Không rõ';
-    Color statusColor = AppColors.onSurfaceVariant;
-    Color statusBgColor = AppColors.surfaceContainerHigh;
+    Color statusColor = Theme.of(context).colorScheme.onSurfaceVariant;
+    Color statusBgColor = Theme.of(context).colorScheme.surfaceContainerHigh;
 
     switch (session.status) {
       case 'DRAFT':
@@ -372,9 +372,9 @@ class _CountListScreenState extends State<CountListScreen> {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.outlineVariant),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -382,12 +382,12 @@ class _CountListScreenState extends State<CountListScreen> {
           if (progress != null)
             LinearProgressIndicator(
               value: progress,
-              backgroundColor: AppColors.surfaceContainerHigh,
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
               color: AppColors.primary,
               minHeight: 4,
             ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -396,16 +396,16 @@ class _CountListScreenState extends State<CountListScreen> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.assignment, color: isNew ? AppColors.onSurfaceVariant : AppColors.primary),
-                        const SizedBox(width: 4),
+                        Icon(Icons.assignment, color: isNew ? Theme.of(context).colorScheme.onSurfaceVariant : AppColors.primary),
+                        SizedBox(width: 4),
                         Text(
                           session.sessionCode,
-                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.onSurface),
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                         ),
                       ],
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: statusBgColor,
                         borderRadius: BorderRadius.circular(16),
@@ -417,15 +417,15 @@ class _CountListScreenState extends State<CountListScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('LOẠI KIỂM KÊ', style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
-                          Text(session.countType, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                          Text('LOẠI KIỂM KÊ', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                          Text(session.countType, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                         ],
                       ),
                     ),
@@ -433,25 +433,25 @@ class _CountListScreenState extends State<CountListScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(qtyTitle, style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
-                          Text(qty, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                          Text(qtyTitle, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                          Text(qty, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                         ],
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('NGÀY TẠO', style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                    Text('NGÀY TẠO', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                     Text(
                       '${session.countDate.toString().split('.')[0]}',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 _buildActionButtons(context, session),
               ],
             ),
@@ -486,7 +486,7 @@ class _CountListScreenState extends State<CountListScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Theme.of(context).colorScheme.onPrimary,
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           elevation: 0,
         ),
@@ -500,16 +500,16 @@ class _CountListScreenState extends State<CountListScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(buttonIcon),
-            const SizedBox(width: 8),
-            Text(buttonText, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+            SizedBox(width: 8),
+            Text(buttonText, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
           ],
         ),
       );
     } else {
       return OutlinedButton(
         style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          side: const BorderSide(color: AppColors.primary, width: 2),
+          padding: EdgeInsets.symmetric(vertical: 16),
+          side: BorderSide(color: AppColors.primary, width: 2),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           foregroundColor: AppColors.primary,
         ),
@@ -521,8 +521,8 @@ class _CountListScreenState extends State<CountListScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(buttonText, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-            const SizedBox(width: 8),
+            Text(buttonText, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+            SizedBox(width: 8),
             Icon(buttonIcon),
           ],
         ),

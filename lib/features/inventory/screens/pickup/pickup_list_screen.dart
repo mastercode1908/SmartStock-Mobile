@@ -28,12 +28,12 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: _buildAppBar(context),
       body: Consumer<InventoryPickingProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           }
 
           if (provider.error != null) {
@@ -41,11 +41,11 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(provider.error!, style: const TextStyle(color: Colors.red)),
-                  const SizedBox(height: 16),
+                  Text(provider.error!, style: TextStyle(color: Colors.red)),
+                  SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => provider.fetchTasks(),
-                    child: const Text('Thử lại'),
+                    child: Text('Thử lại'),
                   ),
                 ],
               ),
@@ -65,18 +65,18 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
             color: AppColors.primary,
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _buildHeader(),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   _buildStatusFilters(),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   if (filteredTasks.isEmpty)
                     Center(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 40.0),
+                        padding: EdgeInsets.symmetric(vertical: 40.0),
                         child: Text(
                           'Không có nhiệm vụ nào trong mục này.',
                           style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16)),
@@ -84,7 +84,7 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
                     )
                   else
                     ...filteredTasks.map((task) => _buildTaskCard(context, task)).toList(),
-                  const SizedBox(height: 80),
+                  SizedBox(height: 80),
                 ],
               ),
             ),
@@ -96,11 +96,11 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: const Color(0xfff9f9f9),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 0,
       scrolledUnderElevation: 0,
       title: Row(
-        children: const [
+        children: [
           Icon(Icons.inventory_2, color: Color(0xffb02528)),
           SizedBox(width: 8),
           Text(
@@ -122,7 +122,7 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
               alignment: Alignment.center,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.notifications, color: Color(0xffb02528)),
+                  icon: Icon(Icons.notifications, color: Color(0xffb02528)),
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -135,7 +135,7 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
                     right: 4,
                     top: 4,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                       decoration: BoxDecoration(
                         color: const Color(0xffb02528),
                         borderRadius: BorderRadius.circular(10),
@@ -159,7 +159,7 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
             );
           },
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
       ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1.0),
@@ -176,19 +176,19 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Text(
                 'Danh sách Nhặt hàng',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.onSurface,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               SizedBox(height: 8),
               Text(
                 'Chọn một nhiệm vụ được phân công để bắt đầu.',
-                style: TextStyle(fontSize: 16, color: AppColors.onSurfaceVariant),
+                style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ],
           ),
@@ -203,13 +203,13 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
       child: Row(
         children: [
           _buildFilterChip('Tất cả', -1),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           _buildFilterChip('Chờ thực hiện', 0),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           _buildFilterChip('Đang làm', 1),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           _buildFilterChip('Đã xong', 2),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           _buildFilterChip('Đã hủy', 3),
         ],
       ),
@@ -225,9 +225,9 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryContainer : AppColors.surfaceContainerHighest,
+          color: isSelected ? AppColors.primaryContainer : Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: isSelected ? AppColors.primary : Colors.transparent,
@@ -239,7 +239,7 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: isSelected ? AppColors.onPrimaryContainer : AppColors.onSurface,
+            color: isSelected ? AppColors.onPrimaryContainer : Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ),
@@ -249,7 +249,7 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
   Widget _buildStatusBadge(int status) {
     String text = '';
     Color bgColor = Colors.grey;
-    Color textColor = Colors.white;
+    Color textColor = Theme.of(context).colorScheme.surface;
 
     switch (status) {
       case 0:
@@ -275,7 +275,7 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(16),
@@ -297,12 +297,12 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
     int totalItems = task.details?.fold(0, (sum, d) => sum! + d.expectedQuantity) ?? 0;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 24),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.outlineVariant),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02),
@@ -320,32 +320,32 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
               Expanded(
                 child: Row(
                   children: [
-                    const Icon(Icons.assignment, color: AppColors.primary),
-                    const SizedBox(width: 8),
+                    Icon(Icons.assignment, color: AppColors.primary),
+                    SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         task.taskCode,
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.onSurface),
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               _buildStatusBadge(task.status),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('TỔNG SỐ LƯỢNG', style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
-                    const SizedBox(height: 2),
-                    Text('$totalItems', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text('TỔNG SỐ LƯỢNG', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    SizedBox(height: 2),
+                    Text('$totalItems', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -353,20 +353,20 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('CHI TIẾT', style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
-                    const SizedBox(height: 2),
-                    Text('${task.details?.length ?? 0} SKU', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text('CHI TIẾT', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    SizedBox(height: 2),
+                    Text('${task.details?.length ?? 0} SKU', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: isHistorical ? Colors.blueGrey : AppColors.primary,
               foregroundColor: Theme.of(context).colorScheme.onPrimary,
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
               elevation: 0,
             ),
@@ -393,14 +393,14 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
                     : isNew
                         ? Icons.play_arrow
                         : Icons.arrow_forward),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Text(
                   isHistorical
                       ? 'Xem chi tiết'
                       : isNew
                           ? 'Nhận nhiệm vụ'
                           : 'Tiếp tục',
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
               ],
             ),

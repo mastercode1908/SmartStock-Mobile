@@ -73,12 +73,12 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Xác nhận xóa?'),
+        title: Text('Xác nhận xóa?'),
         content: Text('Bạn có chắc chắn muốn xóa vị trí "${location.locationCode}"? Vị trí đã phát sinh giao dịch hoặc đang tồn kho sẽ không thể xóa.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Hủy', style: TextStyle(color: Colors.grey)),
+            child: Text('Hủy', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -88,16 +88,16 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
               if (!mounted) return;
               if (success) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Xóa vị trí thành công!'), backgroundColor: Colors.green),
+                  SnackBar(content: Text('Xóa vị trí thành công!'), backgroundColor: Theme.of(context).colorScheme.tertiary),
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(provider.error ?? 'Xóa vị trí thất bại.'), backgroundColor: Colors.red),
+                  SnackBar(content: Text(provider.error ?? 'Xóa vị trí thất bại.'), backgroundColor: Theme.of(context).colorScheme.error),
                 );
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xffb3272e)),
-            child: const Text('Xóa', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary),
+            child: Text('Xóa', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
           ),
         ],
       ),
@@ -109,12 +109,12 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Xác nhận đổi trạng thái?'),
+        title: Text('Xác nhận đổi trạng thái?'),
         content: Text('Bạn có chắc chắn muốn $actionText vị trí "${location.locationCode}"? Vị trí đang còn hàng tồn kho sẽ không thể vô hiệu hóa.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Hủy', style: TextStyle(color: Colors.grey)),
+            child: Text('Hủy', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -124,16 +124,16 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
               if (!mounted) return;
               if (success) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Đã $actionText vị trí thành công!'), backgroundColor: Colors.green),
+                  SnackBar(content: Text('Đã $actionText vị trí thành công!'), backgroundColor: Theme.of(context).colorScheme.tertiary),
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(provider.error ?? 'Đổi trạng thái thất bại.'), backgroundColor: Colors.red),
+                  SnackBar(content: Text(provider.error ?? 'Đổi trạng thái thất bại.'), backgroundColor: Theme.of(context).colorScheme.error),
                 );
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xffb3272e)),
-            child: const Text('Đồng ý', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary),
+            child: Text('Đồng ý', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
           ),
         ],
       ),
@@ -147,27 +147,27 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
     final isStaff = user?.roleName == 'Staff';
 
     return Scaffold(
-      backgroundColor: const Color(0xfff8f9fa),
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0.5,
         scrolledUnderElevation: 0.5,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xffb3272e)),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.primary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Vị trí lưu trữ',
           style: TextStyle(
-            color: Color(0xffb3272e),
+            color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.w900,
             fontSize: 22,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.map_outlined, color: Color(0xffb3272e)),
+            icon: Icon(Icons.map_outlined, color: Theme.of(context).colorScheme.primary),
             onPressed: () {
               Navigator.push(
                 context,
@@ -186,15 +186,15 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
         children: [
           // Filter & Search Panel
           Container(
-            color: Colors.white,
-            padding: const EdgeInsets.all(16.0),
+            color: Theme.of(context).colorScheme.surface,
+            padding: EdgeInsets.all(16.0),
             child: Column(
               children: [
                 // Search Input
                 Container(
                   height: 48,
                   decoration: BoxDecoration(
-                    color: const Color(0xfff1f3f5),
+                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: TextField(
@@ -202,11 +202,11 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
                     onChanged: _onSearchChanged,
                     decoration: InputDecoration(
                       hintText: 'Tìm theo mã vị trí, zone, rack...',
-                      hintStyle: const TextStyle(color: Colors.black38, fontSize: 14),
-                      prefixIcon: const Icon(Icons.search, color: Colors.black38),
+                      hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38), fontSize: 14),
+                      prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38)),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear, color: Colors.black38, size: 18),
+                              icon: Icon(Icons.clear, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38), size: 18),
                               onPressed: () {
                                 _searchController.clear();
                                 _onSearchChanged('');
@@ -214,23 +214,23 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
                             )
                           : null,
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                      contentPadding: EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 
                 // Warehouse Dropdown Filter
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  padding: EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
-                    color: const Color(0xfff1f3f5),
+                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<int?>(
                       value: _selectedWarehouseId,
-                      hint: const Text('Tất cả nhà kho', style: TextStyle(color: Colors.black54, fontSize: 14)),
+                      hint: Text('Tất cả nhà kho', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54), fontSize: 14)),
                       isExpanded: true,
                       onChanged: _onWarehouseFilterChanged,
                       items: [
@@ -241,7 +241,7 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
                         ...provider.activeWarehouses.map((wh) {
                           return DropdownMenuItem<int?>(
                             value: wh['warehouseID'] as int,
-                            child: Text(wh['warehouseName'] as String, style: const TextStyle(fontSize: 14)),
+                            child: Text(wh['warehouseName'] as String, style: TextStyle(fontSize: 14)),
                           );
                         }),
                       ],
@@ -254,12 +254,12 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
 
           // Total counts summary bar
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             alignment: Alignment.centerLeft,
             child: Text(
               'Tìm thấy ${provider.totalCount} vị trí',
-              style: const TextStyle(
-                color: Colors.black54,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54),
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
               ),
@@ -269,17 +269,17 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
           // Locations List
           Expanded(
             child: provider.isLoading && provider.locations.isEmpty
-                ? const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xffb3272e))))
+                ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary)))
                 : provider.locations.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.warehouse_outlined, size: 64, color: Colors.grey[400]),
-                            const SizedBox(height: 16),
-                            const Text(
+                            Icon(Icons.warehouse_outlined, size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.4)),
+                            SizedBox(height: 16),
+                            Text(
                               'Không tìm thấy vị trí lưu trữ nào',
-                              style: TextStyle(color: Colors.black54, fontSize: 16),
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54), fontSize: 16),
                             ),
                           ],
                         ),
@@ -288,17 +288,17 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
                         onRefresh: () async {
                           await provider.loadStorageLocations(isRefresh: true);
                         },
-                        color: const Color(0xffb3272e),
+                        color: Theme.of(context).colorScheme.primary,
                         child: ListView.builder(
                           controller: _scrollController,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                           itemCount: provider.locations.length + (provider.isLoading ? 1 : 0),
                           itemBuilder: (context, index) {
                             if (index == provider.locations.length) {
-                              return const Padding(
+                              return Padding(
                                 padding: EdgeInsets.symmetric(vertical: 16.0),
                                 child: Center(
-                                  child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xffb3272e))),
+                                  child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary)),
                                 ),
                               );
                             }
@@ -307,12 +307,12 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
                             final isActive = loc.status == 1;
 
                             return Card(
-                              margin: const EdgeInsets.only(bottom: 12),
+                              margin: EdgeInsets.only(bottom: 12),
                               elevation: 1,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.surface,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(color: Colors.grey[200]!, width: 1),
+                                side: BorderSide(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.2), width: 1),
                               ),
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(12),
@@ -328,7 +328,7 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
                                   );
                                 },
                                 child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
+                                  padding: EdgeInsets.all(16.0),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -338,14 +338,14 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
                                           // Location Code
                                           Row(
                                             children: [
-                                              const Icon(Icons.pin_drop, color: Color(0xffb3272e), size: 20),
-                                              const SizedBox(width: 8),
+                                              Icon(Icons.pin_drop, color: Theme.of(context).colorScheme.primary, size: 20),
+                                              SizedBox(width: 8),
                                               Text(
                                                 loc.locationCode,
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontSize: 18,
                                                   fontWeight: FontWeight.bold,
-                                                  color: Color(0xffb3272e),
+                                                  color: Theme.of(context).colorScheme.primary,
                                                   fontFamily: 'monospace',
                                                 ),
                                               ),
@@ -357,7 +357,7 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
                                             Row(
                                               children: [
                                                 IconButton(
-                                                  icon: const Icon(Icons.edit_outlined, color: Colors.blue, size: 20),
+                                                  icon: Icon(Icons.edit_outlined, color: Theme.of(context).colorScheme.primary, size: 20),
                                                   onPressed: () {
                                                     Navigator.push(
                                                       context,
@@ -368,21 +368,21 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
                                                   },
                                                 ),
                                                 IconButton(
-                                                  icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                                                  icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error, size: 20),
                                                   onPressed: () => _confirmDelete(loc),
                                                 ),
                                               ],
                                             ),
                                         ],
                                       ),
-                                      const Divider(height: 16),
+                                      Divider(height: 16),
                                       
                                       // Details: Warehouse, Zone, Rack, Shelf, Bin
                                       Text(
                                         'Nhà kho: ${loc.warehouseName}',
-                                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
+                                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.87)),
                                       ),
-                                      const SizedBox(height: 6),
+                                      SizedBox(height: 6),
                                       Wrap(
                                         spacing: 12,
                                         runSpacing: 6,
@@ -393,25 +393,25 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
                                           _buildDetailTag('Bin: ${loc.bin}'),
                                         ],
                                       ),
-                                      const SizedBox(height: 12),
+                                      SizedBox(height: 12),
                                       
                                       // Status Badge
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          const Text(
+                                          Text(
                                             'Trạng thái:',
-                                            style: TextStyle(fontSize: 13, color: Colors.black54),
+                                            style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54)),
                                           ),
                                           InkWell(
                                             onTap: (widget.isReadOnly || isStaff) ? null : () => _confirmToggleStatus(loc),
                                             borderRadius: BorderRadius.circular(16),
                                             child: Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                                               decoration: BoxDecoration(
-                                                color: isActive ? Colors.green[50] : Colors.red[50],
+                                                color: isActive ? Theme.of(context).colorScheme.tertiary.withOpacity(0.1) : Theme.of(context).colorScheme.error.withOpacity(0.1),
                                                 borderRadius: BorderRadius.circular(16),
-                                                border: Border.all(color: isActive ? Colors.green[200]! : Colors.red[200]!),
+                                                border: Border.all(color: isActive ? Theme.of(context).colorScheme.tertiary.withOpacity(0.3)! : Theme.of(context).colorScheme.error.withOpacity(0.3)!),
                                               ),
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
@@ -420,17 +420,17 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
                                                     width: 8,
                                                     height: 8,
                                                     decoration: BoxDecoration(
-                                                      color: isActive ? Colors.green : Colors.red,
+                                                      color: isActive ? Theme.of(context).colorScheme.tertiary : Theme.of(context).colorScheme.error,
                                                       shape: BoxShape.circle,
                                                     ),
                                                   ),
-                                                  const SizedBox(width: 6),
+                                                  SizedBox(width: 6),
                                                   Text(
                                                     isActive ? 'Hoạt động' : 'Vô hiệu hóa',
                                                     style: TextStyle(
                                                       fontSize: 12,
                                                       fontWeight: FontWeight.bold,
-                                                      color: isActive ? Colors.green[700] : Colors.red[700],
+                                                      color: isActive ? Theme.of(context).colorScheme.tertiary.withOpacity(0.8) : Theme.of(context).colorScheme.error.withOpacity(0.8),
                                                     ),
                                                   ),
                                                 ],
@@ -461,24 +461,24 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
                   ),
                 );
               },
-              backgroundColor: const Color(0xffb3272e),
-              child: const Icon(Icons.add, color: Colors.white),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: Icon(Icons.add, color: Theme.of(context).colorScheme.onPrimary),
             ),
     );
   }
 
   Widget _buildDetailTag(String label) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: const Color(0xffe9ecef),
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 12,
-          color: Colors.black87,
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.87),
           fontWeight: FontWeight.w500,
         ),
       ),

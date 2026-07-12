@@ -92,7 +92,7 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> {
       ),
       builder: (ctx) {
         return Container(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,22 +105,22 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> {
                     children: [
                       Text(
                         'Khu $zone - Dãy $rack',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xffb3272e)),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
                       ),
                       Text(
                         'Có ${locations.length} ô lưu trữ (Bin) tại dãy này',
-                        style: const TextStyle(fontSize: 13, color: Colors.black54),
+                        style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54)),
                       ),
                     ],
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: Icon(Icons.close),
                     onPressed: () => Navigator.pop(ctx),
                   ),
                 ],
               ),
-              const Divider(),
-              const SizedBox(height: 8),
+              Divider(),
+              SizedBox(height: 8),
               Flexible(
                 child: ListView.builder(
                   shrinkWrap: true,
@@ -128,25 +128,25 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> {
                   itemBuilder: (context, idx) {
                     final item = locations[idx];
                     return Card(
-                      margin: const EdgeInsets.only(bottom: 8),
+                      margin: EdgeInsets.only(bottom: 8),
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: Colors.grey[200]!),
+                        side: BorderSide(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.2)),
                       ),
                       child: ListTile(
-                        leading: const CircleAvatar(
-                          backgroundColor: Color(0xfffef3f2),
-                          foregroundColor: Color(0xffb3272e),
+                        leading: CircleAvatar(
+                          backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                          foregroundColor: Theme.of(context).colorScheme.primary,
                           child: Icon(Icons.grid_view_rounded, size: 20),
                         ),
                         title: Text(
                           'Tầng ${item['shelf']} - Ô ${item['bin']}',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                         ),
                         subtitle: Text(
                           'Mã vị trí: ${item['locationCode']}',
-                          style: const TextStyle(fontSize: 12, color: Colors.black54),
+                          style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54)),
                         ),
                         trailing: ElevatedButton(
                           onPressed: () {
@@ -166,14 +166,14 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> {
                             });
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xffb3272e),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             minimumSize: Size.zero,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           ),
-                          child: const Text('Xem', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                          child: Text('Xem', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                         ),
                       ),
                     );
@@ -240,19 +240,19 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> {
           children: [
             Text(
               'Khu $zone', 
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13, 
-                color: Colors.black87, 
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.87), 
                 fontWeight: FontWeight.bold
               )
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             ...sortedZoneRacks.map((rackName) {
               final locs = zoneRacks[rackName]!;
               final String fullRackName = '$zone-$rackName';
               
-              Color blockColor = const Color(0xfff8f9fa);
-              Color blockTextColor = Colors.black87;
+              Color blockColor = Theme.of(context).colorScheme.surfaceContainerLowest;
+              Color blockTextColor = Theme.of(context).colorScheme.onSurface.withOpacity(0.87);
               
               return _buildRackBlock(
                 context, 
@@ -271,9 +271,9 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> {
       );
       
       if (i < sortedZones.length - 1) {
-        mapColumns.add(const SizedBox(width: 8));
+        mapColumns.add(SizedBox(width: 8));
         mapColumns.add(_buildAisle(aisleHeight));
-        mapColumns.add(const SizedBox(width: 8));
+        mapColumns.add(SizedBox(width: 8));
       }
     }
 
@@ -283,20 +283,20 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> {
         : (sortedZones.length * 100) + ((sortedZones.length - 1) * 46) + 48;
 
     return Scaffold(
-      backgroundColor: const Color(0xfff8f9fa),
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0.5,
         scrolledUnderElevation: 0.5,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xffb3272e)),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.primary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Bản đồ Kho',
           style: TextStyle(
-            color: Color(0xffb3272e),
+            color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.bold,
             fontSize: 22,
           ),
@@ -304,19 +304,19 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            color: Colors.white,
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            color: Theme.of(context).colorScheme.surface,
             child: Row(
               children: [
-                const Icon(Icons.warehouse, color: Color(0xffb3272e), size: 20),
-                const SizedBox(width: 10),
+                Icon(Icons.warehouse, color: Theme.of(context).colorScheme.primary, size: 20),
+                SizedBox(width: 10),
                 Expanded(
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<int>(
                       value: _selectedWarehouseId,
                       isExpanded: true,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
-                      hint: const Text('Chọn nhà kho'),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.87)),
+                      hint: Text('Chọn nhà kho'),
                       items: warehouses.map((w) {
                         return DropdownMenuItem<int>(
                           value: w['warehouseID'] as int,
@@ -349,19 +349,19 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> {
               constrained: false,
               minScale: 0.1, // Allow zooming out very far to see the entire warehouse sheet
               maxScale: 3.0,
-              boundaryMargin: const EdgeInsets.all(240), // Large boundary margin so user can pan canvas anywhere
+              boundaryMargin: EdgeInsets.all(240), // Large boundary margin so user can pan canvas anywhere
               child: isMapLoading
-                  ? const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Color(0xffb3272e))))
+                  ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Theme.of(context).colorScheme.primary)))
                   : parsedLocs.isEmpty
                       ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.map_outlined, size: 64, color: Colors.grey[300]),
-                              const SizedBox(height: 12),
+                              Icon(Icons.map_outlined, size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3)),
+                              SizedBox(height: 12),
                               Text(
                                 'Không có vị trí lưu trữ nào.',
-                                style: TextStyle(color: Colors.grey[500], fontSize: 15),
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5), fontSize: 15),
                               ),
                             ],
                           ),
@@ -369,14 +369,14 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> {
                       : Container(
                           width: canvasWidth,
                           height: canvasHeight,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.grey[300]!, width: 1.5),
+                            border: Border.all(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3), width: 1.5),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
+                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.04),
                                 blurRadius: 16,
                                 offset: const Offset(0, 4),
                               ),
@@ -398,9 +398,9 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> {
             child: Column(
               children: [
                 _buildZoomButton(Icons.add, _zoomIn),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _buildZoomButton(Icons.remove, _zoomOut),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 _buildZoomButton(Icons.my_location, _resetView),
               ],
             ),
@@ -428,13 +428,13 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> {
       child: Container(
         width: 70,
         height: 64,
-        margin: const EdgeInsets.symmetric(vertical: 6),
+        margin: EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(10),
-          border: isOutline ? Border.all(color: Colors.grey[400]!, width: 1.5) : null,
-          boxShadow: const [
-            BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1.5))
+          border: isOutline ? Border.all(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.4), width: 1.5) : null,
+          boxShadow: [
+            BoxShadow(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.12), blurRadius: 2, offset: Offset(0, 1.5))
           ],
         ),
         child: Center(
@@ -460,16 +460,16 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> {
           width: 12,
           height: height > 40 ? height - 40 : height,
           decoration: BoxDecoration(
-            color: const Color(0xfff1f3f5),
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: const Color(0xffe9ecef)),
+            border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHigh),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: List.generate(4, (index) => Container(
               width: 4,
               height: 4,
-              decoration: const BoxDecoration(color: Colors.black12, shape: BoxShape.circle),
+              decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.12), shape: BoxShape.circle),
             )),
           ),
         ),
@@ -482,18 +482,18 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.08),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: IconButton(
-        icon: Icon(icon, color: const Color(0xffb3272e), size: 20),
+        icon: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
         onPressed: onPressed,
         padding: EdgeInsets.zero,
       ),

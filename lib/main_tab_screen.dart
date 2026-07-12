@@ -4,6 +4,7 @@ import 'features/profile/screens/profile_screen.dart';
 import 'features/scanner/screens/scan_screen.dart';
 import 'features/inventory/screens/pickup/pickup_list_screen.dart';
 import 'features/inventory/screens/count/count_list_screen.dart';
+import 'features/ai_assistant/screens/chat_bot_screen.dart';
 
 class MainTabScreen extends StatefulWidget {
   const MainTabScreen({Key? key}) : super(key: key);
@@ -59,6 +60,16 @@ class _MainTabScreenState extends State<MainTabScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.inventory_2_outlined), activeIcon: Icon(Icons.inventory_2), label: 'Kiểm kê'),
           BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: 'Cá nhân'),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ChatBotScreen()),
+          );
+        },
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: Icon(Icons.smart_toy, color: Theme.of(context).colorScheme.onPrimary),
       ),
     );
   }

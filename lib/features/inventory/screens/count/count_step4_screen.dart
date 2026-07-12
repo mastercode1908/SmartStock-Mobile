@@ -18,7 +18,7 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: _buildAppBar(context),
       body: Consumer<InventoryProvider>(
         builder: (context, provider, child) {
@@ -44,36 +44,36 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
             children: [
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildProgressHeader(),
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32),
                       _buildFilterChips(details.length, matched.length, discrepant.length, pending.length),
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32),
                       
                       if (_currentFilter == 'Tất cả' || _currentFilter == 'Sai lệch') ...[
-                        Text('Sai lệch (${discrepant.length})', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.onSurface)),
-                        const SizedBox(height: 16),
+                        Text('Sai lệch (${discrepant.length})', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+                        SizedBox(height: 16),
                         _buildDiscrepancyList(discrepant),
-                        const SizedBox(height: 32),
+                        SizedBox(height: 32),
                       ],
                       
                       if (_currentFilter == 'Tất cả' || _currentFilter == 'Khớp') ...[
-                        Text('Các mục đã khớp (${matched.length})', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.onSurface)),
-                        const SizedBox(height: 16),
+                        Text('Các mục đã khớp (${matched.length})', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+                        SizedBox(height: 16),
                         _buildMatchedList(matched),
-                        const SizedBox(height: 32),
+                        SizedBox(height: 32),
                       ],
 
                       if (_currentFilter == 'Tất cả' || _currentFilter == 'Chờ đếm') ...[
-                        Text('Chờ đếm (${pending.length})', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.onSurface)),
-                        const SizedBox(height: 16),
+                        Text('Chờ đếm (${pending.length})', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+                        SizedBox(height: 16),
                         _buildPendingList(pending),
                       ],
                       
-                      const SizedBox(height: 100), // Padding for sticky bottom area
+                      SizedBox(height: 100), // Padding for sticky bottom area
                     ],
                   ),
                 ),
@@ -88,15 +88,15 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: AppColors.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+        icon: Icon(Icons.arrow_back, color: AppColors.primary),
         onPressed: () => Navigator.pop(context),
       ),
       centerTitle: true,
-      title: const Text(
+      title: Text(
         'Smart Stock',
         style: TextStyle(
           color: AppColors.primary,
@@ -106,7 +106,7 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.help_outline, color: AppColors.primary),
+          icon: Icon(Icons.help_outline, color: AppColors.primary),
           onPressed: () {},
         ),
       ],
@@ -116,23 +116,23 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
   Widget _buildProgressHeader() {
     return Column(
       children: [
-        const Text(
+        Text(
           'Bước 4/5: Kiểm tra danh sách',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 8),
-        const Text(
+        SizedBox(height: 8),
+        Text(
           'Xem lại các mục đã kiểm kê và xác nhận sai lệch',
-          style: TextStyle(fontSize: 16, color: AppColors.onSurfaceVariant),
+          style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Container(
           height: 8,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: AppColors.surfaceContainerHigh,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(4),
           ),
           child: FractionallySizedBox(
@@ -155,13 +155,13 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          _buildChip('Tất cả ($total)', AppColors.primary, Colors.white, null, 'Tất cả'),
-          const SizedBox(width: 8),
-          _buildChip('Khớp ($matched)', AppColors.surfaceContainerHighest, AppColors.onSurface, Colors.green, 'Khớp'),
-          const SizedBox(width: 8),
+          _buildChip('Tất cả ($total)', AppColors.primary, Theme.of(context).colorScheme.surface, null, 'Tất cả'),
+          SizedBox(width: 8),
+          _buildChip('Khớp ($matched)', Theme.of(context).colorScheme.surfaceContainerHighest, Theme.of(context).colorScheme.onSurface, Colors.green, 'Khớp'),
+          SizedBox(width: 8),
           _buildChip('Sai lệch ($discrepant)', const Color(0xFFFEEBEE), AppColors.primary, AppColors.primary, 'Sai lệch'),
-          const SizedBox(width: 8),
-          _buildChip('Chờ đếm ($pending)', AppColors.surfaceContainerLow, AppColors.onSurfaceVariant, Colors.orange, 'Chờ đếm'),
+          SizedBox(width: 8),
+          _buildChip('Chờ đếm ($pending)', Theme.of(context).colorScheme.surfaceContainerLow, Theme.of(context).colorScheme.onSurfaceVariant, Colors.orange, 'Chờ đếm'),
         ],
       ),
     );
@@ -176,9 +176,9 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? bgColor : AppColors.surfaceContainerHighest,
+          color: isSelected ? bgColor : Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: isSelected && dotColor != null ? dotColor.withOpacity(0.3) : Colors.transparent),
         ),
@@ -190,9 +190,9 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
                 height: 8,
                 decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
             ],
-            Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: isSelected ? textColor : AppColors.onSurface)),
+            Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: isSelected ? textColor : Theme.of(context).colorScheme.onSurface)),
           ],
         ),
       ),
@@ -200,10 +200,10 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
   }
 
   Widget _buildDiscrepancyList(List<InventoryCountDetail> discrepant) {
-    if (discrepant.isEmpty) return const Text('Không có mục sai lệch nào.', style: TextStyle(color: AppColors.onSurfaceVariant));
+    if (discrepant.isEmpty) return Text('Không có mục sai lệch nào.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant));
     return Column(
       children: discrepant.map((d) => Padding(
-        padding: const EdgeInsets.only(bottom: 12.0),
+        padding: EdgeInsets.only(bottom: 12.0),
         child: _buildDiscrepancyItem(d),
       )).toList(),
     );
@@ -224,14 +224,14 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
     }
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFFEEBEE)),
         boxShadow: [
           BoxShadow(
-            color: AppColors.error.withOpacity(0.08),
+            color: Theme.of(context).colorScheme.error.withOpacity(0.08),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -246,18 +246,18 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
               color: const Color(0xFFFEEBEE),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.warning, color: AppColors.primary),
+            child: Icon(Icons.warning, color: AppColors.primary),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.onSurface)),
-                const SizedBox(height: 4),
-                Text('SKU: $sku', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                Text(name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+                SizedBox(height: 4),
+                Text('SKU: $sku', style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 if (trackingInfo.isNotEmpty)
-                  Text(trackingInfo.join(' | '), style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                  Text(trackingInfo.join(' | '), style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
               ],
             ),
           ),
@@ -266,13 +266,13 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
             children: [
               Row(
                 children: [
-                  Text('HT: $sysQty', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant, decoration: TextDecoration.lineThrough)),
-                  const SizedBox(width: 8),
-                  Text('Đếm: $actualQty', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                  Text('HT: $sysQty', style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant, decoration: TextDecoration.lineThrough)),
+                  SizedBox(width: 8),
+                  Text('Đếm: $actualQty', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary)),
                 ],
               ),
-              const SizedBox(height: 4),
-              const Text('Đếm lại', style: TextStyle(fontSize: 14, color: AppColors.primary, decoration: TextDecoration.underline)),
+              SizedBox(height: 4),
+              Text('Đếm lại', style: TextStyle(fontSize: 14, color: AppColors.primary, decoration: TextDecoration.underline)),
             ],
           ),
         ],
@@ -281,7 +281,7 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
   }
 
   Widget _buildMatchedList(List<InventoryCountDetail> matched) {
-    if (matched.isEmpty) return const Text('Không có mục khớp nào.', style: TextStyle(color: AppColors.onSurfaceVariant));
+    if (matched.isEmpty) return Text('Không có mục khớp nào.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant));
     return Column(
       children: matched.map((d) => _buildMatchedItem(d)).toList(),
     );
@@ -301,34 +301,34 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.surfaceContainer)),
+      padding: EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.surfaceContainer)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.check_circle, color: Colors.green),
-          const SizedBox(width: 16),
+          Icon(Icons.check_circle, color: Colors.green),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.onSurface)),
-                const SizedBox(height: 4),
-                Text('SKU: $sku', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                Text(name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+                SizedBox(height: 4),
+                Text('SKU: $sku', style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 if (trackingInfo.isNotEmpty)
-                  Text(trackingInfo.join(' | '), style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                  Text(trackingInfo.join(' | '), style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
               ],
             ),
           ),
-          Text('SL: $qty', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.onSurface)),
+          Text('SL: $qty', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
         ],
       ),
     );
   }
 
   Widget _buildPendingList(List<InventoryCountDetail> pending) {
-    if (pending.isEmpty) return const Text('Không còn mục nào chờ đếm.', style: TextStyle(color: AppColors.onSurfaceVariant));
+    if (pending.isEmpty) return Text('Không còn mục nào chờ đếm.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant));
     return Column(
       children: pending.map((d) {
         List<String> trackingInfo = [];
@@ -340,27 +340,27 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
         }
 
         return Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: AppColors.surfaceContainer)),
+          padding: EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.surfaceContainer)),
           ),
           child: Row(
             children: [
-              const Icon(Icons.hourglass_empty, color: Colors.orange),
-              const SizedBox(width: 16),
+              Icon(Icons.hourglass_empty, color: Colors.orange),
+              SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(d.variantName ?? d.productName ?? 'Sản phẩm', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.onSurface)),
-                    const SizedBox(height: 4),
-                    Text('SKU: ${d.sku ?? ""}', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                    Text(d.variantName ?? d.productName ?? 'Sản phẩm', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+                    SizedBox(height: 4),
+                    Text('SKU: ${d.sku ?? ""}', style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                     if (trackingInfo.isNotEmpty)
-                      Text(trackingInfo.join(' | '), style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                      Text(trackingInfo.join(' | '), style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
+              Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ],
           ),
         );
@@ -370,10 +370,10 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
 
   Widget _buildQuickActions(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.surfaceContainer)),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(top: BorderSide(color: Theme.of(context).colorScheme.surfaceContainer)),
       ),
       child: SafeArea(
         top: false,
@@ -382,32 +382,32 @@ class _CountStep4ScreenState extends State<CountStep4Screen> {
             Expanded(
               child: OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: const BorderSide(color: AppColors.primary, width: 2),
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  side: BorderSide(color: AppColors.primary, width: 2),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                   foregroundColor: AppColors.primary,
                 ),
                 onPressed: () {
                   Navigator.pop(context); // Go back to Scanner
                 },
-                icon: const Icon(Icons.restart_alt),
-                label: const Text('Tiếp tục đếm', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                icon: Icon(Icons.restart_alt),
+                label: Text('Tiếp tục đếm', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  foregroundColor: Theme.of(context).colorScheme.surface,
+                  padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                   elevation: 0,
                 ),
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (_) => const CountStep5Screen()));
                 },
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text('Tiếp tục Bước 5', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),

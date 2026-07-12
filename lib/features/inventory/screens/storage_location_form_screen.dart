@@ -100,7 +100,7 @@ class _StorageLocationFormScreenState extends State<StorageLocationFormScreen> {
 
     if (_warehouseId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng chọn nhà kho!'), backgroundColor: Colors.red),
+        SnackBar(content: Text('Vui lòng chọn nhà kho!'), backgroundColor: Theme.of(context).colorScheme.error),
       );
       return;
     }
@@ -139,7 +139,7 @@ class _StorageLocationFormScreenState extends State<StorageLocationFormScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(isEditMode ? 'Cập nhật vị trí thành công!' : 'Thêm vị trí mới thành công!'),
-          backgroundColor: Colors.green,
+          backgroundColor: Theme.of(context).colorScheme.tertiary,
         ),
       );
       Navigator.pop(context); // Close screen
@@ -149,7 +149,7 @@ class _StorageLocationFormScreenState extends State<StorageLocationFormScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(provider.error ?? (isEditMode ? 'Cập nhật vị trí thất bại.' : 'Thêm vị trí thất bại.')),
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -167,50 +167,50 @@ class _StorageLocationFormScreenState extends State<StorageLocationFormScreen> {
         scrolledUnderElevation: 0.5,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xffb3272e)),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           isEditMode ? 'Sửa thông tin vị trí' : 'Thêm vị trí mới',
-          style: const TextStyle(
-            color: Color(0xffb3272e),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.w900,
             fontSize: 20,
           ),
         ),
       ),
       body: provider.isLoading && provider.activeWarehouses.isEmpty
-          ? const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xffb3272e))))
+          ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary)))
           : Form(
               key: _formKey,
               child: ListView(
-                padding: const EdgeInsets.all(20.0),
+                padding: EdgeInsets.all(20.0),
                 children: [
-                  const Text(
+                  Text(
                     'THÔNG TIN CHUNG',
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black45,
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.45),
                       letterSpacing: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
 
                   // Warehouse Dropdown
-                  const Text('Nhà kho *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  const SizedBox(height: 8),
+                  Text('Nhà kho *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    padding: EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
-                      color: const Color(0xfff8f9fa),
+                      color: Theme.of(context).colorScheme.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.grey[300]!),
+                      border: Border.all(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3)!),
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButtonFormField<int?>(
                         value: _warehouseId,
-                        hint: const Text('Chọn nhà kho', style: TextStyle(color: Colors.black38, fontSize: 14)),
+                        hint: Text('Chọn nhà kho', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38), fontSize: 14)),
                         isExpanded: true,
                         onChanged: (val) {
                           setState(() {
@@ -220,27 +220,27 @@ class _StorageLocationFormScreenState extends State<StorageLocationFormScreen> {
                         items: provider.activeWarehouses.map((wh) {
                           return DropdownMenuItem<int?>(
                             value: wh['warehouseID'] as int,
-                            child: Text(wh['warehouseName'] as String, style: const TextStyle(fontSize: 14)),
+                            child: Text(wh['warehouseName'] as String, style: TextStyle(fontSize: 14)),
                           );
                         }).toList(),
                         validator: (value) => value == null ? 'Vui lòng chọn nhà kho' : null,
-                        decoration: const InputDecoration(border: InputBorder.none),
+                        decoration: InputDecoration(border: InputBorder.none),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
 
                   // Coordinates Fields
-                  const Text(
+                  Text(
                     'TỌA ĐỘ VỊ TRÍ',
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black45,
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.45),
                       letterSpacing: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
 
                   Row(
                     children: [
@@ -252,7 +252,7 @@ class _StorageLocationFormScreenState extends State<StorageLocationFormScreen> {
                           validator: (val) => val == null || val.trim().isEmpty ? 'Nhập Zone' : null,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Expanded(
                         child: _buildTextField(
                           controller: _rackController,
@@ -263,7 +263,7 @@ class _StorageLocationFormScreenState extends State<StorageLocationFormScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
 
                   Row(
                     children: [
@@ -275,7 +275,7 @@ class _StorageLocationFormScreenState extends State<StorageLocationFormScreen> {
                           validator: (val) => val == null || val.trim().isEmpty ? 'Nhập Shelf' : null,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Expanded(
                         child: _buildTextField(
                           controller: _binController,
@@ -286,32 +286,32 @@ class _StorageLocationFormScreenState extends State<StorageLocationFormScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
 
                   // Live Preview Code Card
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: const Color(0xfff1fbff),
+                      color: Theme.of(context).colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xffb3272e).withOpacity(0.1)),
+                      border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.1)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline, color: Color(0xffb3272e), size: 18),
-                        const SizedBox(width: 10),
+                        Icon(Icons.info_outline, color: Theme.of(context).colorScheme.primary, size: 18),
+                        SizedBox(width: 10),
                         Expanded(
                           child: RichText(
                             text: TextSpan(
-                              style: const TextStyle(fontSize: 13, color: Colors.black87),
+                              style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.87)),
                               children: [
-                                const TextSpan(text: 'Mã vị trí dự kiến: ', style: TextStyle(fontWeight: FontWeight.w500)),
+                                TextSpan(text: 'Mã vị trí dự kiến: ', style: TextStyle(fontWeight: FontWeight.w500)),
                                 TextSpan(
                                   text: _getPreviewLocationCode(),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xffb3272e),
+                                    color: Theme.of(context).colorScheme.primary,
                                     fontFamily: 'monospace',
                                     fontSize: 14,
                                   ),
@@ -323,7 +323,7 @@ class _StorageLocationFormScreenState extends State<StorageLocationFormScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
 
                   // Status Selector
                   Row(
@@ -331,15 +331,15 @@ class _StorageLocationFormScreenState extends State<StorageLocationFormScreen> {
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text('Trạng thái hoạt động', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                           SizedBox(height: 4),
-                          Text('Kích hoạt hoặc vô hiệu hóa vị trí', style: TextStyle(color: Colors.black45, fontSize: 12)),
+                          Text('Kích hoạt hoặc vô hiệu hóa vị trí', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.45), fontSize: 12)),
                         ],
                       ),
                       Switch(
                         value: _status == 1,
-                        activeColor: const Color(0xffb3272e),
+                        activeColor: Theme.of(context).colorScheme.primary,
                         onChanged: (val) {
                           setState(() {
                             _status = val ? 1 : 0;
@@ -348,7 +348,7 @@ class _StorageLocationFormScreenState extends State<StorageLocationFormScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 40),
+                  SizedBox(height: 40),
 
                   // Save Button
                   SizedBox(
@@ -357,16 +357,16 @@ class _StorageLocationFormScreenState extends State<StorageLocationFormScreen> {
                     child: ElevatedButton(
                       onPressed: provider.isLoading ? null : _submitForm,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xffb3272e),
-                        foregroundColor: Colors.white,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         elevation: 0,
                       ),
                       child: provider.isLoading
-                          ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
+                          ? CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
                           : Text(
                               isEditMode ? 'LƯU THAY ĐỔI' : 'THÊM VỊ TRÍ',
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                     ),
                   ),
@@ -385,28 +385,28 @@ class _StorageLocationFormScreenState extends State<StorageLocationFormScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-        const SizedBox(height: 8),
+        Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+        SizedBox(height: 8),
         TextFormField(
           controller: controller,
           validator: validator,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Colors.black38, fontSize: 13),
+            hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38), fontSize: 13),
             filled: true,
-            fillColor: const Color(0xfff8f9fa),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            fillColor: Theme.of(context).colorScheme.surfaceContainerLowest,
+            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.grey[300]!),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3)!),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.grey[300]!),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3)!),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Color(0xffb3272e)),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
             ),
           ),
         ),

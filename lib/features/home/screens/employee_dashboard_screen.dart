@@ -52,16 +52,16 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: _buildAppBar(context),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildGreeting(context),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             _buildBentoGrid(context),
-            const SizedBox(height: 40),
+            SizedBox(height: 40),
             _buildQuickAccess(context),
-            const SizedBox(height: 80), // Padding for bottom nav
+            SizedBox(height: 80), // Padding for bottom nav
           ],
         ),
       ),
@@ -74,7 +74,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
       elevation: 0,
       scrolledUnderElevation: 0,
       title: Row(
-        children: const [
+        children: [
           Icon(Icons.inventory_2, color: Color(0xffb02528)),
           SizedBox(width: 8),
           Text(
@@ -96,7 +96,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
               alignment: Alignment.center,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.notifications, color: Color(0xffb02528)),
+                  icon: Icon(Icons.notifications, color: Color(0xffb02528)),
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -109,7 +109,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                     right: 4,
                     top: 4,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                       decoration: BoxDecoration(
                         color: const Color(0xffb02528),
                         borderRadius: BorderRadius.circular(10),
@@ -133,7 +133,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
             );
           },
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
       ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1.0),
@@ -149,12 +149,12 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
         : 'Nguyễn Văn A';
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xffe2bebb)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 4, offset: const Offset(0, 2))],
+        boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12), blurRadius: 4, offset: const Offset(0, 2))],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -163,7 +163,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Chào, $displayName', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text('Ca làm việc: ${_getCurrentShift()}', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
             ],
           ),
@@ -234,11 +234,11 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
         Expanded(
           child: Container(
             height: 160,
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: const Color(0xffb02528),
               borderRadius: BorderRadius.circular(16),
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 4, offset: const Offset(0, 2))],
+              boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12), blurRadius: 4, offset: const Offset(0, 2))],
             ),
             child: Stack(
               children: [
@@ -253,20 +253,20 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Nhiệm vụ hôm nay', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xffffb3ae))),
-                    const SizedBox(height: 8),
+                    Text('Nhiệm vụ hôm nay', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xffffb3ae))),
+                    SizedBox(height: 8),
                     Text('$todayTasks', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Theme.of(context).cardColor)),
-                    const SizedBox(height: 4),
-                    Text('Cần nhặt: $activePickingTasks\nCần kiểm: $activeCountSessions', style: const TextStyle(fontSize: 11, color: Color(0xffffb3ae), height: 1.3)),
+                    SizedBox(height: 4),
+                    Text('Cần nhặt: $activePickingTasks\nCần kiểm: $activeCountSessions', style: TextStyle(fontSize: 11, color: Color(0xffffb3ae), height: 1.3)),
                     const Spacer(),
-                    const Text('Theo thời gian thực', style: TextStyle(fontSize: 10, color: Color(0xffffb3ae))),
+                    Text('Theo thời gian thực', style: TextStyle(fontSize: 10, color: Color(0xffffb3ae))),
                   ],
                 ),
               ],
             ),
           ),
         ),
-        const SizedBox(width: 16),
+        SizedBox(width: 16),
         // Stacked Small Cards
         Expanded(
           child: SizedBox(
@@ -275,12 +275,12 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
               children: [
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: const Color(0xffe2bebb)),
-                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 4, offset: const Offset(0, 2))],
+                      boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12), blurRadius: 4, offset: const Offset(0, 2))],
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -291,27 +291,27 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text('ĐÃ XONG', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 0.5)),
-                              const SizedBox(height: 2),
+                              SizedBox(height: 2),
                               Text('$completedTasks nhiệm vụ', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
-                              const SizedBox(height: 2),
+                              SizedBox(height: 2),
                               Text('Nhặt: $completedPickingTasks · Kiểm: $completedCountSessions', style: TextStyle(fontSize: 9, color: Theme.of(context).colorScheme.onSurfaceVariant), overflow: TextOverflow.ellipsis),
                             ],
                           ),
                         ),
-                        const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                        Icon(Icons.check_circle, color: Colors.green, size: 20),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: const Color(0xffffdad6),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: const Color(0xffba1a1a).withOpacity(0.2)),
-                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 4, offset: const Offset(0, 2))],
+                      boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12), blurRadius: 4, offset: const Offset(0, 2))],
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -321,15 +321,15 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text('LỆCH TỒN', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xff93000a), letterSpacing: 0.5)),
-                              const SizedBox(height: 2),
-                              Text('$totalDiscrepancies sản phẩm', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xff93000a))),
-                              const SizedBox(height: 2),
-                              const Text('Số lượng lệch thực tế', style: TextStyle(fontSize: 9, color: Color(0xffba1a1a)), overflow: TextOverflow.ellipsis),
+                              Text('LỆCH TỒN', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xff93000a), letterSpacing: 0.5)),
+                              SizedBox(height: 2),
+                              Text('$totalDiscrepancies sản phẩm', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xff93000a))),
+                              SizedBox(height: 2),
+                              Text('Số lượng lệch thực tế', style: TextStyle(fontSize: 9, color: Color(0xffba1a1a)), overflow: TextOverflow.ellipsis),
                             ],
                           ),
                         ),
-                        const Icon(Icons.warning_rounded, color: Color(0xffba1a1a), size: 20),
+                        Icon(Icons.warning_rounded, color: Color(0xffba1a1a), size: 20),
                       ],
                     ),
                   ),
@@ -354,7 +354,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
             color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         Row(
           children: [
             Expanded(
@@ -369,23 +369,22 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                 screen: const PickUpListScreen(),
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: _buildBigActionCard(
                 context,
                 icon: Icons.manage_search,
                 label: 'Kiểm kê',
                 subtitle: 'Kiểm đếm tồn kho',
-                bgColor: Theme.of(context).colorScheme.surface,
-                textColor: AppColors.primary,
-                iconBg: AppColors.primaryFixed,
-                borderColor: AppColors.primary,
+                bgColor: AppColors.primary,
+                textColor: Theme.of(context).colorScheme.onPrimary,
+                iconBg: Theme.of(context).colorScheme.surface.withValues(alpha: 0.2),
                 screen: const CountListScreen(),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Row(
           children: [
             Expanded(
@@ -400,7 +399,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                 borderColor: Theme.of(context).colorScheme.outline,
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: _buildBigActionCard(
                 context,
@@ -416,7 +415,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Row(
           children: [
             Expanded(
@@ -432,7 +431,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                 screen: const IncidentReportScreen(),
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: _buildBigActionCard(
                 context,
@@ -448,7 +447,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Row(
           children: [
             Expanded(
@@ -464,7 +463,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                 screen: const WarehouseLocationScreen(isReadOnly: true),
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: _buildBigActionCard(
                 context,
@@ -508,7 +507,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
         }
       },
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(24),
@@ -525,14 +524,14 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: iconBg,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(icon, color: textColor, size: 28),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             Text(
               label,
               style: TextStyle(
@@ -541,7 +540,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                 color: textColor,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               subtitle,
               style: TextStyle(

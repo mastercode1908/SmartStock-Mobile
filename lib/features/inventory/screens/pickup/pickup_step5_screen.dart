@@ -35,21 +35,21 @@ class _PickUpStep5ScreenState extends State<PickUpStep5Screen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: _buildAppBar(context),
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 _buildProgressHeader(),
-                const SizedBox(height: 32),
+                SizedBox(height: 32),
                 _buildSummaryGrid(),
-                const SizedBox(height: 32),
+                SizedBox(height: 32),
                 _buildDiscrepancyList(),
-                const SizedBox(height: 120), // Padding for sticky bottom area
+                SizedBox(height: 120), // Padding for sticky bottom area
               ],
             ),
           ),
@@ -66,15 +66,15 @@ class _PickUpStep5ScreenState extends State<PickUpStep5Screen> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: AppColors.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.menu, color: AppColors.primary),
+        icon: Icon(Icons.menu, color: AppColors.primary),
         onPressed: () {},
       ),
       centerTitle: true,
-      title: const Text(
+      title: Text(
         'Warehouse Pro',
         style: TextStyle(
           color: AppColors.primary,
@@ -84,7 +84,7 @@ class _PickUpStep5ScreenState extends State<PickUpStep5Screen> {
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.account_circle, color: AppColors.primary),
+          icon: Icon(Icons.account_circle, color: AppColors.primary),
           onPressed: () {},
         ),
       ],
@@ -94,23 +94,23 @@ class _PickUpStep5ScreenState extends State<PickUpStep5Screen> {
   Widget _buildProgressHeader() {
     return Column(
       children: [
-        const Text(
+        Text(
           'Bước 5/5: Hoàn tất & Đồng bộ',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 8),
-        const Text(
+        SizedBox(height: 8),
+        Text(
           'Tóm tắt kết quả kiểm kê và đẩy dữ liệu lên hệ thống',
-          style: TextStyle(fontSize: 16, color: AppColors.onSurfaceVariant),
+          style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Container(
           height: 8,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: AppColors.surfaceContainerHigh,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(4),
           ),
           child: FractionallySizedBox(
@@ -137,12 +137,12 @@ class _PickUpStep5ScreenState extends State<PickUpStep5Screen> {
             iconColor: AppColors.secondary,
             title: 'TỔNG SỐ SKU',
             value: '1.248',
-            valueColor: AppColors.onSurface,
-            bgColor: AppColors.surfaceContainerLowest,
-            borderColor: AppColors.outlineVariant.withOpacity(0.3),
+            valueColor: Theme.of(context).colorScheme.onSurface,
+            bgColor: Theme.of(context).colorScheme.surfaceContainerLowest,
+            borderColor: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.3),
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Expanded(
           child: _buildSummaryCard(
             icon: Icons.check_circle,
@@ -151,19 +151,19 @@ class _PickUpStep5ScreenState extends State<PickUpStep5Screen> {
             value: '1.242',
             valueColor: AppColors.primary,
             bgColor: const Color(0xFFFEEBEE).withOpacity(0.4),
-            borderColor: AppColors.outlineVariant.withOpacity(0.3),
+            borderColor: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.3),
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Expanded(
           child: _buildSummaryCard(
             icon: Icons.warning,
-            iconColor: AppColors.error,
+            iconColor: Theme.of(context).colorScheme.error,
             title: 'CHÊNH LỆCH',
             value: '6',
-            valueColor: AppColors.error,
-            bgColor: AppColors.surfaceContainerLowest,
-            borderColor: AppColors.error.withOpacity(0.2),
+            valueColor: Theme.of(context).colorScheme.error,
+            bgColor: Theme.of(context).colorScheme.surfaceContainerLowest,
+            borderColor: Theme.of(context).colorScheme.error.withOpacity(0.2),
           ),
         ),
       ],
@@ -181,7 +181,7 @@ class _PickUpStep5ScreenState extends State<PickUpStep5Screen> {
   }) {
     return Container(
       height: 140,
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(16),
@@ -198,9 +198,9 @@ class _PickUpStep5ScreenState extends State<PickUpStep5Screen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(icon, color: iconColor, size: 32),
-          const SizedBox(height: 8),
-          Text(title, style: const TextStyle(fontSize: 10, color: AppColors.onSurfaceVariant, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-          const SizedBox(height: 4),
+          SizedBox(height: 8),
+          Text(title, style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+          SizedBox(height: 4),
           Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: valueColor)),
         ],
       ),
@@ -210,9 +210,9 @@ class _PickUpStep5ScreenState extends State<PickUpStep5Screen> {
   Widget _buildDiscrepancyList() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: Theme.of(context).colorScheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.outlineVariant.withOpacity(0.3)),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.3)),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withOpacity(0.04),
@@ -224,22 +224,22 @@ class _PickUpStep5ScreenState extends State<PickUpStep5Screen> {
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLow,
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              border: Border(bottom: BorderSide(color: AppColors.outlineVariant.withOpacity(0.2))),
+              border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.2))),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Chi tiết chênh lệch', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
-                const Text('Xem tất cả', style: TextStyle(fontSize: 14, color: AppColors.primary, decoration: TextDecoration.underline, fontWeight: FontWeight.bold)),
+                Text('Chi tiết chênh lệch', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
+                Text('Xem tất cả', style: TextStyle(fontSize: 14, color: AppColors.primary, decoration: TextDecoration.underline, fontWeight: FontWeight.bold)),
               ],
             ),
           ),
           _buildDiscrepancyListItem('SKU-892-A', 'Dự kiến: 140 | Thực tế: 138', '-2'),
-          const Divider(height: 1, color: AppColors.surfaceContainer),
+          Divider(height: 1, color: Theme.of(context).colorScheme.surfaceContainer),
           _buildDiscrepancyListItem('SKU-411-B', 'Dự kiến: 50 | Thực tế: 54', '+4'),
         ],
       ),
@@ -248,35 +248,35 @@ class _PickUpStep5ScreenState extends State<PickUpStep5Screen> {
 
   Widget _buildDiscrepancyListItem(String title, String subtitle, String diff) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(16.0),
       child: Row(
         children: [
           Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(
-              color: AppColors.errorContainer,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.errorContainer,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.qr_code, color: AppColors.onErrorContainer, size: 20),
+            child: Icon(Icons.qr_code, color: Theme.of(context).colorScheme.onErrorContainer, size: 20),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.onSurface)),
-                Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface)),
+                Text(subtitle, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
               ],
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.error.withOpacity(0.1),
+              color: Theme.of(context).colorScheme.error.withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Text(diff, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.error)),
+            child: Text(diff, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.error)),
           ),
         ],
       ),
@@ -289,38 +289,38 @@ class _PickUpStep5ScreenState extends State<PickUpStep5Screen> {
         Expanded(
           child: OutlinedButton.icon(
             style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              side: const BorderSide(color: AppColors.primary, width: 2),
+              padding: EdgeInsets.symmetric(vertical: 16),
+              side: BorderSide(color: AppColors.primary, width: 2),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
               foregroundColor: AppColors.primary,
             ),
             onPressed: () {},
-            icon: const Icon(Icons.edit_document),
-            label: const Text('Xem báo cáo', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            icon: Icon(Icons.edit_document),
+            label: Text('Xem báo cáo', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Expanded(
           flex: 2,
           child: ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
               backgroundColor: _isSynced ? Colors.green : AppColors.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              foregroundColor: Theme.of(context).colorScheme.surface,
+              padding: EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
               elevation: 4,
             ),
             onPressed: _isSyncing || _isSynced ? null : _handleSync,
             icon: _isSyncing
-                ? const SizedBox(
+                ? SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                    child: CircularProgressIndicator(color: Theme.of(context).colorScheme.surface, strokeWidth: 2),
                   )
                 : Icon(_isSynced ? Icons.check_circle : Icons.sync),
             label: Text(
               _isSyncing ? 'Đang đồng bộ...' : (_isSynced ? 'Đã đồng bộ!' : 'Đồng bộ'),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
         ),

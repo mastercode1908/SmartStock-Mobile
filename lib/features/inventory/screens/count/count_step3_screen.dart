@@ -46,7 +46,7 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
       fallbackDetail: widget.detail,
     );
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Đã lưu số lượng!'), backgroundColor: AppColors.primary),
+      SnackBar(content: Text('Đã lưu số lượng!'), backgroundColor: AppColors.primary),
     );
     Navigator.pop(context); // Go back to Scanner
   }
@@ -54,21 +54,21 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: _buildAppBar(context),
       body: Column(
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
               child: Column(
                 children: [
                   _buildProgressHeader(),
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
                   _buildProductDetailsCard(),
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
                   _buildQuantityControl(),
-                  const SizedBox(height: 120), // Padding for sticky bottom area
+                  SizedBox(height: 120), // Padding for sticky bottom area
                 ],
               ),
             ),
@@ -81,15 +81,15 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: AppColors.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+        icon: Icon(Icons.arrow_back, color: AppColors.primary),
         onPressed: () => Navigator.pop(context),
       ),
       centerTitle: true,
-      title: const Text(
+      title: Text(
         'Smart Stock',
         style: TextStyle(
           color: AppColors.primary,
@@ -103,23 +103,23 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
   Widget _buildProgressHeader() {
     return Column(
       children: [
-        const Text(
+        Text(
           'Bước 3/5: Nhập số lượng',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 8),
-        const Text(
+        SizedBox(height: 8),
+        Text(
           'Kiểm đếm và nhập số lượng thực tế tại vị trí',
-          style: TextStyle(fontSize: 16, color: AppColors.onSurfaceVariant),
+          style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Container(
           height: 8,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: AppColors.surfaceContainerHigh,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(4),
           ),
           child: FractionallySizedBox(
@@ -146,14 +146,14 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
     else if (widget.detail.trackingMethod == 3) trackingText = 'BATCH & SERIAL';
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: Theme.of(context).colorScheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.outlineVariant),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -168,54 +168,54 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceContainer,
+                  color: Theme.of(context).colorScheme.surfaceContainer,
                   borderRadius: BorderRadius.circular(16),
                   image: hasImage ? DecorationImage(
                     image: NetworkImage(widget.detail.imageUrl!),
                     fit: BoxFit.cover,
                   ) : null,
                 ),
-                child: !hasImage ? const Icon(Icons.inventory_2, color: AppColors.onSurfaceVariant) : null,
+                child: !hasImage ? Icon(Icons.inventory_2, color: Theme.of(context).colorScheme.onSurfaceVariant) : null,
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       (widget.detail.variantName != null && widget.detail.variantName!.isNotEmpty) ? widget.detail.variantName! : (widget.detail.productName ?? 'Unknown'), 
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onSurface)
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)
                     ),
-                    const SizedBox(height: 4),
-                    Text('SKU: ${widget.detail.sku ?? ""}', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
-                    const SizedBox(height: 2),
-                    Text('Tracking: $trackingText', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                    SizedBox(height: 4),
+                    Text('SKU: ${widget.detail.sku ?? ""}', style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    SizedBox(height: 2),
+                    Text('Tracking: $trackingText', style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                     if ((widget.detail.trackingMethod == 1 || widget.detail.trackingMethod == 3) && widget.detail.batchNumber != null && widget.detail.batchNumber!.isNotEmpty)
-                      Text('Lô: ${widget.detail.batchNumber}', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                      Text('Lô: ${widget.detail.batchNumber}', style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                     if ((widget.detail.trackingMethod == 2 || widget.detail.trackingMethod == 3) && widget.detail.serialNumber != null && widget.detail.serialNumber!.isNotEmpty)
-                      Text('Serial: ${widget.detail.serialNumber}', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                      Text('Serial: ${widget.detail.serialNumber}', style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: AppColors.surfaceContainer,
+              color: Theme.of(context).colorScheme.surfaceContainer,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Số lượng hệ thống:', style: TextStyle(fontSize: 16, color: AppColors.onSurfaceVariant)),
+                Text('Số lượng hệ thống:', style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 RichText(
                   text: TextSpan(
-                    style: const TextStyle(color: AppColors.onSurface),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                     children: [
-                      TextSpan(text: '$_systemQty ', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                      TextSpan(text: '', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                      TextSpan(text: '$_systemQty ', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                      TextSpan(text: '', style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                     ],
                   ),
                 ),
@@ -230,31 +230,31 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
   Widget _buildQuantityControl() {
     return Column(
       children: [
-        const Text('Số lượng thực tế', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: AppColors.onSurface)),
-        const SizedBox(height: 16),
+        Text('Số lượng thực tế', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface)),
+        SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildQtyButton(Icons.remove, _decrement),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Container(
               width: 120,
               height: 80,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: Color(0x1AFEEBEE),
-                border: Border(bottom: BorderSide(color: AppColors.outlineVariant, width: 2)),
+                border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 2)),
               ),
               alignment: Alignment.center,
               child: Text(
                 '$_quantity',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 56,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.onSurface,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             _buildQtyButton(Icons.add, _increment),
           ],
         ),
@@ -270,27 +270,27 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
         width: 64,
         height: 64,
         decoration: BoxDecoration(
-          color: AppColors.surfaceContainerHighest,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
           ],
         ),
-        child: Icon(icon, size: 32, color: AppColors.onSurface),
+        child: Icon(icon, size: 32, color: Theme.of(context).colorScheme.onSurface),
       ),
     );
   }
 
   Widget _buildQuickActions(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.outlineVariant)),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
       ),
       child: SafeArea(
         top: false,
@@ -300,8 +300,8 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                foregroundColor: Theme.of(context).colorScheme.surface,
+                padding: EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 elevation: 2,
                 minimumSize: const Size(double.infinity, 56),
@@ -309,7 +309,7 @@ class _CountStep3ScreenState extends State<CountStep3Screen> {
               onPressed: () {
                 _saveAndProceed();
               },
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text('Lưu & Tiếp tục', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),

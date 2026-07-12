@@ -85,7 +85,7 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
         _processBarcode(capture.barcodes.first.rawValue!, provider);
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Không tìm thấy mã vạch nào trong ảnh.')),
+          SnackBar(content: Text('Không tìm thấy mã vạch nào trong ảnh.')),
         );
       }
     }
@@ -95,7 +95,7 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -110,24 +110,24 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
             return Column(
               children: [
                 Container(
-                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  margin: EdgeInsets.symmetric(vertical: 12),
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.outlineVariant,
+                    color: Theme.of(context).colorScheme.outlineVariant,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
                     'Chọn sản phẩm cần đếm',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.onSurface),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                   ),
                 ),
                 Expanded(
                   child: details.isEmpty
-                      ? const Center(child: Text('Không có sản phẩm nào để kiểm đếm.'))
+                      ? Center(child: Text('Không có sản phẩm nào để kiểm đếm.'))
                       : ListView.builder(
                           controller: scrollController,
                           itemCount: details.length,
@@ -152,11 +152,11 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
                             final hasCounted = detail.actualQuantity != null;
 
                             return ListTile(
-                              leading: const CircleAvatar(
-                                backgroundColor: AppColors.surfaceContainerHigh,
+                              leading: CircleAvatar(
+                                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                                 child: Icon(Icons.inventory_2, color: AppColors.primary),
                               ),
-                              title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+                              title: Text(title, style: TextStyle(fontWeight: FontWeight.w600)),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -167,7 +167,7 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
                               ),
                               trailing: Icon(
                                 hasCounted ? Icons.check_circle : Icons.chevron_right, 
-                                color: hasCounted ? const Color(0xff0f5132) : AppColors.onSurfaceVariant
+                                color: hasCounted ? const Color(0xff0f5132) : Theme.of(context).colorScheme.onSurfaceVariant
                               ),
                               onTap: () {
                                 Navigator.pop(context);
@@ -193,7 +193,7 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Camera Background
@@ -216,18 +216,18 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
             left: 0,
             right: 0,
             child: Container(
-              color: AppColors.surface,
-              padding: const EdgeInsets.only(top: 48, bottom: 16, left: 16, right: 16),
+              color: Theme.of(context).colorScheme.surface,
+              padding: EdgeInsets.only(top: 48, bottom: 16, left: 16, right: 16),
               child: Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+                        icon: Icon(Icons.arrow_back, color: AppColors.primary),
                         onPressed: () => Navigator.pop(context),
                       ),
-                      const Text(
+                      Text(
                         'Smart Stock',
                         style: TextStyle(
                           color: AppColors.primary,
@@ -236,19 +236,19 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.help_outline, color: AppColors.primary),
+                        icon: Icon(Icons.help_outline, color: AppColors.primary),
                         onPressed: () {},
                       ),
                     ],
                   ),
-                  const Text(
+                  Text(
                     'Bước 2/5: Quét mã sản phẩm',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary),
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
+                  SizedBox(height: 8),
+                  Text(
                     'Căn chỉnh mã vạch vào trong khung đỏ',
-                    style: TextStyle(fontSize: 16, color: AppColors.onSurfaceVariant),
+                    style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -308,7 +308,7 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
             right: 0,
             child: Container(
               height: 200,
-              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
+              padding: EdgeInsets.only(left: 16, right: 16, bottom: 24),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
@@ -333,14 +333,14 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
                               Container(
                                 width: 48,
                                 height: 48,
-                                margin: const EdgeInsets.only(right: 12),
+                                margin: EdgeInsets.only(right: 12),
                                 decoration: BoxDecoration(
-                                  color: AppColors.surfaceContainer.withOpacity(0.2),
+                                  color: Theme.of(context).colorScheme.surfaceContainer.withOpacity(0.2),
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: AppColors.outline.withOpacity(0.3)),
+                                  border: Border.all(color: Theme.of(context).colorScheme.outline.withOpacity(0.3)),
                                 ),
                                 child: IconButton(
-                                  icon: Icon(_isFlashOn ? Icons.flashlight_off : Icons.flashlight_on, color: Colors.white),
+                                  icon: Icon(_isFlashOn ? Icons.flashlight_off : Icons.flashlight_on, color: Theme.of(context).colorScheme.surface),
                                   onPressed: () {
                                     _scannerController.toggleTorch();
                                     setState(() {
@@ -353,12 +353,12 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
                                 width: 48,
                                 height: 48,
                                 decoration: BoxDecoration(
-                                  color: AppColors.surfaceContainer.withOpacity(0.2),
+                                  color: Theme.of(context).colorScheme.surfaceContainer.withOpacity(0.2),
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: AppColors.outline.withOpacity(0.3)),
+                                  border: Border.all(color: Theme.of(context).colorScheme.outline.withOpacity(0.3)),
                                 ),
                                 child: IconButton(
-                                  icon: const Icon(Icons.image, color: Colors.white),
+                                  icon: Icon(Icons.image, color: Theme.of(context).colorScheme.surface),
                                   onPressed: () => _scanFromImage(provider),
                                 ),
                               ),
@@ -366,24 +366,24 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
                           ),
                           ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.surface,
+                              backgroundColor: Theme.of(context).colorScheme.surface,
                               foregroundColor: AppColors.primary,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                             ),
                             onPressed: () {
                               Navigator.push(context, MaterialPageRoute(builder: (_) => const CountStep4Screen()));
                             },
-                            icon: const Icon(Icons.checklist),
-                            label: const Text('Xem danh sách'),
+                            icon: Icon(Icons.checklist),
+                            label: Text('Xem danh sách'),
                           )
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          foregroundColor: Theme.of(context).colorScheme.surface,
+                          padding: EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           minimumSize: const Size(double.infinity, 56),
                           elevation: 4,
@@ -391,7 +391,7 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
                         onPressed: () {
                           _showManualEntryBottomSheet(context, provider);
                         },
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.keyboard),
@@ -422,10 +422,10 @@ class _CountStep2ScreenState extends State<CountStep2Screen> with SingleTickerPr
         height: 24,
         decoration: BoxDecoration(
           border: Border(
-            top: top ? const BorderSide(color: AppColors.primary, width: 4) : BorderSide.none,
-            bottom: !top ? const BorderSide(color: AppColors.primary, width: 4) : BorderSide.none,
-            left: left ? const BorderSide(color: AppColors.primary, width: 4) : BorderSide.none,
-            right: !left ? const BorderSide(color: AppColors.primary, width: 4) : BorderSide.none,
+            top: top ? BorderSide(color: AppColors.primary, width: 4) : BorderSide.none,
+            bottom: !top ? BorderSide(color: AppColors.primary, width: 4) : BorderSide.none,
+            left: left ? BorderSide(color: AppColors.primary, width: 4) : BorderSide.none,
+            right: !left ? BorderSide(color: AppColors.primary, width: 4) : BorderSide.none,
           ),
         ),
       ),

@@ -19,10 +19,10 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
   // Define Colors from Tailwind Config
   Color get _primary => Theme.of(context).colorScheme.primary;
   Color get _surface => Theme.of(context).cardColor;
-  final Color _surfaceContainerHighest = const Color(0xFFD9E4E9);
+  Color get _surfaceContainerHighest => Theme.of(context).colorScheme.surfaceContainerHigh;
   Color get _surfaceContainerLow => Theme.of(context).colorScheme.surfaceContainerLow;
   Color get _onSurfaceVariant => Theme.of(context).colorScheme.onSurfaceVariant;
-  final Color _surfaceVariant = const Color(0xFFE1BEBC);
+  Color get _surfaceVariant => Theme.of(context).colorScheme.surfaceContainerHigh;
   Color get _primaryContainer => Theme.of(context).colorScheme.primaryContainer;
   Color get _secondary => Theme.of(context).colorScheme.secondary;
   Color get _secondaryContainer => Theme.of(context).colorScheme.secondaryContainer;
@@ -193,8 +193,8 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
             title: Row(
               children: [
                 Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                const SizedBox(width: 8),
-                const Text('Lỗi tạo phiếu'),
+                SizedBox(width: 8),
+                Text('Lỗi tạo phiếu'),
               ],
             ),
             content: Text(errorMsg),
@@ -202,7 +202,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Đóng'),
+                child: Text('Đóng'),
               ),
             ],
           ),
@@ -217,7 +217,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: _buildAppBar(context),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 672), // max-w-2xl
@@ -231,11 +231,11 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
                     color: _onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 _buildForm(),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 _buildSubmitButton(context),
-                const SizedBox(height: 64), // pb-32
+                SizedBox(height: 64), // pb-32
               ],
             ),
           ),
@@ -264,7 +264,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
       ),
       actions: [
         Padding(
-          padding: const EdgeInsets.only(right: 16.0),
+          padding: EdgeInsets.only(right: 16.0),
           child: Icon(Icons.inventory_2, color: _primary),
         ),
       ],
@@ -279,11 +279,11 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
         final currentDate = DateTime.now().toString().split(' ')[0];
 
         return Container(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.7),
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white.withOpacity(0.4)),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.03),
@@ -296,22 +296,22 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _buildCountTypeSelection(),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               _buildWarehouseDropdown(),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               if (_selectedCountType == 'LOCATION') ...[
                 _buildLocationDropdown(),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 _buildLocationPreview(),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
               ] else ...[
                 _buildProductCheckList(),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
               ],
               _buildDatePickerField(),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               _buildStaffDropdown(),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               _buildTextArea('GHI CHÚ', 'Nhập ghi chú hoặc lý do kiểm kê...', _notesController),
             ],
           ),
@@ -328,7 +328,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
           'LOẠI KIỂM KÊ',
           style: TextStyle(fontSize: 12, color: _onSurfaceVariant, fontWeight: FontWeight.w500),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         Row(
           children: [
             Expanded(
@@ -337,7 +337,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
                   _selectedCountType = 'LOCATION';
                 }),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
                     color: _selectedCountType == 'LOCATION' ? _primary : Colors.white,
                     borderRadius: BorderRadius.circular(8),
@@ -357,7 +357,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: GestureDetector(
                 onTap: () => setState(() {
@@ -365,7 +365,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
                   _selectedLocationId = null;
                 }),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
                     color: _selectedCountType == 'PRODUCT' ? _primary : Colors.white,
                     borderRadius: BorderRadius.circular(8),
@@ -401,10 +401,10 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
               'NHÂN VIÊN THỰC HIỆN',
               style: TextStyle(fontSize: 12, color: _onSurfaceVariant, fontWeight: FontWeight.w500),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: _surfaceVariant),
               ),
@@ -414,9 +414,9 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.person_outline, color: _onSurfaceVariant.withOpacity(0.6)),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
-                hint: const Text('Chọn nhân viên...'),
+                hint: Text('Chọn nhân viên...'),
                 items: provider.staffs.map((staff) {
                   return DropdownMenuItem<int>(
                     value: staff['userID'],
@@ -440,7 +440,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
     return Consumer<InventoryProvider>(
       builder: (context, provider, child) {
         if (provider.isLoading && provider.warehouses.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator());
         }
 
         return Column(
@@ -450,10 +450,10 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
               'TÊN KHO',
               style: TextStyle(fontSize: 12, color: _onSurfaceVariant, fontWeight: FontWeight.w500),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: _surfaceVariant),
               ),
@@ -463,9 +463,9 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.warehouse, color: _onSurfaceVariant.withOpacity(0.6)),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
-                hint: const Text('Chọn kho cần kiểm kê...'),
+                hint: Text('Chọn kho cần kiểm kê...'),
                 items: provider.warehouses.map((w) {
                   return DropdownMenuItem<int>(
                     value: w.id,
@@ -490,7 +490,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
     return Consumer<InventoryProvider>(
       builder: (context, provider, child) {
         if (provider.isLoading && provider.locations.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator());
         }
 
         final filteredLocations = provider.locations
@@ -504,10 +504,10 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
               'VỊ TRÍ',
               style: TextStyle(fontSize: 12, color: _onSurfaceVariant, fontWeight: FontWeight.w500),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: _surfaceVariant),
               ),
@@ -517,9 +517,9 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.location_on, color: _onSurfaceVariant.withOpacity(0.6)),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
-                hint: const Text('Chọn vị trí...'),
+                hint: Text('Chọn vị trí...'),
                 items: filteredLocations.map((l) {
                   return DropdownMenuItem<int>(
                     value: l.locationId,
@@ -563,7 +563,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
 
   Widget _buildLocationPreview() {
     if (_isLoadingLocationPreview) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(child: CircularProgressIndicator());
     }
     if (_selectedLocationId == null) {
       return const SizedBox.shrink();
@@ -573,19 +573,19 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
 
     if (validProducts.isEmpty) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: _surfaceContainerLow,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: _surfaceVariant),
         ),
-        child: const Text('Không có sản phẩm nào có tồn kho tại vị trí này.'),
+        child: Text('Không có sản phẩm nào có tồn kho tại vị trí này.'),
       );
     }
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: _surfaceVariant),
       ),
@@ -593,9 +593,9 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFFFAFAFA),
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
               border: Border(bottom: BorderSide(color: _surfaceVariant.withOpacity(0.5))),
             ),
@@ -620,10 +620,10 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
               final batch = product['batchNumber'] ?? product['batch']?['batchNumber'];
 
               return ListTile(
-                title: Text(displayName, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+                title: Text(displayName, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
                 subtitle: batch != null ? Text('Batch: $batch', style: TextStyle(fontSize: 12, color: _onSurfaceVariant)) : null,
                 trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: _primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(16),
@@ -643,9 +643,9 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: _surfaceVariant),
           ),
@@ -656,13 +656,13 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Sản phẩm kiểm kê', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                    const SizedBox(height: 4),
+                    Text('Sản phẩm kiểm kê', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                    SizedBox(height: 4),
                     Text(
                       _selectedProductVariantIds.isEmpty 
                         ? 'Chưa chọn sản phẩm nào' 
                         : 'Đã chọn: ${_selectedProductVariantIds.length} sản phẩm',
-                      style: TextStyle(color: _selectedProductVariantIds.isEmpty ? Colors.red : _onSurfaceVariant, fontSize: 13),
+                      style: TextStyle(color: _selectedProductVariantIds.isEmpty ? Theme.of(context).colorScheme.error : _onSurfaceVariant, fontSize: 13),
                     ),
                   ],
                 ),
@@ -680,7 +680,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
                   showDialog(
                     context: context,
                     barrierDismissible: false,
-                    builder: (context) => const Center(
+                    builder: (context) => Center(
                       child: CircularProgressIndicator(),
                     ),
                   );
@@ -750,8 +750,8 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
                     );
                   });
                 },
-                icon: const Icon(Icons.add_shopping_cart, size: 18),
-                label: const Text('Chọn'),
+                icon: Icon(Icons.add_shopping_cart, size: 18),
+                label: Text('Chọn'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _surfaceContainerLow,
                   foregroundColor: _primary,
@@ -762,11 +762,11 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
           ),
         ),
         if (_selectedProductVariantIds.isNotEmpty) ...[
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFFAFAFA),
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: _surfaceVariant.withOpacity(0.5)),
             ),
@@ -780,19 +780,19 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: selectedProducts.map((p) {
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
+                      padding: EdgeInsets.only(bottom: 8.0),
                       child: Row(
                         children: [
                           Icon(Icons.check_circle, size: 16, color: _primary),
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               '${p.productName} - ${p.sku}',
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: _surfaceVariant.withOpacity(0.3),
                               borderRadius: BorderRadius.circular(12),
@@ -823,7 +823,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
           'NGÀY KIỂM KÊ',
           style: TextStyle(fontSize: 12, color: _onSurfaceVariant, fontWeight: FontWeight.w500),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         InkWell(
           onTap: () async {
             final DateTime? picked = await showDatePicker(
@@ -836,7 +836,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
                   data: Theme.of(context).copyWith(
                     colorScheme: ColorScheme.light(
                       primary: _primary, // header background color
-                      onPrimary: Colors.white, // header text color
+                      onPrimary: Theme.of(context).colorScheme.onPrimary, // header text color
                       onSurface: _onSurface, // body text color
                     ),
                   ),
@@ -851,16 +851,16 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
             }
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: _surfaceVariant),
             ),
             child: Row(
               children: [
                 Icon(Icons.calendar_today, color: _onSurfaceVariant.withOpacity(0.6)),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Text(
                   '${_selectedCountDate.day.toString().padLeft(2, '0')}/${_selectedCountDate.month.toString().padLeft(2, '0')}/${_selectedCountDate.year}',
                   style: TextStyle(fontSize: 16, color: _onSurface),
@@ -881,15 +881,15 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
           label,
           style: TextStyle(fontSize: 12, color: _onSurfaceVariant, fontWeight: FontWeight.w500),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         TextField(
           controller: controller,
           decoration: InputDecoration(
             prefixIcon: Icon(icon, color: _onSurfaceVariant.withOpacity(0.6)),
             hintText: hint,
             filled: true,
-            fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            fillColor: Theme.of(context).colorScheme.surface,
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(color: _surfaceVariant),
@@ -912,7 +912,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
           label,
           style: TextStyle(fontSize: 12, color: _onSurfaceVariant, fontWeight: FontWeight.w500),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         TextField(
           readOnly: true,
           controller: TextEditingController(text: value),
@@ -921,7 +921,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
             prefixIcon: Icon(icon, color: _onSurfaceVariant.withOpacity(0.6)),
             filled: true,
             fillColor: _surfaceContainerLow,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(color: _surfaceVariant),
@@ -944,15 +944,15 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
           label,
           style: TextStyle(fontSize: 12, color: _onSurfaceVariant, fontWeight: FontWeight.w500),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         TextField(
           controller: controller,
           maxLines: 3,
           decoration: InputDecoration(
             hintText: hint,
             filled: true,
-            fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            fillColor: Theme.of(context).colorScheme.surface,
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(color: _surfaceVariant),
@@ -974,8 +974,8 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
         onPressed: _submitForm,
         style: ElevatedButton.styleFrom(
           backgroundColor: _primary,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          foregroundColor: Theme.of(context).colorScheme.onError,
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),

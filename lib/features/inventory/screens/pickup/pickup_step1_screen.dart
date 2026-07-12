@@ -10,13 +10,13 @@ class PickUpStep1Screen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: _buildAppBar(context),
       body: Consumer<InventoryPickingProvider>(
         builder: (context, provider, child) {
           final task = provider.currentTask;
           if (task == null) {
-            return const Center(child: Text('Không có dữ liệu nhiệm vụ.'));
+            return Center(child: Text('Không có dữ liệu nhiệm vụ.'));
           }
 
           final details = task.details ?? [];
@@ -28,16 +28,16 @@ class PickUpStep1Screen extends StatelessWidget {
           return Stack(
             children: [
               SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _buildProgressHeader(),
-                    const SizedBox(height: 32),
+                    _buildProgressHeader(context),
+                    SizedBox(height: 32),
                     if (isCancelledTask) ...[
                       // Cancelled banner
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: const Color(0xfffff5f5),
                           borderRadius: BorderRadius.circular(12),
@@ -46,12 +46,12 @@ class PickUpStep1Screen extends StatelessWidget {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(Icons.cancel, color: Colors.red, size: 28),
-                            const SizedBox(width: 12),
+                            Icon(Icons.cancel, color: Colors.red, size: 28),
+                            SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
+                                children: [
                                   Text(
                                     'Nhiệm vụ đã bị hủy',
                                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
@@ -59,7 +59,7 @@ class PickUpStep1Screen extends StatelessWidget {
                                   SizedBox(height: 4),
                                   Text(
                                     'Nhiệm vụ nhặt hàng này đã bị hủy tự động do phát hiện thiếu hụt hàng hóa tại vị trí kệ.',
-                                    style: TextStyle(fontSize: 13, color: Colors.black87),
+                                    style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.87)),
                                   ),
                                 ],
                               ),
@@ -67,19 +67,19 @@ class PickUpStep1Screen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      const Text(
+                      SizedBox(height: 24),
+                      Text(
                         'Kết quả nhặt hàng thực tế (Đã hủy)',
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       ...details.map((detail) {
                         final isShort = detail.pickedQuantity < detail.expectedQuantity;
                         return Container(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          padding: const EdgeInsets.all(16),
+                          margin: EdgeInsets.only(bottom: 16),
+                          padding: EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: const Color(0xfff8f9fa),
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(color: Colors.grey[300]!),
                           ),
@@ -91,7 +91,7 @@ class PickUpStep1Screen extends StatelessWidget {
                                 children: [
                                   Text(
                                     'Vị trí: ${detail.storageLocation?.locationCode ?? "N/A"}',
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.87)),
                                   ),
                                   Icon(
                                     isShort ? Icons.error_outline : Icons.check_circle,
@@ -100,10 +100,10 @@ class PickUpStep1Screen extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: 8),
                               Text('Sản phẩm: ${detail.productVariant?.variantName ?? "N/A"}',
-                                  style: const TextStyle(color: Colors.black54)),
-                              const SizedBox(height: 4),
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54))),
+                              SizedBox(height: 4),
                               Text(
                                 'Số lượng nhặt: ${detail.pickedQuantity}/${detail.expectedQuantity}',
                                 style: TextStyle(
@@ -112,15 +112,15 @@ class PickUpStep1Screen extends StatelessWidget {
                                 ),
                               ),
                               if (detail.serials != null && detail.serials!.isNotEmpty) ...[
-                                const SizedBox(height: 8),
+                                SizedBox(height: 8),
                                 Wrap(
                                   spacing: 4,
                                   runSpacing: 4,
                                   crossAxisAlignment: WrapCrossAlignment.center,
                                   children: [
-                                    const Text('Số Serials: ', style: TextStyle(fontSize: 13, color: Colors.black54)),
+                                    Text('Số Serials: ', style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54))),
                                     ...detail.serials!.map((s) => Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
                                         color: Colors.grey[200],
                                         borderRadius: BorderRadius.circular(4),
@@ -128,7 +128,7 @@ class PickUpStep1Screen extends StatelessWidget {
                                       ),
                                       child: Text(
                                         s.serialNumber ?? 'N/A',
-                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black54),
+                                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54)),
                                       ),
                                     )).toList(),
                                   ],
@@ -141,39 +141,39 @@ class PickUpStep1Screen extends StatelessWidget {
                     ] else ...[
                       Text(
                         'Sản phẩm cần lấy (Còn ${pendingDetails.length}/${details.length})',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       if (pendingDetails.isEmpty)
-                        const Center(child: Text('Đã nhặt xong tất cả sản phẩm.'))
+                        Center(child: Text('Đã nhặt xong tất cả sản phẩm.'))
                       else
                         ...pendingDetails.map((detail) {
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 16),
-                            padding: const EdgeInsets.all(16),
+                            margin: EdgeInsets.only(bottom: 16),
+                            padding: EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: AppColors.surface,
+                              color: Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: AppColors.outlineVariant),
+                              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('Vị trí: ${detail.storageLocation?.locationCode ?? "N/A"}',
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                const SizedBox(height: 8),
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                SizedBox(height: 8),
                                 Text('Sản phẩm: ${detail.productVariant?.variantName ?? "N/A"}'),
                                 Text('Số lượng cần lấy: ${detail.expectedQuantity}'),
                                 if (detail.serials != null && detail.serials!.isNotEmpty) ...[
-                                  const SizedBox(height: 8),
+                                  SizedBox(height: 8),
                                   Wrap(
                                     spacing: 4,
                                     runSpacing: 4,
                                     crossAxisAlignment: WrapCrossAlignment.center,
                                     children: [
-                                      const Text('Số Serials: ', style: TextStyle(fontSize: 13, color: AppColors.onSurfaceVariant)),
+                                      Text('Số Serials: ', style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                                       ...detail.serials!.map((s) => Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                         decoration: BoxDecoration(
                                           color: AppColors.primaryContainer.withOpacity(0.15),
                                           borderRadius: BorderRadius.circular(4),
@@ -181,19 +181,19 @@ class PickUpStep1Screen extends StatelessWidget {
                                         ),
                                         child: Text(
                                           s.serialNumber ?? 'N/A',
-                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primary),
+                                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primary),
                                         ),
                                       )).toList(),
                                     ],
                                   ),
                                 ],
-                                const SizedBox(height: 12),
+                                SizedBox(height: 12),
                                 SizedBox(
                                   width: double.infinity,
                                   child: ElevatedButton.icon(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: AppColors.primary,
-                                      foregroundColor: Colors.white,
+                                      foregroundColor: Theme.of(context).colorScheme.surface,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
                                       ),
@@ -206,8 +206,8 @@ class PickUpStep1Screen extends StatelessWidget {
                                         ),
                                       );
                                     },
-                                    icon: const Icon(Icons.play_arrow, size: 18),
-                                    label: const Text('Bắt đầu nhặt ở đây', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    icon: Icon(Icons.play_arrow, size: 18),
+                                    label: Text('Bắt đầu nhặt ở đây', style: TextStyle(fontWeight: FontWeight.bold)),
                                   ),
                                 ),
                               ],
@@ -215,17 +215,17 @@ class PickUpStep1Screen extends StatelessWidget {
                           );
                         }).toList(),
                       if (completedDetails.isNotEmpty) ...[
-                        const SizedBox(height: 32),
-                        const Text(
+                        SizedBox(height: 32),
+                        Text(
                           'Sản phẩm đã nhặt',
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         ...completedDetails.map((detail) {
                           final isFull = detail.pickedQuantity == detail.expectedQuantity;
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 16),
-                            padding: const EdgeInsets.all(16),
+                            margin: EdgeInsets.only(bottom: 16),
+                            padding: EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: const Color(0xfff1f3f5),
                               borderRadius: BorderRadius.circular(16),
@@ -239,7 +239,7 @@ class PickUpStep1Screen extends StatelessWidget {
                                   children: [
                                     Text(
                                       'Vị trí: ${detail.storageLocation?.locationCode ?? "N/A"}',
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black54),
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54)),
                                     ),
                                     Icon(
                                       isFull ? Icons.check_circle : Icons.warning,
@@ -248,10 +248,10 @@ class PickUpStep1Screen extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 8),
+                                SizedBox(height: 8),
                                 Text('Sản phẩm: ${detail.productVariant?.variantName ?? "N/A"}',
-                                    style: const TextStyle(color: Colors.black54)),
-                                const SizedBox(height: 4),
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54))),
+                                SizedBox(height: 4),
                                 Text(
                                   'Số lượng đã nhặt: ${detail.pickedQuantity}/${detail.expectedQuantity}',
                                   style: TextStyle(
@@ -260,15 +260,15 @@ class PickUpStep1Screen extends StatelessWidget {
                                   ),
                                 ),
                                 if (detail.serials != null && detail.serials!.isNotEmpty) ...[
-                                  const SizedBox(height: 8),
+                                  SizedBox(height: 8),
                                   Wrap(
                                     spacing: 4,
                                     runSpacing: 4,
                                     crossAxisAlignment: WrapCrossAlignment.center,
                                     children: [
-                                      const Text('Số Serials: ', style: TextStyle(fontSize: 13, color: Colors.black54)),
+                                      Text('Số Serials: ', style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54))),
                                       ...detail.serials!.map((s) => Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                         decoration: BoxDecoration(
                                           color: Colors.grey[200],
                                           borderRadius: BorderRadius.circular(4),
@@ -276,19 +276,19 @@ class PickUpStep1Screen extends StatelessWidget {
                                         ),
                                         child: Text(
                                           s.serialNumber ?? 'N/A',
-                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black54),
+                                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54)),
                                         ),
                                       )).toList(),
                                     ],
                                   ),
                                 ],
                                 if (task.status != 2) ...[
-                                  const SizedBox(height: 12),
+                                  SizedBox(height: 12),
                                   SizedBox(
                                     width: double.infinity,
                                     child: OutlinedButton.icon(
                                       style: OutlinedButton.styleFrom(
-                                        side: const BorderSide(color: AppColors.primary),
+                                        side: BorderSide(color: AppColors.primary),
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(12),
                                         ),
@@ -302,8 +302,8 @@ class PickUpStep1Screen extends StatelessWidget {
                                           ),
                                         );
                                       },
-                                      icon: const Icon(Icons.edit, size: 16),
-                                      label: const Text('Nhập lại / Sửa số lượng', style: TextStyle(fontWeight: FontWeight.bold)),
+                                      icon: Icon(Icons.edit, size: 16),
+                                      label: Text('Nhập lại / Sửa số lượng', style: TextStyle(fontWeight: FontWeight.bold)),
                                     ),
                                   ),
                                 ],
@@ -313,7 +313,7 @@ class PickUpStep1Screen extends StatelessWidget {
                         }).toList(),
                       ],
                     ],
-                    const SizedBox(height: 100),
+                    SizedBox(height: 100),
                   ],
                 ),
               ),
@@ -324,7 +324,7 @@ class PickUpStep1Screen extends StatelessWidget {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: (isCompletedTask || isCancelledTask || pendingDetails.isEmpty) ? AppColors.primary : Colors.grey,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: EdgeInsets.symmetric(vertical: 16),
                   ),
                   onPressed: (isCompletedTask || isCancelledTask)
                       ? () => Navigator.pop(context)
@@ -334,8 +334,8 @@ class PickUpStep1Screen extends StatelessWidget {
                               showDialog(
                                 context: context,
                                 barrierDismissible: false,
-                                builder: (ctx) => const Center(
-                                  child: CircularProgressIndicator(color: Colors.white),
+                                builder: (ctx) => Center(
+                                  child: CircularProgressIndicator(color: Theme.of(context).colorScheme.surface),
                                 ),
                               );
                               final result = await provider.completeTask(task.taskId);
@@ -360,7 +360,7 @@ class PickUpStep1Screen extends StatelessWidget {
                                               ? Colors.orange 
                                               : (isSuccess ? Colors.green : Colors.red),
                                         ),
-                                        const SizedBox(width: 8),
+                                        SizedBox(width: 8),
                                         Text(isShortage ? 'Nhiệm vụ bị hủy' : (isSuccess ? 'Thành công' : 'Thất bại')),
                                       ],
                                     ),
@@ -371,7 +371,7 @@ class PickUpStep1Screen extends StatelessWidget {
                                           Navigator.pop(ctx); // Pop alert dialog
                                           Navigator.pop(context); // Pop step 1 screen to go back to list
                                         },
-                                        child: const Text('Đồng ý'),
+                                        child: Text('Đồng ý'),
                                       ),
                                     ],
                                   ),
@@ -381,7 +381,7 @@ class PickUpStep1Screen extends StatelessWidget {
                           : null),
                   child: Text(
                     (isCompletedTask || isCancelledTask) ? 'Quay lại' : 'Hoàn tất và Đồng bộ',
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: Theme.of(context).colorScheme.surface, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -394,15 +394,15 @@ class PickUpStep1Screen extends StatelessWidget {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: AppColors.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: AppColors.onSurfaceVariant),
+        icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurfaceVariant),
         onPressed: () => Navigator.pop(context),
       ),
       centerTitle: true,
-      title: const Text(
+      title: Text(
         'Smart Stock',
         style: TextStyle(
           color: AppColors.primary,
@@ -413,18 +413,18 @@ class PickUpStep1Screen extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressHeader() {
+  Widget _buildProgressHeader(BuildContext context) {
     return Column(
       children: [
-        const Text(
+        Text(
           'Bước 1: Lộ trình',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 8),
-        const Text(
+        SizedBox(height: 8),
+        Text(
           'Đến các vị trí kệ hàng dưới đây để nhặt đồ',
-          style: TextStyle(fontSize: 16, color: AppColors.onSurfaceVariant),
+          style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
           textAlign: TextAlign.center,
         ),
       ],

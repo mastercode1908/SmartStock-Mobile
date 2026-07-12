@@ -39,7 +39,7 @@ class _InventoryHistoryDetailScreenState extends State<InventoryHistoryDetailScr
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 1,
-        shadowColor: Colors.black.withOpacity(0.05),
+        shadowColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: _primary),
           onPressed: () => Navigator.pop(context),
@@ -52,7 +52,7 @@ class _InventoryHistoryDetailScreenState extends State<InventoryHistoryDetailScr
       body: Consumer<InventoryProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           }
           final session = provider.selectedSession;
           if (session == null || session.id != widget.sessionId) {
@@ -94,8 +94,8 @@ class _InventoryHistoryDetailScreenState extends State<InventoryHistoryDetailScr
                       }
                     },
                     backgroundColor: _primary,
-                    foregroundColor: Colors.white,
-                    icon: const Icon(Icons.edit),
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    icon: Icon(Icons.edit),
                     label: const Text('Tiếp tục / Chỉnh sửa'),
                   )
                 : null,
@@ -140,7 +140,7 @@ class _InventoryHistoryDetailScreenState extends State<InventoryHistoryDetailScr
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: _surfaceContainerHigh.withOpacity(0.5)),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 4)),
+          BoxShadow(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 4)),
         ],
       ),
       child: Column(
@@ -182,7 +182,7 @@ class _InventoryHistoryDetailScreenState extends State<InventoryHistoryDetailScr
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: _outlineVariant.withOpacity(0.5)),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2)),
+          BoxShadow(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2)),
         ],
       ),
       child: Theme(
@@ -243,7 +243,7 @@ class _InventoryHistoryDetailScreenState extends State<InventoryHistoryDetailScr
             ),
           ),
           children: [
-            const Divider(),
+            Divider(),
             const SizedBox(height: 8),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,

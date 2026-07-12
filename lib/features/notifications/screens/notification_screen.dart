@@ -53,11 +53,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -67,12 +67,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   width: 48,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               Row(
                 children: [
                   Container(
@@ -84,13 +84,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     ),
                     child: Icon(iconData, color: iconColor, size: 24),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: iconBgColor,
                             borderRadius: BorderRadius.circular(6),
@@ -104,33 +104,33 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4),
                         Text(
                           timeStr,
-                          style: const TextStyle(fontSize: 12, color: Colors.black54),
+                          style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54)),
                         ),
                       ],
                     ),
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close, color: Colors.black54),
+                    icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54)),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.87),
                   height: 1.3,
                 ),
               ),
-              const SizedBox(height: 16),
-              Container(height: 1, color: Colors.grey[200]),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
+              Container(height: 1, color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.2)),
+              SizedBox(height: 16),
               ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: MediaQuery.of(context).size.height * 0.4,
@@ -138,32 +138,32 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 child: SingleChildScrollView(
                   child: Text(
                     content,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
-                      color: Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.87),
                       height: 1.5,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 28),
+              SizedBox(height: 28),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  padding: EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  backgroundColor: const Color(0xffb3272e),
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   elevation: 0,
                 ),
-                child: const Text(
+                child: Text(
                   'ĐÓNG',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
             ],
           ),
         );
@@ -189,17 +189,17 @@ class _NotificationScreenState extends State<NotificationScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xffb3272e)),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.primary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.inventory_2, color: Color(0xffb3272e)),
+            Icon(Icons.inventory_2, color: Theme.of(context).colorScheme.primary),
             SizedBox(width: 8),
             Text(
               'Smart Stock',
               style: TextStyle(
-                color: Color(0xffb3272e),
+                color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
               ),
@@ -211,7 +211,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             alignment: Alignment.center,
             children: [
               IconButton(
-                icon: const Icon(Icons.notifications, color: Color(0xffb3272e)),
+                icon: Icon(Icons.notifications, color: Theme.of(context).colorScheme.primary),
                 onPressed: () {},
               ),
               if (provider.unreadCount > 0)
@@ -219,11 +219,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   right: 4,
                   top: 4,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                     decoration: BoxDecoration(
-                      color: const Color(0xffb3272e),
+                      color: Theme.of(context).colorScheme.primary,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.white, width: 1.5),
+                      border: Border.all(color: Theme.of(context).colorScheme.onPrimary, width: 1.5),
                     ),
                     constraints: const BoxConstraints(
                       minWidth: 16,
@@ -231,8 +231,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     ),
                     child: Text(
                       provider.unreadCount > 99 ? '99+' : provider.unreadCount.toString(),
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.surface,
                         fontSize: 9,
                         fontWeight: FontWeight.bold,
                       ),
@@ -242,46 +242,46 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 ),
             ],
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
-          child: Container(color: Colors.grey[200], height: 1.0),
+          child: Container(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.2), height: 1.0),
         ),
       ),
       body: RefreshIndicator(
         onRefresh: () => provider.fetchNotifications(),
-        color: const Color(0xffb3272e),
+        color: Theme.of(context).colorScheme.primary,
         child: isLoading && provider.notifications.isEmpty
-            ? const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Color(0xffb3272e))))
+            ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Theme.of(context).colorScheme.primary)))
             : SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Header Section
-                    const Text(
+                    Text(
                       'Thông báo',
-                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black87),
+                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.87)),
                     ),
-                    const SizedBox(height: 4),
-                    const Text(
+                    SizedBox(height: 4),
+                    Text(
                       'Quản lý cảnh báo và cập nhật của bạn.',
-                      style: TextStyle(fontSize: 14, color: Colors.black54),
+                      style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54)),
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
 
                     // Tabs and Actions
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(4),
+                          padding: EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: const Color(0xffe4f0f4),
+                            color: Theme.of(context).colorScheme.surfaceContainer,
                             borderRadius: BorderRadius.circular(24),
-                            border: Border.all(color: Colors.grey[300]!),
+                            border: Border.all(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3)),
                           ),
                           child: Row(
                             children: [
@@ -293,28 +293,28 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         if (provider.unreadCount > 0)
                           TextButton.icon(
                             onPressed: () => provider.markAllAsRead(),
-                            icon: const Icon(Icons.done_all, size: 16, color: Color(0xffb3272e)),
-                            label: const Text(
+                            icon: Icon(Icons.done_all, size: 16, color: Theme.of(context).colorScheme.primary),
+                            label: Text(
                               'ĐỌC TẤT CẢ',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xffb3272e)),
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
                             ),
                           ),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
 
                     // Notifications List
                     if (filteredList.isEmpty)
                       Center(
                         child: Padding(
-                          padding: const EdgeInsets.only(top: 80.0),
+                          padding: EdgeInsets.only(top: 80.0),
                           child: Column(
                             children: [
-                              Icon(Icons.notifications_none, size: 64, color: Colors.grey[300]),
-                              const SizedBox(height: 12),
+                              Icon(Icons.notifications_none, size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3)),
+                              SizedBox(height: 12),
                               Text(
                                 'Không có thông báo nào.',
-                                style: TextStyle(color: Colors.grey[500], fontSize: 16),
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5), fontSize: 16),
                               ),
                             ],
                           ),
@@ -336,24 +336,24 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
                           // Style parameters based on notification type
                           IconData iconData = Icons.info_outline;
-                          Color iconColor = const Color(0xff1268f3);
-                          Color iconBgColor = const Color(0xffe4f0f4);
+                          Color iconColor = Theme.of(context).colorScheme.secondary;
+                          Color iconBgColor = Theme.of(context).colorScheme.surfaceContainer;
                           String typeLabel = 'Hệ thống';
 
                           if (type == 'WARNING') {
                             iconData = Icons.warning_amber_rounded;
-                            iconColor = const Color(0xffba1a1a);
-                            iconBgColor = const Color(0xffffdad6);
+                            iconColor = Theme.of(context).colorScheme.error;
+                            iconBgColor = Theme.of(context).colorScheme.errorContainer;
                             typeLabel = 'Cảnh báo';
                           } else if (type == 'TASK') {
                             iconData = Icons.assignment_outlined;
-                            iconColor = const Color(0xff006a67);
-                            iconBgColor = const Color(0xffe2f4f2);
+                            iconColor = Theme.of(context).colorScheme.onPrimaryContainer;
+                            iconBgColor = Theme.of(context).colorScheme.primaryContainer;
                             typeLabel = 'Nhiệm vụ';
                           } else if (type == 'SYSTEM') {
                             iconData = Icons.settings_suggest_outlined;
-                            iconColor = const Color(0xff586062);
-                            iconBgColor = const Color(0xffdae1e3);
+                            iconColor = Theme.of(context).colorScheme.onSurfaceVariant;
+                            iconBgColor = Theme.of(context).colorScheme.surfaceVariant;
                             typeLabel = 'Hệ thống';
                           }
 
@@ -374,18 +374,18 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               );
                             },
                             child: Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              padding: const EdgeInsets.all(12),
+                              margin: EdgeInsets.only(bottom: 12),
+                              padding: EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: isRead ? const Color(0xfff8f9fa) : Colors.white,
+                                color: isRead ? Theme.of(context).colorScheme.surfaceContainerLowest : Colors.white,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: isRead ? Colors.grey[100]! : const Color(0xffb3272e).withOpacity(0.15),
+                                  color: isRead ? Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)! : Theme.of(context).colorScheme.primary.withOpacity(0.15),
                                   width: isRead ? 1 : 1.5,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(isRead ? 0.02 : 0.04),
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(isRead ? 0.02 : 0.04),
                                     blurRadius: 4,
                                     offset: const Offset(0, 2),
                                   ),
@@ -403,7 +403,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                     ),
                                     child: Icon(iconData, color: iconColor, size: 20),
                                   ),
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -421,15 +421,15 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                                       style: TextStyle(
                                                         fontWeight: isRead ? FontWeight.w500 : FontWeight.bold,
                                                         fontSize: 15,
-                                                        color: isRead ? Colors.black54 : Colors.black87,
+                                                        color: isRead ? Theme.of(context).colorScheme.onSurface.withOpacity(0.54) : Theme.of(context).colorScheme.onSurface.withOpacity(0.87),
                                                       ),
                                                       maxLines: 1,
                                                       overflow: TextOverflow.ellipsis,
                                                     ),
                                                   ),
-                                                  const SizedBox(width: 8),
+                                                  SizedBox(width: 8),
                                                   Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                                     decoration: BoxDecoration(
                                                       color: iconBgColor,
                                                       borderRadius: BorderRadius.circular(4),
@@ -446,19 +446,19 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                                 ],
                                               ),
                                             ),
-                                            const SizedBox(width: 8),
+                                            SizedBox(width: 8),
                                             Text(
                                               timeStr,
-                                              style: const TextStyle(fontSize: 10, fontStyle: FontStyle.italic, color: Colors.black54),
+                                              style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54)),
                                             ),
                                           ],
                                         ),
-                                        const SizedBox(height: 6),
+                                        SizedBox(height: 6),
                                         Text(
                                           content,
                                           style: TextStyle(
                                             fontSize: 13, 
-                                            color: isRead ? Colors.black54 : Colors.black87,
+                                            color: isRead ? Theme.of(context).colorScheme.onSurface.withOpacity(0.54) : Theme.of(context).colorScheme.onSurface.withOpacity(0.87),
                                             fontWeight: isRead ? FontWeight.normal : FontWeight.w500,
                                           ),
                                           maxLines: 3,
@@ -485,11 +485,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   MaterialPageRoute(builder: (context) => const CreateNotificationScreen()),
                 );
               },
-              backgroundColor: const Color(0xffb3272e),
-              icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              icon: Icon(Icons.add, color: Theme.of(context).colorScheme.onPrimary),
+              label: Text(
                 'Gửi thông báo', 
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Theme.of(context).colorScheme.surface, fontWeight: FontWeight.bold),
               ),
             )
           : null,
@@ -505,15 +505,15 @@ class _NotificationScreenState extends State<NotificationScreen> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xffb3272e) : Colors.transparent,
+          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(24),
         ),
         child: Text(
           text,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black54,
+            color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.54),
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             fontSize: 14,
           ),

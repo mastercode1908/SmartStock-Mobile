@@ -50,16 +50,16 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
       backgroundColor: _background,
       appBar: _buildAppBar(context),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildPageHeader(),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             _buildSearchAndFilter(),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             _buildHistoryList(),
-            const SizedBox(height: 80),
+            SizedBox(height: 80),
           ],
         ),
       ),
@@ -84,7 +84,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
       title: Row(
         children: [
           Icon(Icons.inventory_2, color: _primary),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Text(
             'Smart Stock',
             style: TextStyle(
@@ -112,7 +112,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
           'Lịch sử kiểm kê',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: _onSurface),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(
           'Xem lại nhật ký phiên và báo cáo độ chính xác.',
           style: TextStyle(fontSize: 14, color: _onSurfaceVariant),
@@ -136,9 +136,9 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                 ),
                 child: Row(
                   children: [
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Icon(Icons.search, color: _secondary, size: 20),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(
                       child: TextField(
                         onChanged: (val) {
@@ -159,15 +159,15 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             ElevatedButton.icon(
               onPressed: _showAdvancedFilter,
-              icon: const Icon(Icons.tune, size: 20),
-              label: const Text('Lọc'),
+              icon: Icon(Icons.tune, size: 20),
+              label: Text('Lọc'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: (_filterStartDate != null || _filterEndDate != null) ? _primary : _surfaceContainerLowest,
                 foregroundColor: (_filterStartDate != null || _filterEndDate != null) ? Theme.of(context).colorScheme.onPrimary : _primary,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                   side: BorderSide(color: _primary.withOpacity(0.5))
@@ -185,7 +185,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
     return Consumer2<InventoryProvider, AuthProvider>(
       builder: (context, provider, auth, child) {
         if (provider.isLoading && provider.sessions.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator());
         }
 
         final user = context.watch<AuthProvider>().currentUser;
@@ -234,7 +234,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
         }
 
         if (completedSessions.isEmpty) {
-          return const Center(
+          return Center(
             child: Padding(
               padding: EdgeInsets.all(32.0),
               child: Text('Chưa có phiếu kiểm kê hoàn thành nào.'),
@@ -246,7 +246,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: completedSessions.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          separatorBuilder: (context, index) => SizedBox(height: 12),
           itemBuilder: (context, index) {
             final session = completedSessions[index];
             final dateStr = DateFormat('dd/MM/yyyy').format(session.startDate);
@@ -323,16 +323,16 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                 children: [
                   // Header
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.surfaceContainerHigh)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Bộ lọc thời gian', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text('Bộ lọc thời gian', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                         IconButton(
-                          icon: const Icon(Icons.close),
+                          icon: Icon(Icons.close),
                           onPressed: () => Navigator.pop(context),
                         ),
                       ],
@@ -340,11 +340,11 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                   ),
                   Expanded(
                     child: ListView(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(16),
                       children: [
                         // Date filters
-                        const Text('Theo khoảng thời gian', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                        const SizedBox(height: 12),
+                        Text('Theo khoảng thời gian', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        SizedBox(height: 12),
                         Row(
                           children: [
                             Expanded(
@@ -361,7 +361,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                                   }
                                 },
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                                   decoration: BoxDecoration(
                                     border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHigh),
                                     borderRadius: BorderRadius.circular(8),
@@ -377,7 +377,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             Expanded(
                               child: InkWell(
                                 onTap: () async {
@@ -392,7 +392,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                                   }
                                 },
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                                   decoration: BoxDecoration(
                                     border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHigh),
                                     borderRadius: BorderRadius.circular(8),
@@ -415,7 +415,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                   ),
                   // Footer buttons
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       border: Border(top: BorderSide(color: Theme.of(context).colorScheme.surfaceContainerHigh)),
                     ),
@@ -431,13 +431,13 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                               Navigator.pop(context);
                             },
                             style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              padding: EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
-                            child: const Text('Xóa bộ lọc'),
+                            child: Text('Xóa bộ lọc'),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        SizedBox(width: 16),
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () {
@@ -450,10 +450,10 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _primary,
                               foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              padding: EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
-                            child: const Text('Áp dụng', style: TextStyle(fontWeight: FontWeight.bold)),
+                            child: Text('Áp dụng', style: TextStyle(fontWeight: FontWeight.bold)),
                           ),
                         ),
                       ],
@@ -481,7 +481,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
     bool isCompleted = false,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: _surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16),
@@ -506,7 +506,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
             ),
             child: Icon(icon, color: iconColor),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -529,11 +529,11 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 Row(
                   children: [
                     Icon(Icons.warehouse_outlined, size: 14, color: _secondary),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         warehouseName,
@@ -544,18 +544,18 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Row(
                   children: [
                     Icon(Icons.category_outlined, size: 14, color: _secondary),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Text(
                       'Loại: $countType',
                       style: TextStyle(fontSize: 13, color: _secondary),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Icon(Icons.person_outline, size: 14, color: _secondary),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         createdBy,
@@ -566,7 +566,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 statusWidget,
               ],
             ),
@@ -584,8 +584,8 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
       unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
       showUnselectedLabels: true,
       currentIndex: 3,
-      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-      unselectedLabelStyle: const TextStyle(fontSize: 12),
+      selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+      unselectedLabelStyle: TextStyle(fontSize: 12),
       onTap: (index) {
         if (index == 0) {
           Navigator.popUntil(context, (route) => route.isFirst);
