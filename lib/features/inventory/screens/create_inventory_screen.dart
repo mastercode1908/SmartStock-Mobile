@@ -17,17 +17,17 @@ class CreateInventoryScreen extends StatefulWidget {
 
 class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
   // Define Colors from Tailwind Config
-  final Color _primary = const Color(0xFFB3272E);
-  final Color _surface = const Color(0xFFF1FBFF);
+  Color get _primary => Theme.of(context).colorScheme.primary;
+  Color get _surface => Theme.of(context).cardColor;
   final Color _surfaceContainerHighest = const Color(0xFFD9E4E9);
-  final Color _surfaceContainerLow = const Color(0xFFEAF5FA);
-  final Color _onSurfaceVariant = const Color(0xFF59413F);
+  Color get _surfaceContainerLow => Theme.of(context).colorScheme.surfaceContainerLow;
+  Color get _onSurfaceVariant => Theme.of(context).colorScheme.onSurfaceVariant;
   final Color _surfaceVariant = const Color(0xFFE1BEBC);
-  final Color _primaryContainer = const Color(0xFFFF5F5F);
-  final Color _secondary = const Color(0xFF586062);
-  final Color _secondaryContainer = const Color(0xFFDAE1E3);
+  Color get _primaryContainer => Theme.of(context).colorScheme.primaryContainer;
+  Color get _secondary => Theme.of(context).colorScheme.secondary;
+  Color get _secondaryContainer => Theme.of(context).colorScheme.secondaryContainer;
   
-  final Color _onSurface = const Color(0xFF131D21);
+  Color get _onSurface => Theme.of(context).colorScheme.onSurface;
 
   int? _selectedWarehouseId;
   int? _selectedLocationId;
@@ -214,7 +214,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: _buildAppBar(context),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -246,7 +246,7 @@ class _CreateInventoryScreenState extends State<CreateInventoryScreen> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 0,
       scrolledUnderElevation: 0,
       shape: Border(bottom: BorderSide(color: _surfaceContainerHighest, width: 1)),

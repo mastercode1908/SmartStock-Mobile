@@ -88,9 +88,9 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
     final isLoading = provider.isLoadingDetail;
 
     if (isLoading && detail == null) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: const Center(
           child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Color(0xffb3272e))),
         ),
       );
@@ -98,8 +98,8 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
 
     if (detail == null) {
       return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(backgroundColor: Colors.white, elevation: 0),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(backgroundColor: Theme.of(context).scaffoldBackgroundColor, elevation: 0),
         body: const Center(
           child: Text('Không thể tải chi tiết báo cáo sự cố.'),
         ),
@@ -129,7 +129,7 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
     return Scaffold(
       backgroundColor: const Color(0xfff8f9fa),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(

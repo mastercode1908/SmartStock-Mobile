@@ -20,20 +20,19 @@ class InventoryListScreen extends StatefulWidget {
 }
 
 class _InventoryListScreenState extends State<InventoryListScreen> {
-  // Define Colors from Tailwind Config
-  final Color _primary = const Color(0xFFB02528);
-  final Color _secondary = const Color(0xFF546067);
-  final Color _tertiary = const Color(0xFF93405F);
+  Color get _primary => Theme.of(context).colorScheme.primary;
+  Color get _secondary => Theme.of(context).colorScheme.secondary;
+  Color get _tertiary => const Color(0xFF93405F); // Not defined in ColorScheme easily, keep hardcoded or use tertiary if available
+
+  Color get _surface => Theme.of(context).cardColor;
+  Color get _surfaceContainerLow => Theme.of(context).colorScheme.surfaceContainerLow;
+  Color get _surfaceContainerLowest => Theme.of(context).cardColor;
+  Color get _onSurface => Theme.of(context).colorScheme.onSurface;
+  Color get _onSurfaceVariant => Theme.of(context).colorScheme.onSurfaceVariant;
   
-  final Color _surface = const Color(0xFFFFFFFF);
-  final Color _surfaceContainerLow = const Color(0xFFF3F3F3);
-  final Color _surfaceContainerLowest = const Color(0xFFFFFFFF);
-  final Color _onSurface = const Color(0xFF1A1C1C);
-  final Color _onSurfaceVariant = const Color(0xFF5A413F);
-  
-  final Color _outlineVariant = const Color(0xFFE2BEBB);
-  final Color _secondaryContainer = const Color(0xFFF0F0F0);
-  final Color _background = const Color(0xFFFFFFFF);
+  Color get _outlineVariant => Theme.of(context).colorScheme.surfaceContainerHigh;
+  Color get _secondaryContainer => Theme.of(context).colorScheme.secondaryContainer;
+  Color get _background => Theme.of(context).scaffoldBackgroundColor;
 
   String _currentFilter = 'TẤT CẢ';
   String _searchQuery = '';
@@ -149,7 +148,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
           child: Container(
             height: 48,
             decoration: BoxDecoration(
-              color: _surfaceContainerLow,
+              color: Theme.of(context).brightness == Brightness.light ? Colors.white : Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: _outlineVariant.withOpacity(0.5)),
             ),
@@ -634,9 +633,9 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
             final staffs = context.read<InventoryProvider>().staffs;
             return Container(
               height: MediaQuery.of(context).size.height * 0.6,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
               ),
               child: Column(
                 children: [
@@ -831,9 +830,9 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
   Widget _buildBottomNav(BuildContext context) {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.white,
-      selectedItemColor: const Color(0xFFB02528),
-      unselectedItemColor: const Color(0xFF546067),
+      backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+      selectedItemColor: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
+      unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
       showUnselectedLabels: true,
       currentIndex: 1,
       selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),

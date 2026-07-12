@@ -18,7 +18,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   bool _obscureNew = true;
   bool _obscureConfirm = true;
 
-  final Color _primary = const Color(0xFFB3272E);
+  Color get _primary => Theme.of(context).colorScheme.primary;
 
   @override
   void dispose() {
@@ -56,9 +56,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     final isLoading = context.watch<AuthProvider>().isLoading;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: _primary),

@@ -6,6 +6,7 @@ import '../../auth/providers/auth_provider.dart';
 import '../../auth/screens/login_screen.dart';
 import 'change_password_screen.dart';
 import 'static_pages.dart';
+import '../../../core/providers/theme_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -18,20 +19,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
+    final themeProvider = context.watch<ThemeProvider>();
     final user = authProvider.currentUser;
 
     if (user == null) {
       return const Center(child: CircularProgressIndicator());
     }
 
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xffb3272e)),
+          icon: Icon(Icons.arrow_back, color: colorScheme.primary),
           onPressed: () {
             if (Navigator.canPop(context)) {
               Navigator.pop(context);
@@ -39,13 +44,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           },
         ),
         title: Row(
-          children: const [
-            Icon(Icons.inventory_2, color: Color(0xffb3272e)),
-            SizedBox(width: 8),
+          children: [
+            Icon(Icons.inventory_2, color: colorScheme.primary),
+            const SizedBox(width: 8),
             Text(
               'Smart Stock',
               style: TextStyle(
-                color: Color(0xffb3272e),
+                color: colorScheme.primary,
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
               ),
@@ -54,7 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications, color: Color(0xffb3272e)),
+            icon: Icon(Icons.notifications, color: colorScheme.primary),
             onPressed: () {},
           ),
           const SizedBox(width: 8),
@@ -72,14 +77,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey[200]!),
-                boxShadow: const [
+                border: Border.all(color: colorScheme.surfaceContainerHigh),
+                boxShadow: [
                   BoxShadow(
-                    color: Colors.black12,
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 8,
-                    offset: Offset(0, 2),
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
@@ -92,7 +97,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         height: 96,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.grey[200]!),
+                          border: Border.all(color: colorScheme.surfaceContainerHigh),
                           image: DecorationImage(
                             image: NetworkImage(
                               user.avatarUrl.isNotEmpty
@@ -133,10 +138,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 16),
                   Text(
                     user.fullName.isNotEmpty ? user.fullName : 'Chưa có tên',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -165,18 +170,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.grey[100],
+                      color: Theme.of(context).brightness == Brightness.light ? Colors.grey[100] : Theme.of(context).colorScheme.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.grey[200]!),
+                      border: Border.all(color: Theme.of(context).colorScheme.surfaceContainer),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(Icons.warehouse, size: 16, color: Colors.black54),
-                        SizedBox(width: 4),
+                      children: [
+                        Icon(Icons.warehouse, size: 16, color: colorScheme.onSurfaceVariant),
+                        const SizedBox(width: 4),
                         Text(
                           'Kho Chính - Tầng 1',
-                          style: TextStyle(fontSize: 12, color: Colors.black54),
+                          style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
                         ),
                       ],
                     ),
@@ -236,7 +241,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Icons.dark_mode,
                   'Giao diện tối',
                   hasSwitch: true,
-                  switchValue: false,
+                  switchValue: themeProvider.isDarkMode,
+                  onSwitchChanged: (val) {
+                    themeProvider.toggleTheme(val);
+                  },
                 ),
               ],
             ),
@@ -292,8 +300,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xffb3272e),
-                  foregroundColor: Colors.white,
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -324,24 +332,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
           padding: const EdgeInsets.only(left: 8, bottom: 8),
           child: Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: Colors.black54,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               letterSpacing: 1.2,
             ),
           ),
         ),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey[200]!),
-            boxShadow: const [
+            border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHigh),
+            boxShadow: [
               BoxShadow(
-                color: Colors.black12,
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 4,
-                offset: Offset(0, 2),
+                offset: const Offset(0, 2),
               ),
             ],
           ),
@@ -359,6 +367,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     bool hasSwitch = false,
     bool switchValue = false,
     VoidCallback? onTap,
+    ValueChanged<bool>? onSwitchChanged,
   }) {
     return InkWell(
       onTap: onTap,
@@ -370,32 +379,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: Theme.of(context).brightness == Brightness.light ? Colors.grey[100] : Theme.of(context).colorScheme.surfaceContainerLow,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: Colors.black54, size: 20),
+              child: Icon(icon, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(fontSize: 16, color: Colors.black87),
+                style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
               ),
             ),
             if (trailingText != null)
               Text(
                 trailingText,
-                style: const TextStyle(fontSize: 14, color: Colors.black54),
+                style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             if (hasArrow)
-              const Padding(
-                padding: EdgeInsets.only(left: 8.0),
-                child: Icon(Icons.chevron_right, color: Colors.black38),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             if (hasSwitch)
               Switch(
                 value: switchValue,
-                onChanged: (val) {},
+                onChanged: onSwitchChanged ?? (val) {},
                 activeColor: const Color(0xffb3272e),
               ),
           ],
@@ -405,7 +414,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildDivider() {
-    return Divider(height: 1, thickness: 1, color: Colors.grey[100]);
+    return Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.surfaceContainerHigh);
   }
 
   void _showEditProfileDialog(
@@ -427,7 +436,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              backgroundColor: Colors.white,
+              backgroundColor: DialogTheme.of(context).backgroundColor ?? Theme.of(context).cardColor,
               title: const Text(
                 'Cập nhật thông tin',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),

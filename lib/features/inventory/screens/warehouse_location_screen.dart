@@ -145,7 +145,7 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
     return Scaffold(
       backgroundColor: const Color(0xfff8f9fa),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0.5,
         scrolledUnderElevation: 0.5,
         centerTitle: true,

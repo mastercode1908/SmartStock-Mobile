@@ -21,8 +21,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   // Colors matching tailwind design
   final Color _surfaceContainer = const Color(0xFFE4F0F4);
   final Color _surfaceVariant = const Color(0xFFD9E4E9);
-  final Color _primaryContainer = const Color(0xFFFF5F5F);
-  final Color _onSurfaceVariant = const Color(0xFF59413F);
+  Color get _primaryContainer => Theme.of(context).colorScheme.primaryContainer;
+  Color get _onSurfaceVariant => Theme.of(context).colorScheme.onSurfaceVariant;
   final Color _tertiaryContainer = const Color(0xFF00A7A3);
   final Color _tertiaryColor = const Color(0xFF006A67);
 
@@ -37,9 +37,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
@@ -149,17 +149,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           const SizedBox(height: 12),
                           Text(
                             product.productName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xff131d21),
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           if (product.brand != null) ...[
                             const SizedBox(height: 4),
                             Text(
                               'Thương hiệu: ${product.brand!.brandName} (${product.brand!.country})',
-                              style: const TextStyle(fontSize: 14, color: Colors.black54),
+                              style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
                           ],
                         ],
@@ -178,12 +178,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                 child: Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: Theme.of(context).cardColor,
                                     borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: Colors.grey[200]!),
+                                    border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHigh),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.02),
+                                        color: Colors.black.withValues(alpha: 0.02),
                                         blurRadius: 12,
                                         offset: const Offset(0, 4),
                                       ),
@@ -193,12 +193,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Row(
-                                        children: const [
-                                          Icon(Icons.widgets_outlined, size: 18, color: Colors.black54),
-                                          SizedBox(width: 8),
+                                        children: [
+                                          Icon(Icons.widgets_outlined, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                          const SizedBox(width: 8),
                                           Text('BIẾN THỂ',
                                               style: TextStyle(
-                                                  fontSize: 11, color: Colors.black54, fontWeight: FontWeight.bold)),
+                                                  fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
                                         ],
                                       ),
                                       const SizedBox(height: 8),
@@ -224,12 +224,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                 child: Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: Theme.of(context).cardColor,
                                     borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: Colors.grey[200]!),
+                                    border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHigh),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.02),
+                                        color: Colors.black.withValues(alpha: 0.02),
                                         blurRadius: 12,
                                         offset: const Offset(0, 4),
                                       ),
@@ -239,12 +239,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Row(
-                                        children: const [
-                                          Icon(Icons.scale, size: 18, color: Colors.black54),
-                                          SizedBox(width: 8),
+                                        children: [
+                                          Icon(Icons.scale, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                          const SizedBox(width: 8),
                                           Text('ĐƠN VỊ CƠ BẢN',
                                               style: TextStyle(
-                                                  fontSize: 11, color: Colors.black54, fontWeight: FontWeight.bold)),
+                                                  fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
                                         ],
                                       ),
                                       const SizedBox(height: 12),
@@ -304,7 +304,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: Theme.of(context).cardColor,
                                     borderRadius: BorderRadius.circular(24),
                                   ),
                                   child: Text(
@@ -449,7 +449,7 @@ class VariantItemCard extends StatefulWidget {
 
 class _VariantItemCardState extends State<VariantItemCard> {
   final currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
-  final Color _primary = const Color(0xFFB3272E);
+  Color get _primary => Theme.of(context).colorScheme.primary;
 
   @override
   void initState() {
@@ -468,9 +468,9 @@ class _VariantItemCardState extends State<VariantItemCard> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
+        border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHigh),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

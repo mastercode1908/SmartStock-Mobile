@@ -44,24 +44,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xfff9f9f9), // background
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xfff9f9f9),
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xffb02528)),
+          icon: Icon(Icons.arrow_back, color: colorScheme.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Row(
-          children: const [
-            Icon(Icons.inventory_2, color: Color(0xffb02528)),
-            SizedBox(width: 8),
+          children: [
+            Icon(Icons.inventory_2, color: colorScheme.primary),
+            const SizedBox(width: 8),
             Text(
               'Smart Stock',
               style: TextStyle(
-                color: Color(0xffb02528),
+                color: colorScheme.primary,
                 fontWeight: FontWeight.bold,
                 fontSize: 24,
               ),
@@ -154,10 +157,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     return Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: theme.cardColor,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xffe2bebb)),
-                        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                        border: Border.all(color: colorScheme.surfaceContainerHigh),
+                        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2))],
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -165,9 +168,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Chào, $displayName', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87)),
+                              Text('Chào, $displayName', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
                               const SizedBox(height: 4),
-                              Text('Ca làm việc: ${_getCurrentShift()}', style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                              Text('Ca làm việc: ${_getCurrentShift()}', style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant)),
                             ],
                           ),
                           Container(
@@ -175,7 +178,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             height: 48,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(color: const Color(0xffe2bebb)),
+                              border: Border.all(color: colorScheme.surfaceContainerHigh),
                               image: DecorationImage(
                                 image: NetworkImage(
                                   user?.avatarUrl?.isNotEmpty == true
@@ -241,10 +244,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: theme.cardColor,
                                   borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: const Color(0xffe2bebb)),
-                                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                                  border: Border.all(color: colorScheme.surfaceContainerHigh),
+                                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2))],
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -253,9 +256,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        const Text('ĐÃ DUYỆT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54, letterSpacing: 1.0)),
+                                        Text('ĐÃ DUYỆT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant, letterSpacing: 1.0)),
                                         const SizedBox(height: 4),
-                                        Text('$completedSessions đơn', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
+                                        Text('$completedSessions đơn', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
                                       ],
                                     ),
                                     const Icon(Icons.check_circle_outline, color: Color(0xff93405f)),
@@ -268,10 +271,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xffffdad6),
+                                  color: theme.brightness == Brightness.dark ? colorScheme.errorContainer.withValues(alpha: 0.2) : const Color(0xffffdad6),
                                   borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: const Color(0xffba1a1a).withOpacity(0.2)),
-                                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                                  border: Border.all(color: colorScheme.error.withValues(alpha: 0.2)),
+                                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2))],
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -280,9 +283,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        const Text('CHỜ DUYỆT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff93000a), letterSpacing: 1.0)),
+                                        Text('CHỜ DUYỆT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: theme.brightness == Brightness.dark ? const Color(0xffffb4ab) : const Color(0xff93000a), letterSpacing: 1.0)),
                                         const SizedBox(height: 4),
-                                        Text('$pendingSessions đơn', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xff93000a))),
+                                        Text('$pendingSessions đơn', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: theme.brightness == Brightness.dark ? const Color(0xffffb4ab) : const Color(0xff93000a))),
                                       ],
                                     ),
                                     const Icon(Icons.pending_actions, color: Color(0xffba1a1a)),
@@ -299,7 +302,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 24),
     
                 // Quick Access Grid
-                const Text('Truy cập nhanh', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87)),
+                Text('Truy cập nhanh', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
                 const SizedBox(height: 16),
                 Column(
                   children: [
@@ -386,8 +389,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: _buildQuickAccessButton(
                             icon: Icons.notifications, 
                             label: 'Thông báo', 
-                            bgColor: const Color(0xffb02528), 
-                            iconColor: Colors.white,
+                            bgColor: Theme.of(context).colorScheme.primary, 
+                            iconColor: Theme.of(context).colorScheme.onPrimary,
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -407,10 +410,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                const Text('Hoạt động gần đây', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87)),
+                Text('Hoạt động gần đây', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
                 InkWell(
                   onTap: () {},
-                  child: const Text('Xem tất cả', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xffb02528))),
+                  child: Text('Xem tất cả', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
                 ),
               ],
             ),
@@ -421,9 +424,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               
               if (top3.isEmpty) {
                 return [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24.0),
-                    child: Center(child: Text('Chưa có hoạt động nào', style: TextStyle(color: Colors.black54))),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24.0),
+                    child: Center(child: Text('Chưa có hoạt động nào', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                   )
                 ];
               }
@@ -535,7 +538,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Icon(icon, color: iconColor, size: 28),
           ),
           const SizedBox(height: 8),
-          Text(label, style: const TextStyle(fontSize: 13, color: Colors.black87), textAlign: TextAlign.center),
+          Text(label, style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface), textAlign: TextAlign.center),
         ],
       ),
     );
@@ -556,10 +559,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xffe2bebb)),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+        border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHigh),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2))],
       ),
       child: Row(
         children: [
@@ -580,8 +583,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87)),
-                    Text(time, style: const TextStyle(fontSize: 12, color: Colors.black54, letterSpacing: 1.0)),
+                    Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+                    Text(time, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant, letterSpacing: 1.0)),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -613,7 +616,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildBottomNav(BuildContext context) {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
       selectedItemColor: const Color(0xFFB02528),
       unselectedItemColor: const Color(0xFF546067),
       showUnselectedLabels: true,

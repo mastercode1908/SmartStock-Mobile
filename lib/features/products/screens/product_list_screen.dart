@@ -22,9 +22,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
   final currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
 
   // Styling colors matching mockups
-  final Color _primary = const Color(0xFFB02528);
-  final Color _primaryContainer = const Color(0xFFD23E3E);
-  final Color _surface = const Color(0xFFF9F9F9);
+  Color get _primary => Theme.of(context).colorScheme.primary;
+  Color get _primaryContainer => Theme.of(context).colorScheme.primaryContainer;
+  Color get _surface => Theme.of(context).cardColor;
 
   int? _tempCategoryId;
   int? _tempBrandId;
@@ -80,8 +80,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
               constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.8,
               ),
-              decoration: const BoxDecoration(
-                color: Colors.white,
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
               padding: const EdgeInsets.all(24),
@@ -285,7 +285,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     return Scaffold(
       backgroundColor: _surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         scrolledUnderElevation: 0,
         bottom: PreferredSize(
@@ -459,17 +459,17 @@ class _ProductListScreenState extends State<ProductListScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? _primaryContainer.withOpacity(0.1) : Colors.white,
+          color: isSelected ? _primaryContainer.withValues(alpha: 0.1) : Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isSelected ? _primaryContainer.withOpacity(0.2) : Colors.grey[300]!,
+            color: isSelected ? _primaryContainer.withValues(alpha: 0.2) : Theme.of(context).colorScheme.surfaceContainerHigh,
           ),
         ),
         child: Center(
           child: Text(
             label,
             style: TextStyle(
-              color: isSelected ? _primary : Colors.black54,
+              color: isSelected ? _primary : Theme.of(context).colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w600,
               fontSize: 13,
             ),
@@ -482,19 +482,19 @@ class _ProductListScreenState extends State<ProductListScreen> {
   Widget _buildParentProductCard(Product product) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[200]!),
+        border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHigh),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2)),
         ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: ExpansionTile(
           shape: const Border(),
-          backgroundColor: Colors.white,
-          collapsedBackgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          collapsedBackgroundColor: Theme.of(context).cardColor,
           leading: ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: product.imageUrl.isNotEmpty
@@ -519,7 +519,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
           ),
           title: Text(
             product.productName,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -746,7 +746,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   Widget _buildBottomNav(BuildContext context) {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       selectedItemColor: const Color(0xFF546067),
       unselectedItemColor: const Color(0xFF546067),
       showUnselectedLabels: true,

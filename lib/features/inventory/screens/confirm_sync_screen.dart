@@ -14,24 +14,24 @@ class ConfirmSyncScreen extends StatefulWidget {
 
 class _ConfirmSyncScreenState extends State<ConfirmSyncScreen> {
 
-  final Color _primary = const Color(0xFFB3272E);
-  final Color _surfaceContainerLowest = const Color(0xFFFFFFFF);
-  final Color _onSurfaceVariant = const Color(0xFF59413F);
-  final Color _onSurface = const Color(0xFF131D21);
-  final Color _secondary = const Color(0xFF586062);
-  final Color _error = const Color(0xFFBA1A1A);
-  final Color _errorContainer = const Color(0xFFFFDAD6);
-  final Color _primaryContainer = const Color(0xFFFF5F5F);
-  final Color _secondaryContainer = const Color(0xFFDAE1E3);
-  final Color _onSecondaryContainer = const Color(0xFF5D6466);
+  Color get _primary => Theme.of(context).colorScheme.primary;
+  Color get _surfaceContainerLowest => Theme.of(context).cardColor;
+  Color get _onSurfaceVariant => Theme.of(context).colorScheme.onSurfaceVariant;
+  Color get _onSurface => Theme.of(context).colorScheme.onSurface;
+  Color get _secondary => Theme.of(context).colorScheme.secondary;
+  Color get _error => Theme.of(context).colorScheme.error;
+  Color get _errorContainer => Theme.of(context).colorScheme.errorContainer;
+  Color get _primaryContainer => Theme.of(context).colorScheme.primaryContainer;
+  Color get _secondaryContainer => Theme.of(context).colorScheme.secondaryContainer;
+  Color get _onSecondaryContainer => Theme.of(context).colorScheme.onSecondaryContainer;
   final Color _tertiaryContainer = const Color(0xFF00A7A3);
-  final Color _surfaceContainerLow = const Color(0xFFEAF5FA);
-  final Color _background = const Color(0xFFF1FBFF);
+  Color get _surfaceContainerLow => Theme.of(context).colorScheme.surfaceContainerLow;
+  Color get _background => Theme.of(context).scaffoldBackgroundColor;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: _buildAppBar(context),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -51,7 +51,7 @@ class _ConfirmSyncScreenState extends State<ConfirmSyncScreen> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 1,
       shadowColor: Colors.black.withOpacity(0.05),
       leading: IconButton(

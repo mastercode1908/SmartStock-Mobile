@@ -89,23 +89,23 @@ class _PickingListScreenState extends State<PickingListScreen> with SingleTicker
     final provider = context.watch<PickingProvider>();
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xffb3272e)),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.primary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.inventory_2, color: Color(0xffb3272e)),
-            SizedBox(width: 8),
+            Icon(Icons.inventory_2, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 8),
             Text(
               'Nhặt Hàng (Picking)',
               style: TextStyle(
-                color: Color(0xffb3272e),
+                color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
               ),
@@ -114,9 +114,9 @@ class _PickingListScreenState extends State<PickingListScreen> with SingleTicker
         ),
         bottom: TabBar(
           controller: _tabController,
-          labelColor: const Color(0xffb3272e),
-          unselectedLabelColor: Colors.black54,
-          indicatorColor: const Color(0xffb3272e),
+          labelColor: Theme.of(context).colorScheme.primary,
+          unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+          indicatorColor: Theme.of(context).colorScheme.primary,
           tabs: _isManager
               ? const [
                   Tab(text: 'Nhiệm vụ'),
@@ -169,11 +169,11 @@ class _PickingListScreenState extends State<PickingListScreen> with SingleTicker
                     final assignedName = task.assignedToUser?.fullName ?? 'Chờ phân công';
 
                     return Card(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       margin: const EdgeInsets.only(bottom: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: Colors.grey[200]!),
+                        side: BorderSide(color: Theme.of(context).colorScheme.surfaceContainerHigh),
                       ),
                       elevation: 1,
                       child: InkWell(
@@ -222,7 +222,7 @@ class _PickingListScreenState extends State<PickingListScreen> with SingleTicker
                                   const SizedBox(width: 6),
                                   Text(
                                     'Nhân viên: $assignedName',
-                                    style: const TextStyle(color: Colors.black87, fontSize: 14),
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14),
                                   ),
                                 ],
                               ),
@@ -233,7 +233,7 @@ class _PickingListScreenState extends State<PickingListScreen> with SingleTicker
                                   const SizedBox(width: 6),
                                   Text(
                                     'Thời gian: $dateStr',
-                                    style: const TextStyle(color: Colors.black54, fontSize: 12),
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
                                   ),
                                 ],
                               ),
@@ -268,11 +268,11 @@ class _PickingListScreenState extends State<PickingListScreen> with SingleTicker
                     final creator = issue.createdByUser?.fullName ?? 'Hệ thống';
 
                     return Card(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       margin: const EdgeInsets.only(bottom: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: Colors.grey[200]!),
+                        side: BorderSide(color: Theme.of(context).colorScheme.surfaceContainerHigh),
                       ),
                       elevation: 1,
                       child: Padding(
@@ -311,8 +311,8 @@ class _PickingListScreenState extends State<PickingListScreen> with SingleTicker
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xffb3272e),
-                                foregroundColor: Colors.white,
+                                backgroundColor: Theme.of(context).colorScheme.primary,
+                                foregroundColor: Theme.of(context).colorScheme.onPrimary,
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),

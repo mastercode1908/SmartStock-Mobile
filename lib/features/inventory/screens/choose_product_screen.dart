@@ -14,17 +14,17 @@ class ChooseProductScreen extends StatefulWidget {
 }
 
 class _ChooseProductScreenState extends State<ChooseProductScreen> {
-  final Color _primary = const Color(0xFFB3272E);
-  final Color _primaryContainer = const Color(0xFFFF5F5F);
-  final Color _surfaceContainerLowest = const Color(0xFFFFFFFF);
-  final Color _surfaceContainerLow = const Color(0xFFEAF5FA);
+  Color get _primary => Theme.of(context).colorScheme.primary;
+  Color get _primaryContainer => Theme.of(context).colorScheme.primaryContainer;
+  Color get _surfaceContainerLowest => Theme.of(context).cardColor;
+  Color get _surfaceContainerLow => Theme.of(context).colorScheme.surfaceContainerLow;
   final Color _surfaceContainerHighest = const Color(0xFFD9E4E9);
-  final Color _onSurface = const Color(0xFF131D21);
-  final Color _onSurfaceVariant = const Color(0xFF59413F);
-  final Color _outlineVariant = const Color(0xFFE1BEBC);
-  final Color _secondary = const Color(0xFF586062);
-  final Color _secondaryContainer = const Color(0xFFDAE1E3);
-  final Color _background = const Color(0xFFF1FBFF);
+  Color get _onSurface => Theme.of(context).colorScheme.onSurface;
+  Color get _onSurfaceVariant => Theme.of(context).colorScheme.onSurfaceVariant;
+  Color get _outlineVariant => Theme.of(context).colorScheme.surfaceContainerHigh;
+  Color get _secondary => Theme.of(context).colorScheme.secondary;
+  Color get _secondaryContainer => Theme.of(context).colorScheme.secondaryContainer;
+  Color get _background => Theme.of(context).scaffoldBackgroundColor;
 
   String _searchQuery = '';
   int _selectedTrackingMethod = -1; // -1: All, 0: None, 1: Lot, 2: Serial
@@ -41,7 +41,7 @@ class _ChooseProductScreenState extends State<ChooseProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: _buildAppBar(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -62,7 +62,7 @@ class _ChooseProductScreenState extends State<ChooseProductScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 1,
       shadowColor: Colors.black.withOpacity(0.1),
       leading: IconButton(

@@ -16,15 +16,15 @@ class InventoryDetailScreen extends StatefulWidget {
 }
 
 class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
-  final Color _primary = const Color(0xFFB3272E);
-  final Color _surfaceContainerLowest = const Color(0xFFFFFFFF);
-  final Color _onSurfaceVariant = const Color(0xFF59413F);
-  final Color _onSurface = const Color(0xFF131D21);
-  final Color _surfaceContainerHigh = const Color(0xFFDFEAEF);
-  final Color _outlineVariant = const Color(0xFFE1BEBC);
+  Color get _primary => Theme.of(context).colorScheme.primary;
+  Color get _surfaceContainerLowest => Theme.of(context).cardColor;
+  Color get _onSurfaceVariant => Theme.of(context).colorScheme.onSurfaceVariant;
+  Color get _onSurface => Theme.of(context).colorScheme.onSurface;
+  Color get _surfaceContainerHigh => Theme.of(context).colorScheme.surfaceContainerHigh;
+  Color get _outlineVariant => Theme.of(context).colorScheme.surfaceContainerHigh;
   final Color _tertiary = const Color(0xFF006A67);
-  final Color _error = const Color(0xFFBA1A1A);
-  final Color _errorContainer = const Color(0xFFFFDAD6);
+  Color get _error => Theme.of(context).colorScheme.error;
+  Color get _errorContainer => Theme.of(context).colorScheme.errorContainer;
   final Color _surfaceContainer = const Color(0xFFE4F0F4);
 
   // Map to hold text controllers for each variant
@@ -156,7 +156,7 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: _buildAppBar(context),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -177,7 +177,7 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 1,
       shadowColor: Colors.black.withOpacity(0.05),
       leading: IconButton(

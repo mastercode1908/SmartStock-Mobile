@@ -10,6 +10,8 @@ import 'features/notifications/providers/notification_provider.dart';
 import 'features/picking/providers/picking_provider.dart';
 import 'features/inventory/providers/incident_provider.dart';
 import 'features/auth/screens/splash_screen.dart';
+import 'core/providers/theme_provider.dart';
+import 'core/theme/app_theme.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -25,6 +27,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => InventoryProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
@@ -44,14 +47,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Smart Stock',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFB3272E)),
-        useMaterial3: true,
-      ),
-      home: const SplashScreen(),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          title: 'Smart Stock',
+          debugShowCheckedModeBanner: false,
+          themeMode: themeProvider.themeMode,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          home: const SplashScreen(),
+        );
+      },
     );
   }
 }

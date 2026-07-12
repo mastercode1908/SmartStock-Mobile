@@ -82,18 +82,18 @@ class _PickingDetailScreenState extends State<PickingDetailScreen> {
     final isLoading = provider.isLoadingDetail;
 
     if (isLoading && task == null) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Center(
-          child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Color(0xffb3272e))),
+          child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Theme.of(context).colorScheme.primary)),
         ),
       );
     }
 
     if (task == null) {
       return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(backgroundColor: Colors.white, elevation: 0),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(backgroundColor: Theme.of(context).scaffoldBackgroundColor, elevation: 0),
         body: const Center(
           child: Text('Không thể tải chi tiết nhiệm vụ.'),
         ),
@@ -104,19 +104,19 @@ class _PickingDetailScreenState extends State<PickingDetailScreen> {
     final completedItemsCount = task.details.where((d) => d.pickedQuantity >= d.expectedQuantity).length;
 
     return Scaffold(
-      backgroundColor: const Color(0xfff8f9fa),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xffb3272e)),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           task.taskCode,
-          style: const TextStyle(
-            color: Color(0xffb3272e),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),

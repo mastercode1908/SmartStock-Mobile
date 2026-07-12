@@ -16,13 +16,13 @@ class InventoryHistoryDetailScreen extends StatefulWidget {
 }
 
 class _InventoryHistoryDetailScreenState extends State<InventoryHistoryDetailScreen> {
-  final Color _primary = const Color(0xFFB3272E);
-  final Color _surfaceContainerLowest = const Color(0xFFFFFFFF);
-  final Color _onSurfaceVariant = const Color(0xFF59413F);
-  final Color _onSurface = const Color(0xFF131D21);
-  final Color _secondary = const Color(0xFF586062);
-  final Color _outlineVariant = const Color(0xFFE1BEBC);
-  final Color _surfaceContainerHigh = const Color(0xFFDFEAEF);
+  Color get _primary => Theme.of(context).colorScheme.primary;
+  Color get _surfaceContainerLowest => Theme.of(context).cardColor;
+  Color get _onSurfaceVariant => Theme.of(context).colorScheme.onSurfaceVariant;
+  Color get _onSurface => Theme.of(context).colorScheme.onSurface;
+  Color get _secondary => Theme.of(context).colorScheme.secondary;
+  Color get _outlineVariant => Theme.of(context).colorScheme.surfaceContainerHigh;
+  Color get _surfaceContainerHigh => Theme.of(context).colorScheme.surfaceContainerHigh;
 
   @override
   void initState() {
@@ -35,9 +35,9 @@ class _InventoryHistoryDetailScreenState extends State<InventoryHistoryDetailScr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 1,
         shadowColor: Colors.black.withOpacity(0.05),
         leading: IconButton(

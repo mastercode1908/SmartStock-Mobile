@@ -160,9 +160,9 @@ class _StorageLocationFormScreenState extends State<StorageLocationFormScreen> {
     final provider = context.watch<StorageLocationProvider>();
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0.5,
         scrolledUnderElevation: 0.5,
         centerTitle: true,

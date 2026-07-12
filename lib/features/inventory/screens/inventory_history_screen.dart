@@ -19,18 +19,18 @@ class InventoryHistoryScreen extends StatefulWidget {
 }
 
 class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
-  final Color _primary = const Color(0xFFB3272E);
-  final Color _surfaceContainerLowest = const Color(0xFFFFFFFF);
-  final Color _onSurfaceVariant = const Color(0xFF59413F);
-  final Color _onSurface = const Color(0xFF131D21);
-  final Color _secondary = const Color(0xFF586062);
-  final Color _error = const Color(0xFFBA1A1A);
-  final Color _surfaceContainerLow = const Color(0xFFEAF5FA);
-  final Color _outlineVariant = const Color(0xFFE1BEBC);
-  final Color _secondaryContainer = const Color(0xFFDAE1E3);
-  final Color _onSecondaryContainer = const Color(0xFF5D6466);
-  final Color _surfaceContainerHigh = const Color(0xFFDFEAEF);
-  final Color _background = const Color(0xFFF1FBFF);
+  Color get _primary => Theme.of(context).colorScheme.primary;
+  Color get _surfaceContainerLowest => Theme.of(context).cardColor;
+  Color get _onSurfaceVariant => Theme.of(context).colorScheme.onSurfaceVariant;
+  Color get _onSurface => Theme.of(context).colorScheme.onSurface;
+  Color get _secondary => Theme.of(context).colorScheme.secondary;
+  Color get _error => Theme.of(context).colorScheme.error;
+  Color get _surfaceContainerLow => Theme.of(context).colorScheme.surfaceContainerLow;
+  Color get _outlineVariant => Theme.of(context).colorScheme.surfaceContainerHigh;
+  Color get _secondaryContainer => Theme.of(context).colorScheme.secondaryContainer;
+  Color get _onSecondaryContainer => Theme.of(context).colorScheme.onSecondaryContainer;
+  Color get _surfaceContainerHigh => Theme.of(context).colorScheme.surfaceContainerHigh;
+  Color get _background => Theme.of(context).scaffoldBackgroundColor;
 
   DateTime? _filterStartDate;
   DateTime? _filterEndDate;
@@ -47,7 +47,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _background,
       appBar: _buildAppBar(context),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -69,7 +69,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: _background,
       elevation: 0,
       scrolledUnderElevation: 0,
       shape: Border(bottom: BorderSide(color: _outlineVariant.withOpacity(0.3), width: 1)),
@@ -315,9 +315,9 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
           builder: (context, setModalState) {
             return Container(
               height: MediaQuery.of(context).size.height * 0.45,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
               ),
               child: Column(
                 children: [
@@ -579,9 +579,9 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
   Widget _buildBottomNav(BuildContext context) {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.white,
-      selectedItemColor: const Color(0xFFB3272E),
-      unselectedItemColor: const Color(0xFF586062),
+      backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+      selectedItemColor: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
+      unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
       showUnselectedLabels: true,
       currentIndex: 3,
       selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
