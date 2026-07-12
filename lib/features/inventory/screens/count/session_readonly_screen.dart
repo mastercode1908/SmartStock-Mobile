@@ -79,8 +79,29 @@ class _SessionReadonlyScreenState extends State<SessionReadonlyScreen> {
     final role = context.read<AuthProvider>().currentUser?.roleName ?? '';
     final isManager = role.toLowerCase().contains('admin') || role.toLowerCase().contains('manager');
 
-    if (!isManager || session.status != 'PENDING') return null;
+    if (!isManager || (session.status != 'PENDING' && session.status != 'APPROVED')) return null;
 
+    if (session.status == 'APPROVED') {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(top: BorderSide(color: Colors.black.withOpacity(0.05))),
+        ),
+        child: ElevatedButton(
+          onPressed: () => _updateStatus(session, 'POSTED'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.error, // Red for POSTED as requested
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+          child: const Text('GHI NHẬN ĐỒNG BỘ KHO', style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+      );
+    }
+
+    // PENDING state
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -106,7 +127,7 @@ class _SessionReadonlyScreenState extends State<SessionReadonlyScreen> {
             child: ElevatedButton(
               onPressed: () => _updateStatus(session, 'APPROVED'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xff0f5132),
+                backgroundColor: AppColors.error, // Red for Approve as requested
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -124,7 +145,7 @@ class _SessionReadonlyScreenState extends State<SessionReadonlyScreen> {
     final success = await provider.updateSessionStatus(session, newStatus);
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cập nhật trạng thái thành công!')));
-      _loadDetail();
+      Navigator.pop(context); // Trở về trang danh sách
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi cập nhật: ${provider.error}')));
     }

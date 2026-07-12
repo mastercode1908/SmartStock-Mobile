@@ -184,6 +184,37 @@ class InventoryService {
     }
   }
 
+  Future<void> approveSession(int sessionId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/inventory-counts/$sessionId/approve'),
+      headers: await _getHeaders(),
+    );
+    if (response.statusCode != 200) {
+      throw Exception(_parseError(response));
+    }
+  }
+
+  Future<void> rejectSession(int sessionId, String reason) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/inventory-counts/$sessionId/reject'),
+      headers: await _getHeaders(),
+      body: json.encode({'rejectReason': reason}),
+    );
+    if (response.statusCode != 200) {
+      throw Exception(_parseError(response));
+    }
+  }
+
+  Future<void> postSession(int sessionId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/inventory-counts/$sessionId/post'),
+      headers: await _getHeaders(),
+    );
+    if (response.statusCode != 200) {
+      throw Exception(_parseError(response));
+    }
+  }
+
   Future<List<ProductVariant>> fetchProductVariants() async {
     final response = await http.get(
       Uri.parse('$baseUrl/ProductVariants'),

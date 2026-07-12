@@ -39,6 +39,11 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
 
   String _currentFilter = 'TẤT CẢ';
   String _searchQuery = '';
+  
+  // Advanced Filter states
+  DateTime? _filterStartDate;
+  DateTime? _filterEndDate;
+  int? _filterStaffId;
 
   @override
   void initState() {
@@ -161,14 +166,28 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
           ),
         ),
         const SizedBox(width: 8),
-        Container(
-          height: 48,
-          width: 48,
-          decoration: BoxDecoration(
-            color: _surfaceContainerLow,
-            borderRadius: BorderRadius.circular(12),
+        InkWell(
+          onTap: _showAdvancedFilter,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            height: 48,
+            width: 48,
+            decoration: BoxDecoration(
+              color: (_filterStartDate != null || _filterEndDate != null || _filterStaffId != null) 
+                  ? _primary.withOpacity(0.1) 
+                  : _surfaceContainerLow,
+              borderRadius: BorderRadius.circular(12),
+              border: (_filterStartDate != null || _filterEndDate != null || _filterStaffId != null)
+                  ? Border.all(color: _primary.withOpacity(0.5))
+                  : null,
+            ),
+            child: Icon(
+              Icons.filter_list, 
+              color: (_filterStartDate != null || _filterEndDate != null || _filterStaffId != null) 
+                  ? _primary 
+                  : _onSurfaceVariant
+            ),
           ),
-          child: Icon(Icons.filter_list, color: _onSurfaceVariant),
         ),
       ],
     );
@@ -292,6 +311,25 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
             s.sessionCode.toLowerCase().contains(query) || 
             s.description.toLowerCase().contains(query)
           ).toList();
+        }
+
+        // Apply advanced filters
+        if (_filterStartDate != null) {
+          activeSessions = activeSessions.where((s) {
+            final sessionDate = DateTime(s.startDate.year, s.startDate.month, s.startDate.day);
+            final filterDate = DateTime(_filterStartDate!.year, _filterStartDate!.month, _filterStartDate!.day);
+            return sessionDate.isAtSameMomentAs(filterDate) || sessionDate.isAfter(filterDate);
+          }).toList();
+        }
+        if (_filterEndDate != null) {
+          activeSessions = activeSessions.where((s) {
+            final sessionDate = DateTime(s.startDate.year, s.startDate.month, s.startDate.day);
+            final filterDate = DateTime(_filterEndDate!.year, _filterEndDate!.month, _filterEndDate!.day);
+            return sessionDate.isAtSameMomentAs(filterDate) || sessionDate.isBefore(filterDate);
+          }).toList();
+        }
+        if (_filterStaffId != null) {
+          activeSessions = activeSessions.where((s) => s.assignedTo == _filterStaffId).toList();
         }
 
         if (activeSessions.isEmpty) {
@@ -551,6 +589,214 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showAdvancedFilter() {
+    DateTime? tempStartDate = _filterStartDate;
+    DateTime? tempEndDate = _filterEndDate;
+    int? tempStaffId = _filterStaffId;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final staffs = context.read<InventoryProvider>().staffs;
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.6,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Column(
+                children: [
+                  // Header
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Bộ lọc nâng cao', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        // Date filters
+                        const Text('Theo khoảng thời gian', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: () async {
+                                  final d = await showDatePicker(
+                                    context: context,
+                                    initialDate: tempStartDate ?? DateTime.now(),
+                                    firstDate: DateTime(2020),
+                                    lastDate: DateTime(2030),
+                                  );
+                                  if (d != null) {
+                                    setModalState(() => tempStartDate = d);
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey.shade300),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(tempStartDate != null ? DateFormat('dd/MM/yyyy').format(tempStartDate!) : 'Từ ngày',
+                                        style: TextStyle(color: tempStartDate != null ? Colors.black : Colors.grey)),
+                                      const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () async {
+                                  final d = await showDatePicker(
+                                    context: context,
+                                    initialDate: tempEndDate ?? DateTime.now(),
+                                    firstDate: DateTime(2020),
+                                    lastDate: DateTime(2030),
+                                  );
+                                  if (d != null) {
+                                    setModalState(() => tempEndDate = d);
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey.shade300),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(tempEndDate != null ? DateFormat('dd/MM/yyyy').format(tempEndDate!) : 'Đến ngày',
+                                        style: TextStyle(color: tempEndDate != null ? Colors.black : Colors.grey)),
+                                      const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        // Staff filter
+                        const Text('Theo nhân viên (được giao)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<int?>(
+                              isExpanded: true,
+                              value: tempStaffId,
+                              hint: const Text('Chọn nhân viên'),
+                              items: [
+                                const DropdownMenuItem<int?>(value: null, child: Text('Tất cả nhân viên')),
+                                ...staffs.map((s) {
+                                  final Map<String, dynamic> keys = s.map((k, v) => MapEntry(k.toLowerCase(), v));
+                                  final id = int.tryParse(keys['userid']?.toString() ?? keys['id']?.toString() ?? '0');
+                                  final name = keys['fullname'] ?? keys['name'] ?? keys['username'] ?? 'User $id';
+                                  return DropdownMenuItem<int?>(
+                                    value: id,
+                                    child: Text(name),
+                                  );
+                                }),
+                              ],
+                              onChanged: (val) {
+                                setModalState(() => tempStaffId = val);
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Footer buttons
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      border: Border(top: BorderSide(color: Colors.grey.shade200)),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              setModalState(() {
+                                tempStartDate = null;
+                                tempEndDate = null;
+                                tempStaffId = null;
+                              });
+                              setState(() {
+                                _filterStartDate = null;
+                                _filterEndDate = null;
+                                _filterStaffId = null;
+                              });
+                              Navigator.pop(context);
+                            },
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            child: const Text('Xóa bộ lọc'),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                _filterStartDate = tempStartDate;
+                                _filterEndDate = tempEndDate;
+                                _filterStaffId = tempStaffId;
+                              });
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _primary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            child: const Text('Áp dụng', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 

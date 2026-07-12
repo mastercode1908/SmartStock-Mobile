@@ -266,29 +266,38 @@ class InventoryProvider extends ChangeNotifier {
     return await _service.fetchSessionMobileDetail(sessionId);
   }
 
-  Future<bool> updateSessionStatus(InventorySession session, String newStatus) async {
+  Future<bool> updateSessionStatus(InventorySession session, String newStatus, {String reason = ''}) async {
     try {
       _isLoading = true;
       notifyListeners();
       
-      final updatedSession = InventorySession(
-        id: session.id,
-        sessionCode: session.sessionCode,
-        warehouseId: session.warehouseId,
-        warehouseName: session.warehouseName,
-        countType: session.countType,
-        startDate: session.startDate,
-        endDate: session.endDate,
-        description: session.description,
-        status: newStatus,
-        countDate: session.countDate,
-        createdBy: session.createdBy,
-        createdByName: session.createdByName,
-        assignedTo: session.assignedTo,
-        assignedToName: session.assignedToName,
-      );
-
-      await _service.updateSession(session.id, updatedSession);
+      if (newStatus == 'APPROVED') {
+        await _service.approveSession(session.id);
+      } else if (newStatus == 'REJECTED') {
+        await _service.rejectSession(session.id, reason.isEmpty ? 'Quản lý từ chối' : reason);
+      } else if (newStatus == 'POSTED') {
+        await _service.postSession(session.id);
+      } else {
+        // Fallback for DRAFT or other state updates if any
+        final updatedSession = InventorySession(
+          id: session.id,
+          sessionCode: session.sessionCode,
+          warehouseId: session.warehouseId,
+          warehouseName: session.warehouseName,
+          countType: session.countType,
+          startDate: session.startDate,
+          endDate: session.endDate,
+          description: session.description,
+          status: newStatus,
+          countDate: session.countDate,
+          createdBy: session.createdBy,
+          createdByName: session.createdByName,
+          assignedTo: session.assignedTo,
+          assignedToName: session.assignedToName,
+        );
+        await _service.updateSession(session.id, updatedSession);
+      }
+      
       await loadSessions();
       return true;
     } catch (e) {
