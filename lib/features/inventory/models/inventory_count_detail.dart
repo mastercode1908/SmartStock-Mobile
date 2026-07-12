@@ -122,11 +122,11 @@ class InventoryCountDetail {
       'variantID': variantId,
       'batchID': batchId,
       'serialID': serialId,
-      'locationID': storageLocationId ?? 1, // Use actual location, fallback to 1 if null
+      'locationID': storageLocationId ?? 1, // Bắt buộc phải có ID hợp lệ để qua ải Validation của Backend
       'systemQuantity': systemQuantity,
-      'actualQuantity': actualQuantity ?? 0,
-      'differenceQuantity': difference,
-      'variance': 0,
+      'actualQuantity': actualQuantity,
+      'differenceQuantity': actualQuantity == null ? null : difference,
+      'variance': actualQuantity == null ? null : 0,
       'varianceReason': '',
       'countedBy': 1, // Hardcoded for now
       'note': notes ?? '',

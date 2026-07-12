@@ -51,6 +51,45 @@ class InventoryService {
     }
   }
 
+  Future<Map<String, dynamic>> fetchLocationDetails(int locationId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/StorageLocations/$locationId'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      if (jsonResponse is Map && jsonResponse.containsKey('data')) {
+         return jsonResponse['data'];
+      }
+      return jsonResponse as Map<String, dynamic>;
+    } else {
+      throw Exception('Failed to load location details');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchStaffs() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/Users/staffs'),
+      headers: await _getHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      var jsonResponse = json.decode(response.body);
+      List<dynamic> dataList = [];
+      if (jsonResponse is Map && jsonResponse.containsKey('data')) {
+        dataList = jsonResponse['data'];
+      } else if (jsonResponse is Map && jsonResponse.containsKey('value')) {
+        dataList = jsonResponse['value'];
+      } else if (jsonResponse is List) {
+        dataList = jsonResponse;
+      }
+      return dataList.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to load staffs');
+    }
+  }
+
   Future<List<InventorySession>> fetchInventorySessions() async {
     final response = await http.get(
       Uri.parse('$baseUrl/inventory-counts/mobile'),
@@ -141,6 +180,37 @@ class InventoryService {
     );
 
     if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception(_parseError(response));
+    }
+  }
+
+  Future<void> approveSession(int sessionId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/inventory-counts/$sessionId/approve'),
+      headers: await _getHeaders(),
+    );
+    if (response.statusCode != 200) {
+      throw Exception(_parseError(response));
+    }
+  }
+
+  Future<void> rejectSession(int sessionId, String reason) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/inventory-counts/$sessionId/reject'),
+      headers: await _getHeaders(),
+      body: json.encode({'rejectReason': reason}),
+    );
+    if (response.statusCode != 200) {
+      throw Exception(_parseError(response));
+    }
+  }
+
+  Future<void> postSession(int sessionId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/inventory-counts/$sessionId/post'),
+      headers: await _getHeaders(),
+    );
+    if (response.statusCode != 200) {
       throw Exception(_parseError(response));
     }
   }

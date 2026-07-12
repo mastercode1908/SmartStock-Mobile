@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
-import 'package:provider/provider.dart';
+import '../../auth/models/user_model.dart';
 import 'package:intl/intl.dart';
-import '../../home/screens/employee_dashboard_screen.dart';
 import 'inventory_history_screen.dart';
 import 'create_inventory_screen.dart';
-import 'inventory_history_detail_screen.dart';
 import '../../scanner/screens/scan_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 import '../providers/inventory_provider.dart';
 import '../models/inventory_session.dart';
+import 'count/session_readonly_screen.dart';
+import 'count/count_step1_screen.dart';
 
 class InventoryListScreen extends StatefulWidget {
   const InventoryListScreen({Key? key}) : super(key: key);
@@ -37,12 +37,21 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
 
   String _currentFilter = 'TẤT CẢ';
   String _searchQuery = '';
+  
+  // Advanced Filter states
+  DateTime? _filterStartDate = DateTime.now();
+  DateTime? _filterEndDate = DateTime.now();
+  int? _filterStaffId;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<InventoryProvider>().loadSessions();
+      final provider = context.read<InventoryProvider>();
+      provider.loadSessions();
+      if (provider.staffs.isEmpty) {
+        provider.loadStaffs();
+      }
     });
   }
 
@@ -118,6 +127,21 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
     );
   }
 
+  bool _isFilterActive() {
+    // Active only if user explicitly changed dates away from today or set a staff
+    final today = DateTime.now();
+    final isDefaultStart = _filterStartDate != null &&
+        _filterStartDate!.year == today.year &&
+        _filterStartDate!.month == today.month &&
+        _filterStartDate!.day == today.day;
+    final isDefaultEnd = _filterEndDate != null &&
+        _filterEndDate!.year == today.year &&
+        _filterEndDate!.month == today.month &&
+        _filterEndDate!.day == today.day;
+    // Not default = filter is actively customised
+    return !isDefaultStart || !isDefaultEnd || _filterStaffId != null;
+  }
+
   Widget _buildSearchBar() {
     return Row(
       children: [
@@ -155,14 +179,22 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
           ),
         ),
         const SizedBox(width: 8),
-        Container(
-          height: 48,
-          width: 48,
-          decoration: BoxDecoration(
-            color: _surfaceContainerLow,
-            borderRadius: BorderRadius.circular(12),
+        InkWell(
+          onTap: _showAdvancedFilter,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            height: 48,
+            width: 48,
+            decoration: BoxDecoration(
+              color: _isFilterActive() ? _primary.withOpacity(0.1) : _surfaceContainerLow,
+              borderRadius: BorderRadius.circular(12),
+              border: _isFilterActive() ? Border.all(color: _primary.withOpacity(0.5)) : null,
+            ),
+            child: Icon(
+              Icons.filter_list, 
+              color: _isFilterActive() ? _primary : _onSurfaceVariant
+            ),
           ),
-          child: Icon(Icons.filter_list, color: _onSurfaceVariant),
         ),
       ],
     );
@@ -192,23 +224,71 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
     );
   }
 
+  List<InventorySession> _getBaseFilteredSessions(InventoryProvider provider, UserModel? user) {
+    List<InventorySession> sessions = provider.sessions.where((s) =>
+        (s.createdBy == user?.userId || s.assignedTo == user?.userId)).toList();
+    if (user?.roleName == 'Staff') {
+      sessions = sessions.where((s) => 
+        s.startDate.year == DateTime.now().year && 
+        s.startDate.month == DateTime.now().month && 
+        s.startDate.day == DateTime.now().day
+      ).toList();
+    }
+
+    // Apply advanced filters
+    if (_filterStartDate != null) {
+      sessions = sessions.where((s) {
+        final sessionDate = DateTime(s.startDate.year, s.startDate.month, s.startDate.day);
+        final filterDate = DateTime(_filterStartDate!.year, _filterStartDate!.month, _filterStartDate!.day);
+        return sessionDate.isAtSameMomentAs(filterDate) || sessionDate.isAfter(filterDate);
+      }).toList();
+    }
+    if (_filterEndDate != null) {
+      sessions = sessions.where((s) {
+        final sessionDate = DateTime(s.startDate.year, s.startDate.month, s.startDate.day);
+        final filterDate = DateTime(_filterEndDate!.year, _filterEndDate!.month, _filterEndDate!.day);
+        return sessionDate.isAtSameMomentAs(filterDate) || sessionDate.isBefore(filterDate);
+      }).toList();
+    }
+    if (_filterStaffId != null) {
+      sessions = sessions.where((s) => s.assignedTo == _filterStaffId).toList();
+    }
+
+    // Apply search query
+    if (_searchQuery.isNotEmpty) {
+      final query = _searchQuery.toLowerCase();
+      sessions = sessions.where((s) {
+        String assigneeName = s.assignedToName ?? '';
+        if (assigneeName.isEmpty && s.assignedTo != null) {
+          if (s.assignedTo == user?.userId) {
+            assigneeName = user?.fullName ?? '';
+          } else {
+            assigneeName = provider.getStaffName(s.assignedTo!);
+            if (assigneeName.startsWith('Quản trị viên') && s.createdBy == s.assignedTo && s.createdByName?.isNotEmpty == true) {
+              assigneeName = s.createdByName!;
+            }
+          }
+        }
+        return s.sessionCode.toLowerCase().contains(query) || 
+               s.description.toLowerCase().contains(query) ||
+               assigneeName.toLowerCase().contains(query);
+      }).toList();
+    }
+
+    return sessions;
+  }
+
   Widget _buildFilterChips() {
     return Consumer<InventoryProvider>(
       builder: (context, provider, child) {
         final user = context.watch<AuthProvider>().currentUser;
-        var sessions = provider.sessions.where((s) => s.status != 'POSTED' && s.createdBy == user?.userId).toList();
-        if (user?.roleName == 'Staff') {
-          sessions = sessions.where((s) => 
-            s.startDate.year == DateTime.now().year && 
-            s.startDate.month == DateTime.now().month && 
-            s.startDate.day == DateTime.now().day
-          ).toList();
-        }
+        final sessions = _getBaseFilteredSessions(provider, user);
+        
         int allCount = sessions.length;
-        int draftCount = sessions.where((s) => s.status == 'DRAFT').length;
         int pendingCount = sessions.where((s) => s.status == 'PENDING').length;
         int approvedCount = sessions.where((s) => s.status == 'APPROVED').length;
         int rejectedCount = sessions.where((s) => s.status == 'REJECTED').length;
+        int postedCount = sessions.where((s) => s.status == 'POSTED').length;
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -216,13 +296,13 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
             children: [
               _buildChip('TẤT CẢ ($allCount)', 'TẤT CẢ'),
               const SizedBox(width: 8),
-              _buildChip('ĐANG KIỂM ĐẾM ($draftCount)', 'DRAFT'),
-              const SizedBox(width: 8),
               _buildChip('CHỜ DUYỆT ($pendingCount)', 'PENDING'),
               const SizedBox(width: 8),
               _buildChip('ĐÃ DUYỆT ($approvedCount)', 'APPROVED'),
               const SizedBox(width: 8),
               _buildChip('TỪ CHỐI ($rejectedCount)', 'REJECTED'),
+              const SizedBox(width: 8),
+              _buildChip('ĐÃ GHI NHẬN ($postedCount)', 'POSTED'),
             ],
           ),
         );
@@ -267,25 +347,10 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
         }
 
         final user = context.watch<AuthProvider>().currentUser;
-        List<InventorySession> activeSessions = provider.sessions.where((s) => s.status != 'POSTED' && s.createdBy == user?.userId).toList();
-        if (user?.roleName == 'Staff') {
-          activeSessions = activeSessions.where((s) => 
-            s.startDate.year == DateTime.now().year && 
-            s.startDate.month == DateTime.now().month && 
-            s.startDate.day == DateTime.now().day
-          ).toList();
-        }
+        List<InventorySession> activeSessions = _getBaseFilteredSessions(provider, user);
 
         if (_currentFilter != 'TẤT CẢ') {
           activeSessions = activeSessions.where((s) => s.status == _currentFilter).toList();
-        }
-        
-        if (_searchQuery.isNotEmpty) {
-          final query = _searchQuery.toLowerCase();
-          activeSessions = activeSessions.where((s) => 
-            s.sessionCode.toLowerCase().contains(query) || 
-            s.description.toLowerCase().contains(query)
-          ).toList();
         }
 
         if (activeSessions.isEmpty) {
@@ -320,8 +385,8 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
               statusWidget = Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Đã đồng bộ', style: TextStyle(color: _secondary, fontSize: 12, fontWeight: FontWeight.w500)),
-                  Text('XEM BÁO CÁO', style: TextStyle(color: _secondary, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('Đã ghi nhận', style: TextStyle(color: _secondary, fontSize: 12, fontWeight: FontWeight.w500)),
+                  Text('CHI TIẾT', style: TextStyle(color: _secondary, fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
               );
             } else if (session.status == 'PENDING') {
@@ -332,6 +397,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Chờ quản lý duyệt', style: TextStyle(color: Colors.orange, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('CHI TIẾT', style: TextStyle(color: Colors.orange, fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
               );
             } else if (session.status == 'APPROVED') {
@@ -342,7 +408,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Đã duyệt', style: TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('ĐỒNG BỘ KHO', style: TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('CHI TIẾT', style: TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
               );
             } else if (session.status == 'REJECTED') {
@@ -353,7 +419,19 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Bị từ chối', style: TextStyle(color: _primary, fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('ĐẾM LẠI', style: TextStyle(color: _primary, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('CHI TIẾT', style: TextStyle(color: _primary, fontSize: 12, fontWeight: FontWeight.bold)),
+                ],
+              );
+            } else if (session.status == 'CANCELLED') {
+              icon = Icons.cancel;
+              iconColor = Colors.grey;
+              iconBg = Colors.grey.withOpacity(0.1);
+              isCompleted = true;
+              statusWidget = Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Đã hủy', style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('CHI TIẾT', style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
               );
             } else {
@@ -361,23 +439,57 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
               icon = Icons.inventory;
               iconColor = _tertiary;
               iconBg = _tertiary.withOpacity(0.1);
+              
+              final role = context.read<AuthProvider>().currentUser?.roleName ?? '';
+              final isManager = role.toLowerCase().contains('admin') || role.toLowerCase().contains('manager');
+
               statusWidget = Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Bản nháp (Đang kiểm)', style: TextStyle(color: _tertiary, fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('TIẾP TỤC', style: TextStyle(color: _tertiary, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text(isManager ? 'CHI TIẾT' : 'TIẾP TỤC', style: TextStyle(color: _tertiary, fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
               );
             }
 
+            String assigneeName = session.assignedToName ?? '';
+            if (assigneeName.isEmpty && session.assignedTo != null) {
+              if (session.assignedTo == user?.userId) {
+                assigneeName = user?.fullName ?? '';
+                if (assigneeName.isEmpty) assigneeName = user?.email ?? '';
+              } else {
+                assigneeName = provider.getStaffName(session.assignedTo!);
+                if (assigneeName.startsWith('Quản trị viên') && session.createdBy == session.assignedTo && session.createdByName?.isNotEmpty == true) {
+                  assigneeName = session.createdByName!;
+                }
+              }
+            }
+            if (assigneeName.isEmpty) assigneeName = 'Chưa giao';
+
             return InkWell(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => InventoryHistoryDetailScreen(sessionId: session.id),
-                  ),
-                );
+                final role = context.read<AuthProvider>().currentUser?.roleName ?? '';
+                final isManager = role.toLowerCase().contains('admin') || role.toLowerCase().contains('manager');
+
+                if (session.status == 'DRAFT' && !isManager) {
+                  // Gọi provider load chi tiết session trước khi vào đếm
+                  context.read<InventoryProvider>().editSession(session).then((_) {
+                    if (!context.mounted) return;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CountStep1Screen(),
+                      ),
+                    );
+                  });
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SessionReadonlyScreen(session: session),
+                    ),
+                  );
+                }
               },
               borderRadius: BorderRadius.circular(16),
               child: _buildInventoryCard(
@@ -386,6 +498,9 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                 iconBg: iconBg,
                 title: session.sessionCode,
                 date: dateStr,
+                warehouseName: session.warehouseName?.isNotEmpty == true ? session.warehouseName! : 'Chưa rõ',
+                countType: session.countType,
+                createdBy: assigneeName,
                 statusWidget: statusWidget,
                 isCompleted: isCompleted,
               ),
@@ -402,6 +517,9 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
     required Color iconBg,
     required String title,
     required String date,
+    required String warehouseName,
+    required String countType,
+    required String createdBy,
     required Widget statusWidget,
     bool isCompleted = false,
   }) {
@@ -450,20 +568,263 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                     ),
                     Text(
                       date,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: _onSurfaceVariant,
+                      style: TextStyle(fontSize: 12, color: _secondary),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Icon(Icons.warehouse_outlined, size: 14, color: _secondary),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        warehouseName,
+                        style: TextStyle(fontSize: 13, color: _secondary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(Icons.category_outlined, size: 14, color: _secondary),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Loại: $countType',
+                      style: TextStyle(fontSize: 13, color: _secondary),
+                    ),
+                    const SizedBox(width: 12),
+                    Icon(Icons.person_outline, size: 14, color: _secondary),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        createdBy,
+                        style: TextStyle(fontSize: 13, color: _secondary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
                 statusWidget,
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  void _showAdvancedFilter() {
+    DateTime? tempStartDate = _filterStartDate;
+    DateTime? tempEndDate = _filterEndDate;
+    int? tempStaffId = _filterStaffId;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final staffs = context.read<InventoryProvider>().staffs;
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.6,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Column(
+                children: [
+                  // Header
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Bộ lọc nâng cao', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        // Date filters
+                        const Text('Theo khoảng thời gian', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: () async {
+                                  final d = await showDatePicker(
+                                    context: context,
+                                    initialDate: tempStartDate ?? DateTime.now(),
+                                    firstDate: DateTime(2020),
+                                    lastDate: DateTime(2030),
+                                  );
+                                  if (d != null) {
+                                    setModalState(() => tempStartDate = d);
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey.shade300),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(tempStartDate != null ? DateFormat('dd/MM/yyyy').format(tempStartDate!) : 'Từ ngày',
+                                        style: TextStyle(color: tempStartDate != null ? Colors.black : Colors.grey)),
+                                      const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () async {
+                                  final d = await showDatePicker(
+                                    context: context,
+                                    initialDate: tempEndDate ?? DateTime.now(),
+                                    firstDate: DateTime(2020),
+                                    lastDate: DateTime(2030),
+                                  );
+                                  if (d != null) {
+                                    setModalState(() => tempEndDate = d);
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey.shade300),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(tempEndDate != null ? DateFormat('dd/MM/yyyy').format(tempEndDate!) : 'Đến ngày',
+                                        style: TextStyle(color: tempEndDate != null ? Colors.black : Colors.grey)),
+                                      const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        // Staff filter
+                        const Text('Theo nhân viên (được giao)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<int?>(
+                              isExpanded: true,
+                              value: tempStaffId,
+                              hint: const Text('Chọn nhân viên'),
+                              items: [
+                                const DropdownMenuItem<int?>(value: null, child: Text('Tất cả nhân viên')),
+                                ...staffs.map((s) {
+                                  final Map<String, dynamic> keys = s.map((k, v) => MapEntry(k.toLowerCase(), v));
+                                  final id = int.tryParse(keys['userid']?.toString() ?? keys['id']?.toString() ?? '0');
+                                  final name = keys['fullname'] ?? keys['name'] ?? keys['username'] ?? 'User $id';
+                                  return DropdownMenuItem<int?>(
+                                    value: id,
+                                    child: Text(name),
+                                  );
+                                }),
+                              ],
+                              onChanged: (val) {
+                                setModalState(() => tempStaffId = val);
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Footer buttons
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      border: Border(top: BorderSide(color: Colors.grey.shade200)),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              final today = DateTime.now();
+                              setModalState(() {
+                                tempStartDate = today;
+                                tempEndDate = today;
+                                tempStaffId = null;
+                              });
+                              setState(() {
+                                _filterStartDate = today;
+                                _filterEndDate = today;
+                                _filterStaffId = null;
+                              });
+                              Navigator.pop(context);
+                            },
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            child: const Text('Xóa bộ lọc'),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                _filterStartDate = tempStartDate;
+                                _filterEndDate = tempEndDate;
+                                _filterStaffId = tempStaffId;
+                              });
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _primary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            child: const Text('Áp dụng', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -479,15 +840,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
       unselectedLabelStyle: const TextStyle(fontSize: 12),
       onTap: (index) {
         if (index == 0) {
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              opaque: false,
-              pageBuilder: (context, a1, a2) => const EmployeeDashboardScreen(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ),
-          );
+          Navigator.popUntil(context, (route) => route.isFirst);
         } else if (index == 2) {
           Navigator.push(
             context,

@@ -173,11 +173,11 @@ class CountStep1Screen extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: isDone ? const Color(0xffd1e7dd) : AppColors.surface,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isDone ? const Color(0xff0f5132) : AppColors.outlineVariant,
-            width: isDone ? 1.5 : 1,
+            color: AppColors.outlineVariant,
+            width: 1,
           ),
         ),
         child: Column(

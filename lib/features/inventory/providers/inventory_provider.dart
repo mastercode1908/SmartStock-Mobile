@@ -13,6 +13,7 @@ class InventoryProvider extends ChangeNotifier {
   List<Warehouse> _warehouses = [];
   List<StorageLocation> _locations = [];
   List<ProductVariant> _productVariants = [];
+  List<Map<String, dynamic>> _staffs = [];
   final List<ProductVariant> _selectedVariants = [];
   final Map<int, int> _systemQuantities = {};
   
@@ -28,6 +29,7 @@ class InventoryProvider extends ChangeNotifier {
   List<Warehouse> get warehouses => _warehouses;
   List<StorageLocation> get locations => _locations;
   List<ProductVariant> get productVariants => _productVariants;
+  List<Map<String, dynamic>> get staffs => _staffs;
   List<ProductVariant> get selectedVariants => _selectedVariants;
   Map<int, int> get systemQuantities => _systemQuantities;
   int? get activeSessionId => _activeSessionId;
@@ -37,6 +39,24 @@ class InventoryProvider extends ChangeNotifier {
   
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  String getStaffName(int staffId) {
+    if (staffId <= 0) return 'Chưa rõ';
+    try {
+      final staff = _staffs.firstWhere((s) {
+        final Map<String, dynamic> lowerCaseKeys = s.map((k, v) => MapEntry(k.toLowerCase(), v));
+        final idValue = lowerCaseKeys['userid'] ?? lowerCaseKeys['id'];
+        return idValue?.toString() == staffId.toString();
+      }, orElse: () => <String, dynamic>{});
+      if (staff.isNotEmpty) {
+        final Map<String, dynamic> lowerCaseKeys = staff.map((k, v) => MapEntry(k.toLowerCase(), v));
+        return lowerCaseKeys['fullname'] ?? lowerCaseKeys['name'] ?? lowerCaseKeys['username'] ?? 'Nhân viên $staffId';
+      }
+      return 'Quản trị viên ($staffId)';
+    } catch (e) {
+      return 'ID: $staffId';
+    }
+  }
 
   void setActiveSession(int id) {
     _activeSessionId = id;
@@ -194,6 +214,24 @@ class InventoryProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> loadStaffs() async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      _staffs = await _service.fetchStaffs();
+    } catch (e) {
+      _error = e.toString();
+      debugPrint('Error loading staffs: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchLocationPreview(int locationId) async {
+    return await _service.fetchLocationDetails(locationId);
+  }
+
   Future<void> loadSessions() async {
     try {
       _isLoading = true;
@@ -228,13 +266,58 @@ class InventoryProvider extends ChangeNotifier {
     return await _service.fetchSessionMobileDetail(sessionId);
   }
 
-  Future<void> addSession(InventorySession draft) async {
+  Future<bool> updateSessionStatus(InventorySession session, String newStatus, {String reason = ''}) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      
+      if (newStatus == 'APPROVED') {
+        await _service.approveSession(session.id);
+      } else if (newStatus == 'REJECTED') {
+        await _service.rejectSession(session.id, reason.isEmpty ? 'Quản lý từ chối' : reason);
+      } else if (newStatus == 'POSTED') {
+        await _service.postSession(session.id);
+      } else {
+        // Fallback for DRAFT or other state updates if any
+        final updatedSession = InventorySession(
+          id: session.id,
+          sessionCode: session.sessionCode,
+          warehouseId: session.warehouseId,
+          warehouseName: session.warehouseName,
+          countType: session.countType,
+          startDate: session.startDate,
+          endDate: session.endDate,
+          description: session.description,
+          status: newStatus,
+          countDate: session.countDate,
+          createdBy: session.createdBy,
+          createdByName: session.createdByName,
+          assignedTo: session.assignedTo,
+          assignedToName: session.assignedToName,
+        );
+        await _service.updateSession(session.id, updatedSession);
+      }
+      
+      await loadSessions();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      debugPrint('Error updating session status: $e');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<InventorySession> addSession(InventorySession draft) async {
     try {
       _isLoading = true;
       notifyListeners();
       final newSession = await _service.createInventorySession(draft);
       _sessions.insert(0, newSession);
       _activeSessionId = newSession.id;
+      return newSession;
     } catch (e) {
       _error = e.toString();
       debugPrint('Error adding session: $e');

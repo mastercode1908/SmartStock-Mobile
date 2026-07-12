@@ -446,7 +446,7 @@ class _CountListScreenState extends State<CountListScreen> {
                   children: [
                     const Text('NGÀY TẠO', style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
                     Text(
-                      '${session.startDate.toLocal().toString().split('.')[0]}',
+                      '${session.countDate.toString().split('.')[0]}',
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                     ),
                   ],

@@ -344,19 +344,7 @@ class _ConfirmSyncScreenState extends State<ConfirmSyncScreen> {
                       );
                       final user = context.read<AuthProvider>().currentUser;
                       provider.loadSessions();
-                      if (user?.roleName == 'Staff') {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => const EmployeeDashboardScreen()),
-                          (route) => false,
-                        );
-                      } else {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => const DashboardScreen()), // Admin dashboard
-                          (route) => false,
-                        );
-                      }
+                      Navigator.popUntil(context, (route) => route.isFirst);
                     } else if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Đồng bộ lỗi: ${provider.error}')),
@@ -385,20 +373,7 @@ class _ConfirmSyncScreenState extends State<ConfirmSyncScreen> {
           const SizedBox(height: 8),
             TextButton.icon(
               onPressed: () {
-                final user = context.read<AuthProvider>().currentUser;
-                if (user?.roleName == 'Staff') {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const EmployeeDashboardScreen()),
-                    (route) => false,
-                  );
-                } else {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const DashboardScreen()),
-                    (route) => false,
-                  );
-                }
+                Navigator.popUntil(context, (route) => route.isFirst);
               },
               icon: Icon(Icons.home, color: _primary),
               label: Text('Về trang chủ', style: TextStyle(fontWeight: FontWeight.bold, color: _primary)),
