@@ -117,4 +117,76 @@ class AuthService {
       throw Exception(jsonResponse['message'] ?? 'Failed to change password');
     }
   }
+
+  Future<UserModel> loginWithGoogle(String idToken) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/Auth/google-login'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'idToken': idToken,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      if (jsonResponse['success'] == true && jsonResponse['data'] != null) {
+        return UserModel.fromJson(jsonResponse['data']);
+      } else {
+        throw Exception(jsonResponse['message'] ?? 'Google Login failed');
+      }
+    } else {
+      final jsonResponse = json.decode(response.body);
+      throw Exception(jsonResponse['message'] ?? 'Đăng nhập Google thất bại');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchRoles() async {
+    final token = await AuthProvider.getToken();
+    final response = await http.get(
+      Uri.parse('$baseUrl/roles'),
+      headers: {
+        'Content-Type': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      if (jsonResponse['data'] != null) {
+        return List<Map<String, dynamic>>.from(jsonResponse['data']);
+      }
+      return [];
+    } else {
+      throw Exception('Không thể lấy danh sách vai trò');
+    }
+  }
+
+  Future<void> createUser({
+    required String fullName,
+    required String email,
+    required String password,
+    String? phone,
+    required int roleId,
+  }) async {
+    final token = await AuthProvider.getToken();
+    final response = await http.post(
+      Uri.parse('$baseUrl/users'),
+      headers: {
+        'Content-Type': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
+      body: json.encode({
+        'fullName': fullName,
+        'email': email,
+        'password': password,
+        'phone': phone,
+        'roleId': roleId,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      final jsonResponse = json.decode(response.body);
+      throw Exception(jsonResponse['message'] ?? 'Không thể tạo tài khoản');
+    }
+  }
 }

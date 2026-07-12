@@ -1,17 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
-import 'pickup_step4_screen.dart';
+import '../../models/picking_detail.dart';
+import '../../providers/picking_provider.dart';
 
 class PickUpStep3Screen extends StatefulWidget {
-  const PickUpStep3Screen({Key? key}) : super(key: key);
+  final PickingDetail detail;
+  const PickUpStep3Screen({Key? key, required this.detail}) : super(key: key);
 
   @override
   State<PickUpStep3Screen> createState() => _PickUpStep3ScreenState();
 }
 
 class _PickUpStep3ScreenState extends State<PickUpStep3Screen> {
-  int _quantity = 0;
-  final int _maxQuantity = 10;
+  late int _quantity;
+  late final int _maxQuantity;
+  bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _quantity = widget.detail.expectedQuantity;
+    _maxQuantity = widget.detail.expectedQuantity;
+  }
 
   void _increment() {
     if (_quantity < _maxQuantity) {
@@ -26,6 +37,43 @@ class _PickUpStep3ScreenState extends State<PickUpStep3Screen> {
       setState(() {
         _quantity--;
       });
+    }
+  }
+
+  Future<void> _submitPicking() async {
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    final provider = context.read<InventoryPickingProvider>();
+    final success = await provider.updatePickedQuantity(
+      widget.detail.pickingDetailId,
+      _quantity,
+    );
+
+    if (mounted) {
+      setState(() {
+        _isSubmitting = false;
+      });
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Đã cập nhật số lượng nhặt: $_quantity/$_maxQuantity'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // Pop Step 3 and Step 2 to return to Step 1 (Route List)
+        Navigator.pop(context); // Pop step 3
+        Navigator.pop(context); // Pop step 2
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cập nhật số lượng thất bại. Vui lòng thử lại.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -64,11 +112,11 @@ class _PickUpStep3ScreenState extends State<PickUpStep3Screen> {
       scrolledUnderElevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.close, color: AppColors.primary),
-        onPressed: () => Navigator.popUntil(context, (route) => route.isFirst),
+        onPressed: () => Navigator.pop(context),
       ),
       centerTitle: true,
       title: const Text(
-        'Warehouse Pro',
+        'Smart Stock',
         style: TextStyle(
           color: AppColors.primary,
           fontWeight: FontWeight.bold,
@@ -122,6 +170,9 @@ class _PickUpStep3ScreenState extends State<PickUpStep3Screen> {
   }
 
   Widget _buildProductDetailsCard() {
+    final productName = widget.detail.productVariant?.variantName ?? "Sản phẩm N/A";
+    final sku = widget.detail.productVariant?.sku ?? "SKU N/A";
+    final locationCode = widget.detail.storageLocation?.locationCode ?? "Vị trí N/A";
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -147,22 +198,42 @@ class _PickUpStep3ScreenState extends State<PickUpStep3Screen> {
                 decoration: BoxDecoration(
                   color: AppColors.surfaceContainer,
                   borderRadius: BorderRadius.circular(16),
-                  image: const DecorationImage(
-                    image: NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuAQTn5BVhleKT0tnr2bZE1coZ1m0lJy4aScatSYS8Cgl3uicQYGohAPzY4g_Am86Y6n9Lo5MHi8di7bcnuqXkGv2x8nJgGzgmeMV6wcfdhadGDfZyrUMXwJvlFyIMjITJHrgLkZAcbkrd5kAvrtYQvpN1hMsRqq7FXbKYZ2cx5uZCDyb43PDNzGZFvWL4uDGH8XQfQPDYbU6KwE44mR4MbGiRBJ7RQhpJt4T2BuHEifoia6Q3FPhHbxRK-RZrogFyAeL-zk26Ll6mAk'),
-                    fit: BoxFit.cover,
-                  ),
                 ),
+                child: const Icon(Icons.image_outlined, color: Colors.grey, size: 32),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Máy Khoan Pin Cầm Tay Pro-X1', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onSurface)),
+                    Text(productName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onSurface)),
                     const SizedBox(height: 4),
-                    const Text('Mã SP: SK-99203-BX', style: TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                    Text('Mã SP: $sku', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
                     const SizedBox(height: 2),
-                    const Text('Vị trí: Khu vực A, Kệ 04', style: TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                    Text('Vị trí: $locationCode', style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                    if (widget.detail.serials != null && widget.detail.serials!.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 4,
+                        runSpacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          const Text('Serials: ', style: TextStyle(fontSize: 13, color: AppColors.onSurfaceVariant, fontWeight: FontWeight.bold)),
+                          ...widget.detail.serials!.map((s) => Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryContainer.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: AppColors.primary.withOpacity(0.1)),
+                            ),
+                            child: Text(
+                              s.serialNumber ?? 'N/A',
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primary),
+                            ),
+                          )).toList(),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -178,7 +249,7 @@ class _PickUpStep3ScreenState extends State<PickUpStep3Screen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Số lượng hệ thống:', style: TextStyle(fontSize: 16, color: AppColors.onSurfaceVariant)),
+                const Text('Số lượng yêu cầu:', style: TextStyle(fontSize: 16, color: AppColors.onSurfaceVariant)),
                 RichText(
                   text: TextSpan(
                     style: const TextStyle(color: AppColors.onSurface),
@@ -233,7 +304,7 @@ class _PickUpStep3ScreenState extends State<PickUpStep3Screen> {
 
   Widget _buildQtyButton(IconData icon, VoidCallback onPressed) {
     return InkWell(
-      onTap: onPressed,
+      onTap: _isSubmitting ? null : onPressed,
       borderRadius: BorderRadius.circular(16),
       child: Container(
         width: 64,
@@ -275,9 +346,13 @@ class _PickUpStep3ScreenState extends State<PickUpStep3Screen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       foregroundColor: AppColors.onSurfaceVariant,
                     ),
-                    onPressed: () {},
+                    onPressed: _isSubmitting ? null : () {
+                      setState(() {
+                        _quantity = 0;
+                      });
+                    },
                     icon: const Icon(Icons.report, color: AppColors.primary),
-                    label: const Text('Báo thiếu'),
+                    label: const Text('Báo thiếu (0)'),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -289,7 +364,9 @@ class _PickUpStep3ScreenState extends State<PickUpStep3Screen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       foregroundColor: AppColors.onSurfaceVariant,
                     ),
-                    onPressed: () {},
+                    onPressed: _isSubmitting ? null : () {
+                      Navigator.pop(context); // Go back to step 2 to scan again
+                    },
                     icon: const Icon(Icons.qr_code_scanner, color: AppColors.primary),
                     label: const Text('Quét lại'),
                   ),
@@ -306,17 +383,21 @@ class _PickUpStep3ScreenState extends State<PickUpStep3Screen> {
                 elevation: 2,
                 minimumSize: const Size(double.infinity, 56),
               ),
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const PickUpStep4Screen()));
-              },
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Tiếp theo', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  SizedBox(width: 8),
-                  Icon(Icons.arrow_forward),
-                ],
-              ),
+              onPressed: _isSubmitting ? null : _submitPicking,
+              child: _isSubmitting
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                    )
+                  : const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Xác nhận nhặt', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        SizedBox(width: 8),
+                        Icon(Icons.check),
+                      ],
+                    ),
             ),
           ],
         ),

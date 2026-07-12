@@ -1,6 +1,24 @@
 import 'product_variant.dart';
 import 'storage_location.dart';
 
+class PickingDetailSerial {
+  final int serialId;
+  final String? serialNumber;
+
+  PickingDetailSerial({
+    required this.serialId,
+    this.serialNumber,
+  });
+
+  factory PickingDetailSerial.fromJson(Map<String, dynamic> json) {
+    final serialJson = json['serial'] ?? json['Serial'];
+    return PickingDetailSerial(
+      serialId: json['serialID'] ?? json['serialId'] ?? 0,
+      serialNumber: serialJson != null ? (serialJson['serialNumber'] ?? serialJson['SerialNumber']) : null,
+    );
+  }
+}
+
 class PickingDetail {
   final int pickingDetailId;
   final int taskId;
@@ -14,6 +32,7 @@ class PickingDetail {
   
   final ProductVariant? productVariant;
   final StorageLocation? storageLocation;
+  final List<PickingDetailSerial>? serials;
 
   PickingDetail({
     required this.pickingDetailId,
@@ -27,6 +46,7 @@ class PickingDetail {
     required this.status,
     this.productVariant,
     this.storageLocation,
+    this.serials,
   });
 
   factory PickingDetail.fromJson(Map<String, dynamic> json) {
@@ -45,6 +65,11 @@ class PickingDetail {
           : null,
       storageLocation: json['storageLocation'] != null
           ? StorageLocation.fromJson(json['storageLocation'])
+          : null,
+      serials: json['serials'] != null
+          ? (json['serials'] as List)
+              .map((e) => PickingDetailSerial.fromJson(e))
+              .toList()
           : null,
     );
   }

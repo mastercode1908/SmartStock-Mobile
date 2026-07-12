@@ -1,9 +1,84 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../models/picking_detail.dart';
 import 'pickup_step3_screen.dart';
 
-class PickUpStep2Screen extends StatelessWidget {
-  const PickUpStep2Screen({Key? key}) : super(key: key);
+class PickUpStep2Screen extends StatefulWidget {
+  final PickingDetail detail;
+  const PickUpStep2Screen({Key? key, required this.detail}) : super(key: key);
+
+  @override
+  State<PickUpStep2Screen> createState() => _PickUpStep2ScreenState();
+}
+
+class _PickUpStep2ScreenState extends State<PickUpStep2Screen> {
+  void _showManualInputDialog(BuildContext context) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Nhập mã vị trí thủ công'),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: 'Nhập mã vị trí kệ hàng (ví dụ: ${widget.detail.storageLocation?.locationCode ?? "A-12-04"})',
+            border: const OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+            onPressed: () {
+              final val = controller.text.trim().toUpperCase();
+              final target = (widget.detail.storageLocation?.locationCode ?? '').trim().toUpperCase();
+              Navigator.pop(ctx); // Close dialog
+              
+              if (val == target) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PickUpStep3Screen(detail: widget.detail),
+                  ),
+                );
+              } else {
+                _showErrorDialog(context, val);
+              }
+            },
+            child: const Text('Xác nhận', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showErrorDialog(BuildContext context, String enteredCode) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.error_outline, color: Colors.red),
+            SizedBox(width: 8),
+            Text('Sai kệ hàng!'),
+          ],
+        ),
+        content: Text(
+          'Mã vị trí "$enteredCode" không khớp với vị trí kệ hàng cần nhặt "${widget.detail.storageLocation?.locationCode}".\n\nVui lòng di chuyển đến đúng vị trí kệ để tiếp tục.',
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Đã hiểu'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +123,7 @@ class PickUpStep2Screen extends StatelessWidget {
   }
 
   Widget _buildTargetLocationCard() {
+    final locationCode = widget.detail.storageLocation?.locationCode ?? "N/A";
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Container(
@@ -67,11 +143,11 @@ class PickUpStep2Screen extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('VỊ TRÍ CẦN ĐẾN', style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant, fontWeight: FontWeight.bold)),
-                Text('A-12-04', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                const Text('VỊ TRÍ CẦN ĐẾN', style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant, fontWeight: FontWeight.bold)),
+                Text(locationCode, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.primary)),
               ],
             ),
             Container(
@@ -92,7 +168,12 @@ class PickUpStep2Screen extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         // Simulate successful scan
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const PickUpStep3Screen()));
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PickUpStep3Screen(detail: widget.detail),
+          ),
+        );
       },
       child: Container(
         width: double.infinity,
@@ -124,7 +205,7 @@ class PickUpStep2Screen extends StatelessWidget {
                   Container(
                     height: 2,
                     width: double.infinity,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         colors: [Colors.transparent, AppColors.primary, Colors.transparent],
                       ),
@@ -150,9 +231,7 @@ class PickUpStep2Screen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                 ),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const PickUpStep3Screen()));
-                },
+                onPressed: () => _showManualInputDialog(context),
                 icon: const Icon(Icons.keyboard),
                 label: const Text('Nhập thủ công'),
               ),
@@ -177,6 +256,8 @@ class PickUpStep2Screen extends StatelessWidget {
   }
 
   Widget _buildInventoryInfoTip() {
+    final productName = widget.detail.productVariant?.variantName ?? "Sản phẩm N/A";
+    final expectedQty = widget.detail.expectedQuantity;
     return Container(
       color: AppColors.background,
       padding: const EdgeInsets.all(16.0),
@@ -194,13 +275,13 @@ class PickUpStep2Screen extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: RichText(
-                text: const TextSpan(
-                  style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14, height: 1.5),
+                text: TextSpan(
+                  style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14, height: 1.5),
                   children: [
-                    TextSpan(text: 'Sản phẩm: '),
-                    TextSpan(text: 'Màn hình Dell UltraSharp 27"\n', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.onSurface)),
-                    TextSpan(text: 'Số lượng yêu cầu: '),
-                    TextSpan(text: '12', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
+                    const TextSpan(text: 'Sản phẩm: '),
+                    TextSpan(text: '$productName\n', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.onSurface)),
+                    const TextSpan(text: 'Số lượng yêu cầu: '),
+                    TextSpan(text: '$expectedQty', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
                   ],
                 ),
               ),

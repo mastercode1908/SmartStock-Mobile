@@ -6,6 +6,7 @@ import '../../auth/providers/auth_provider.dart';
 import '../../auth/screens/login_screen.dart';
 import 'change_password_screen.dart';
 import 'static_pages.dart';
+import 'create_user_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -211,6 +212,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const ChangePasswordScreen()));
                   },
                 ),
+                if (user.roleName == 'Admin') ...[
+                  _buildDivider(),
+                  _buildSettingsItem(
+                    Icons.person_add,
+                    'Tạo tài khoản nhân viên',
+                    hasArrow: true,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CreateUserScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ],
             ),
             const SizedBox(height: 24),

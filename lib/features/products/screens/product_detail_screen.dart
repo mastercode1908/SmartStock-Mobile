@@ -507,20 +507,21 @@ class _VariantItemCardState extends State<VariantItemCard> {
                   children: [
                     Text(
                       widget.variant.variantName,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black87),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     Text(
                       'SKU: ${widget.variant.sku}',
-                      style: const TextStyle(fontSize: 11, color: Colors.black54, fontFamily: 'JetBrains Mono'),
+                      style: const TextStyle(fontSize: 13, color: Colors.black87, fontFamily: 'JetBrains Mono'),
                     ),
                     if (widget.variant.barcode.isNotEmpty) ...[
+                      const SizedBox(height: 2),
                       Text(
                         'Barcode: ${widget.variant.barcode}',
-                        style: const TextStyle(fontSize: 11, color: Colors.black54),
+                        style: const TextStyle(fontSize: 13, color: Colors.black87),
                       ),
                     ],
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Wrap(
                       spacing: 8,
                       runSpacing: 4,
@@ -528,12 +529,12 @@ class _VariantItemCardState extends State<VariantItemCard> {
                       children: [
                         Text(
                           'Tồn tối thiểu: ${widget.variant.minimumStockLevel}',
-                          style: const TextStyle(fontSize: 11, color: Colors.black45),
+                          style: const TextStyle(fontSize: 13, color: Colors.black54, fontWeight: FontWeight.bold),
                         ),
-                        const Text('|', style: TextStyle(color: Colors.black26, fontSize: 10)),
+                        const Text('|', style: TextStyle(color: Colors.black26, fontSize: 12)),
                         Text(
                           'Giá: ${currencyFormat.format(widget.variant.costPrice)}',
-                          style: TextStyle(fontSize: 11, color: _primary, fontWeight: FontWeight.w600),
+                          style: TextStyle(fontSize: 13, color: _primary, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -552,7 +553,7 @@ class _VariantItemCardState extends State<VariantItemCard> {
                     child: Text(
                       widget.variant.status == 1 ? 'ĐANG BÁN' : 'NGƯNG BÁN',
                       style: TextStyle(
-                        fontSize: 9,
+                        fontSize: 11,
                         fontWeight: FontWeight.bold,
                         color: widget.variant.status == 1 ? Colors.green[800] : Colors.red[800],
                       ),
@@ -572,7 +573,7 @@ class _VariantItemCardState extends State<VariantItemCard> {
             children: const [
               Text(
                 'Đơn vị quy đổi:',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
               ),
             ],
           ),
@@ -580,7 +581,7 @@ class _VariantItemCardState extends State<VariantItemCard> {
           if (variantUnits.isEmpty)
             const Text(
               'Chưa cấu hình đơn vị quy đổi',
-              style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Colors.black38),
+              style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic, color: Colors.black38),
             )
           else
             Wrap(
@@ -590,7 +591,7 @@ class _VariantItemCardState extends State<VariantItemCard> {
                 return Chip(
                   label: Text(
                     '1 ${pu.unitName} = ${pu.conversionFactor} ${widget.baseUnit?.symbol ?? widget.baseUnit?.unitName ?? ''}',
-                    style: const TextStyle(fontSize: 11, color: Colors.black87),
+                    style: const TextStyle(fontSize: 13, color: Colors.black87, fontWeight: FontWeight.bold),
                   ),
                   padding: EdgeInsets.zero,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

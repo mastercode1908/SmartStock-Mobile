@@ -286,7 +286,10 @@ class CountStep1Screen extends StatelessWidget {
                                 if (d.trackingMethod != 0)
                                   Padding(
                                     padding: const EdgeInsets.only(top: 2),
-                                    child: Row(
+                                    child: Wrap(
+                                      spacing: 6,
+                                      runSpacing: 4,
+                                      crossAxisAlignment: WrapCrossAlignment.center,
                                       children: [
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
@@ -300,15 +303,9 @@ class CountStep1Screen extends StatelessWidget {
                                           ),
                                         ),
                                         if ((d.trackingMethod == 1 || d.trackingMethod == 3) && d.batchNumber != null && d.batchNumber!.isNotEmpty)
-                                          Padding(
-                                            padding: const EdgeInsets.only(left: 4),
-                                            child: Text('Lô: ${d.batchNumber}', style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
-                                          ),
+                                          Text('Lô: ${d.batchNumber}', style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
                                         if ((d.trackingMethod == 2 || d.trackingMethod == 3) && d.serialNumber != null && d.serialNumber!.isNotEmpty)
-                                          Padding(
-                                            padding: const EdgeInsets.only(left: 4),
-                                            child: Text('Serial: ${d.serialNumber}', style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
-                                          ),
+                                          Text('Serial: ${d.serialNumber}', style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
                                       ],
                                     ),
                                   ),
