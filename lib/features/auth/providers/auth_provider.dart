@@ -39,6 +39,72 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> loginWithGoogle(String idToken) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      _currentUser = await _authService.loginWithGoogle(idToken);
+      
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_data', json.encode(_currentUser!.toJson()));
+      await prefs.setString('auth_token', _currentUser!.token);
+
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceAll('Exception: ', '');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchRoles() async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+      return await _authService.fetchRoles();
+    } catch (e) {
+      _error = e.toString().replaceAll('Exception: ', '');
+      return [];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> adminCreateUser({
+    required String fullName,
+    required String email,
+    required String password,
+    String? phone,
+    required int roleId,
+  }) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      await _authService.createUser(
+        fullName: fullName,
+        email: email,
+        password: password,
+        phone: phone,
+        roleId: roleId,
+      );
+      return true;
+    } catch (e) {
+      _error = e.toString().replaceAll('Exception: ', '');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> logout() async {
     _currentUser = null;
     final prefs = await SharedPreferences.getInstance();

@@ -6,9 +6,11 @@ import '../models/storage_location.dart';
 import 'storage_location_detail_screen.dart';
 import 'storage_location_form_screen.dart';
 import 'warehouse_map_screen.dart';
+import '../../auth/providers/auth_provider.dart';
 
 class WarehouseLocationScreen extends StatefulWidget {
-  const WarehouseLocationScreen({super.key});
+  final bool isReadOnly;
+  const WarehouseLocationScreen({super.key, this.isReadOnly = false});
 
   @override
   State<WarehouseLocationScreen> createState() => _WarehouseLocationScreenState();
@@ -141,6 +143,8 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<StorageLocationProvider>();
+    final user = context.watch<AuthProvider>().currentUser;
+    final isStaff = user?.roleName == 'Staff';
 
     return Scaffold(
       backgroundColor: const Color(0xfff8f9fa),
@@ -167,7 +171,12 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => WarehouseMapScreen(initialWarehouseId: _selectedWarehouseId)),
+                MaterialPageRoute(
+                  builder: (context) => WarehouseMapScreen(
+                    initialWarehouseId: _selectedWarehouseId,
+                    isReadOnly: widget.isReadOnly || isStaff,
+                  ),
+                ),
               );
             },
           ),
@@ -311,7 +320,10 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => StorageLocationDetailScreen(locationId: loc.locationId),
+                                      builder: (context) => StorageLocationDetailScreen(
+                                        locationId: loc.locationId,
+                                        isReadOnly: widget.isReadOnly || isStaff,
+                                      ),
                                     ),
                                   );
                                 },
@@ -341,25 +353,26 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
                                           ),
                                           
                                           // Action button stack
-                                          Row(
-                                            children: [
-                                              IconButton(
-                                                icon: const Icon(Icons.edit_outlined, color: Colors.blue, size: 20),
-                                                onPressed: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) => StorageLocationFormScreen(location: loc),
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                              IconButton(
-                                                icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
-                                                onPressed: () => _confirmDelete(loc),
-                                              ),
-                                            ],
-                                          ),
+                                          if (!widget.isReadOnly && !isStaff)
+                                            Row(
+                                              children: [
+                                                IconButton(
+                                                  icon: const Icon(Icons.edit_outlined, color: Colors.blue, size: 20),
+                                                  onPressed: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) => StorageLocationFormScreen(location: loc),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                                IconButton(
+                                                  icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                                                  onPressed: () => _confirmDelete(loc),
+                                                ),
+                                              ],
+                                            ),
                                         ],
                                       ),
                                       const Divider(height: 16),
@@ -391,7 +404,7 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
                                             style: TextStyle(fontSize: 13, color: Colors.black54),
                                           ),
                                           InkWell(
-                                            onTap: () => _confirmToggleStatus(loc),
+                                            onTap: (widget.isReadOnly || isStaff) ? null : () => _confirmToggleStatus(loc),
                                             borderRadius: BorderRadius.circular(16),
                                             child: Container(
                                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -437,18 +450,20 @@ class _WarehouseLocationScreenState extends State<WarehouseLocationScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const StorageLocationFormScreen(),
+      floatingActionButton: (widget.isReadOnly || isStaff)
+          ? null
+          : FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const StorageLocationFormScreen(),
+                  ),
+                );
+              },
+              backgroundColor: const Color(0xffb3272e),
+              child: const Icon(Icons.add, color: Colors.white),
             ),
-          );
-        },
-        backgroundColor: const Color(0xffb3272e),
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
     );
   }
 

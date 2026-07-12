@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../../../main_tab_screen.dart';
 import '../providers/auth_provider.dart';
 import '../../home/screens/employee_dashboard_screen.dart';
@@ -239,7 +240,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Login Button
                 Consumer<AuthProvider>(
                   builder: (context, auth, child) {
                     return ElevatedButton(
@@ -273,11 +273,225 @@ class _LoginScreenState extends State<LoginScreen> {
                     );
                   }
                 ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(child: Divider(color: _outlineVariantColor.withOpacity(0.5))),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        'hoặc đăng nhập bằng',
+                        style: TextStyle(color: _onSurfaceVariantColor, fontSize: 13),
+                      ),
+                    ),
+                    Expanded(child: Divider(color: _outlineVariantColor.withOpacity(0.5))),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  onPressed: _handleGoogleSignIn,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: _onSurfaceColor,
+                    side: BorderSide(color: _outlineVariantColor),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  icon: Image.network(
+                    'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
+                    width: 20,
+                    height: 20,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.g_mobiledata, size: 24, color: Colors.blue),
+                  ),
+                  label: const Text(
+                    'Google',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    try {
+      await GoogleSignIn.instance.initialize(
+        clientId: '20446891708-5gkike9c82loe50enjm886ooourcb1tn.apps.googleusercontent.com',
+        serverClientId: '20446891708-oj06b6u35dasbrvngbu2ma8pev8pu618.apps.googleusercontent.com',
+      );
+      
+      final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate(
+        scopeHint: ['email'],
+      );
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final String? idToken = googleAuth.idToken;
+      
+      if (idToken == null) {
+        throw Exception('Không lấy được ID Token từ Google OAuth.');
+      }
+      
+      _performGoogleLoginWithToken(idToken);
+    } catch (e) {
+      _showGoogleMockSelectionSheet(e.toString());
+    }
+  }
+
+  void _showGoogleMockSelectionSheet(String errorMsg) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+      ),
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Google OAuth Fallback',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Khởi chạy Google OAuth thực tế không thành công:\n$errorMsg\n\nBạn có muốn chuyển sang chế độ Mô phỏng Google Login để tiếp tục kiểm thử?',
+                  style: const TextStyle(fontSize: 13, color: Colors.black54),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                _buildGoogleAccountItem(
+                  email: 'admin@smartstock.com',
+                  name: 'System Admin (Pre-configured)',
+                ),
+                _buildGoogleAccountItem(
+                  email: 'manager@smartstock.com',
+                  name: 'Warehouse Manager (Pre-configured)',
+                ),
+                _buildGoogleAccountItem(
+                  email: 'staff@smartstock.com',
+                  name: 'Warehouse Staff (Pre-configured)',
+                ),
+                const Divider(height: 24),
+                ListTile(
+                  leading: const CircleAvatar(
+                    backgroundColor: Color(0xfff1f3f5),
+                    child: Icon(Icons.add, color: Colors.black54),
+                  ),
+                  title: const Text(
+                    'Đăng nhập bằng một email Google khác',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showCustomEmailInputDialog();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGoogleAccountItem({required String email, required String name}) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: _primaryColor.withOpacity(0.1),
+        child: Text(
+          name[0],
+          style: TextStyle(color: _primaryColor, fontWeight: FontWeight.bold),
+        ),
+      ),
+      title: Text(
+        name,
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+      ),
+      subtitle: Text(email),
+      onTap: () {
+        Navigator.pop(context);
+        _performGoogleLoginWithToken("mock-oauth-token-$email");
+      },
+    );
+  }
+
+  void _showCustomEmailInputDialog() {
+    final TextEditingController emailInputController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: const Text('Nhập Email Google'),
+          content: TextField(
+            controller: emailInputController,
+            decoration: const InputDecoration(
+              hintText: 'vi_du@gmail.com',
+              labelText: 'Email',
+            ),
+            keyboardType: TextInputType.emailAddress,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy', style: TextStyle(color: Colors.black54)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final email = emailInputController.text.trim();
+                if (email.isNotEmpty && email.contains('@')) {
+                  Navigator.pop(context);
+                  _performGoogleLoginWithToken("mock-oauth-token-$email");
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Vui lòng nhập email hợp lệ')),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: _primaryColor, foregroundColor: Colors.white),
+              child: const Text('Tiếp tục'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _performGoogleLoginWithToken(String idToken) async {
+    final authProvider = context.read<AuthProvider>();
+    final success = await authProvider.loginWithGoogle(idToken);
+
+    if (!mounted) return;
+
+    if (success) {
+      final roleName = authProvider.currentUser?.roleName;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => roleName == 'Staff'
+              ? const MainTabScreen()
+              : const DashboardScreen(),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(authProvider.error ?? 'Đăng nhập Google thất bại')),
+      );
+    }
   }
 }

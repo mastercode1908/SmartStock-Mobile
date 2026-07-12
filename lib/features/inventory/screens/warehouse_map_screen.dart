@@ -5,8 +5,9 @@ import 'storage_location_detail_screen.dart';
 
 class WarehouseMapScreen extends StatefulWidget {
   final int? initialWarehouseId;
+  final bool isReadOnly;
 
-  const WarehouseMapScreen({super.key, this.initialWarehouseId});
+  const WarehouseMapScreen({super.key, this.initialWarehouseId, this.isReadOnly = false});
 
   @override
   State<WarehouseMapScreen> createState() => _WarehouseMapScreenState();
@@ -153,7 +154,10 @@ class _WarehouseMapScreenState extends State<WarehouseMapScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => StorageLocationDetailScreen(locationId: item['locationId'] as int),
+                                builder: (context) => StorageLocationDetailScreen(
+                                  locationId: item['locationId'] as int,
+                                  isReadOnly: widget.isReadOnly,
+                                ),
                               ),
                             ).then((_) {
                               if (_selectedWarehouseId != null) {

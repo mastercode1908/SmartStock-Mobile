@@ -129,7 +129,9 @@ class InventoryPickingProvider extends ChangeNotifier {
             (d) => d.pickingDetailId == detailId,
           );
           if (idx != -1) {
-            _currentTask!.details![idx].pickedQuantity = pickedQuantity;
+            final detail = _currentTask!.details![idx];
+            detail.pickedQuantity = pickedQuantity;
+            detail.status = (pickedQuantity == detail.expectedQuantity) ? 1 : 2;
             notifyListeners();
           }
         }
@@ -141,16 +143,26 @@ class InventoryPickingProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> completeTask(int taskId) async {
+  Future<Map<String, dynamic>> completeTask(int taskId) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/picking-tasks/$taskId/complete'),
         headers: await _getHeaders(),
       );
 
-      return response.statusCode == 200;
+      final data = json.decode(response.body);
+      final isSuccess = response.statusCode == 200;
+      final msg = data['message'] ?? data['Message'] ?? (isSuccess ? 'Hoàn tất nhiệm vụ nhặt hàng và cập nhật kho thành công.' : 'Lỗi không thể hoàn tất nhiệm vụ.');
+
+      return {
+        'success': isSuccess,
+        'message': msg,
+      };
     } catch (e) {
-      return false;
+      return {
+        'success': false,
+        'message': 'Lỗi kết nối máy chủ: $e',
+      };
     }
   }
 }

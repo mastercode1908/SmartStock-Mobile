@@ -5,6 +5,8 @@ import 'count_step1_screen.dart';
 import 'session_readonly_screen.dart';
 import '../../providers/inventory_provider.dart';
 import '../../models/inventory_session.dart';
+import '../../../notifications/providers/notification_provider.dart';
+import '../../../notifications/screens/notification_screen.dart';
 
 class CountListScreen extends StatefulWidget {
   const CountListScreen({Key? key}) : super(key: key);
@@ -116,9 +118,50 @@ class _CountListScreenState extends State<CountListScreen> {
         ],
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.notifications, color: Color(0xffb02528)),
-          onPressed: () {},
+        Consumer<NotificationProvider>(
+          builder: (context, provider, child) {
+            final unreadCount = provider.unreadCount;
+            final displayCount = unreadCount > 99 ? '99+' : unreadCount.toString();
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.notifications, color: Color(0xffb02528)),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                    );
+                  },
+                ),
+                if (unreadCount > 0)
+                  Positioned(
+                    right: 4,
+                    top: 4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffb02528),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        displayCount,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
         ),
         const SizedBox(width: 8),
       ],

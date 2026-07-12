@@ -4,6 +4,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../providers/picking_provider.dart';
 import '../../models/picking_task.dart';
 import 'pickup_step1_screen.dart';
+import '../../../notifications/providers/notification_provider.dart';
+import '../../../notifications/screens/notification_screen.dart';
 
 class PickUpListScreen extends StatefulWidget {
   const PickUpListScreen({Key? key}) : super(key: key);
@@ -13,6 +15,8 @@ class PickUpListScreen extends StatefulWidget {
 }
 
 class _PickUpListScreenState extends State<PickUpListScreen> {
+  int _activeFilter = -1; // -1: Tất cả, 0: Chờ thực hiện, 1: Đang làm, 2: Đã xong
+
   @override
   void initState() {
     super.initState();
@@ -38,6 +42,7 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(provider.error!, style: const TextStyle(color: Colors.red)),
+                  const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => provider.fetchTasks(),
                     child: const Text('Thử lại'),
@@ -47,21 +52,42 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
             );
           }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildHeader(),
-                const SizedBox(height: 24),
-                _buildStatusFilters(),
-                const SizedBox(height: 24),
-                if (provider.tasks.isEmpty)
-                  const Center(child: Text('Không có nhiệm vụ nào.'))
-                else
-                  ...provider.tasks.map((task) => _buildTaskCard(context, task)).toList(),
-                const SizedBox(height: 80),
-              ],
+          // Filter tasks based on _activeFilter
+          final filteredTasks = provider.tasks.where((task) {
+            if (_activeFilter == -1) {
+              return true; // Include all tasks including CANCELLED ones
+            }
+            return task.status == _activeFilter;
+          }).toList();
+
+          return RefreshIndicator(
+            onRefresh: () => provider.fetchTasks(),
+            color: AppColors.primary,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 24),
+                  _buildStatusFilters(),
+                  const SizedBox(height: 24),
+                  if (filteredTasks.isEmpty)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 40.0),
+                        child: Text(
+                          'Không có nhiệm vụ nào trong mục này.',
+                          style: TextStyle(color: Colors.grey, fontSize: 16),
+                        ),
+                      ),
+                    )
+                  else
+                    ...filteredTasks.map((task) => _buildTaskCard(context, task)).toList(),
+                  const SizedBox(height: 80),
+                ],
+              ),
             ),
           );
         },
@@ -89,9 +115,50 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
         ],
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.notifications, color: Color(0xffb02528)),
-          onPressed: () {},
+        Consumer<NotificationProvider>(
+          builder: (context, provider, child) {
+            final unreadCount = provider.unreadCount;
+            final displayCount = unreadCount > 99 ? '99+' : unreadCount.toString();
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.notifications, color: Color(0xffb02528)),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                    );
+                  },
+                ),
+                if (unreadCount > 0)
+                  Positioned(
+                    right: 4,
+                    top: 4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffb02528),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        displayCount,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
         ),
         const SizedBox(width: 8),
       ],
@@ -110,8 +177,8 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
+            children: const [
+              Text(
                 'Danh sách Nhặt hàng',
                 style: TextStyle(
                   fontSize: 28,
@@ -119,26 +186,11 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
                   color: AppColors.onSurface,
                 ),
               ),
-              const SizedBox(height: 8),
-              const Text(
-                'Chọn một danh sách để bắt đầu thực hiện nhặt hàng.',
+              SizedBox(height: 8),
+              Text(
+                'Chọn một nhiệm vụ được phân công để bắt đầu.',
                 style: TextStyle(fontSize: 16, color: AppColors.onSurfaceVariant),
               ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 16),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: const Row(
-            children: [
-              Icon(Icons.filter_list, size: 18, color: AppColors.onSurface),
-              SizedBox(width: 8),
-              Text('Lọc', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
             ],
           ),
         ),
@@ -151,29 +203,90 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          _buildFilterChip('Tất cả', isSelected: true),
+          _buildFilterChip('Tất cả', -1),
           const SizedBox(width: 8),
-          _buildFilterChip('Mới', isSelected: false),
+          _buildFilterChip('Chờ thực hiện', 0),
           const SizedBox(width: 8),
-          _buildFilterChip('Đang làm', isSelected: false),
+          _buildFilterChip('Đang làm', 1),
+          const SizedBox(width: 8),
+          _buildFilterChip('Đã xong', 2),
+          const SizedBox(width: 8),
+          _buildFilterChip('Đã hủy', 3),
         ],
       ),
     );
   }
 
-  Widget _buildFilterChip(String label, {required bool isSelected}) {
+  Widget _buildFilterChip(String label, int filterValue) {
+    final bool isSelected = _activeFilter == filterValue;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _activeFilter = filterValue;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primaryContainer : AppColors.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : Colors.transparent,
+            width: 1,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: isSelected ? AppColors.onPrimaryContainer : AppColors.onSurface,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(int status) {
+    String text = '';
+    Color bgColor = Colors.grey;
+    Color textColor = Colors.white;
+
+    switch (status) {
+      case 0:
+        text = 'Chờ thực hiện (PENDING)';
+        bgColor = const Color(0xFFFEF9C3); // yellow-100
+        textColor = const Color(0xFF854D0E); // yellow-800
+        break;
+      case 1:
+        text = 'Đang nhặt hàng (IN_PROGRESS)';
+        bgColor = const Color(0xFFDBEAFE); // blue-100
+        textColor = const Color(0xFF1E40AF); // blue-800
+        break;
+      case 2:
+        text = 'Hoàn thành (COMPLETED)';
+        bgColor = const Color(0xFFDCFCE7); // green-100
+        textColor = const Color(0xFF166534); // green-800
+        break;
+      case 3:
+        text = 'Đã hủy';
+        bgColor = const Color(0xFFFEE2E2); // red-100
+        textColor = const Color(0xFF991B1B); // red-800
+        break;
+    }
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.primaryContainer : AppColors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(24),
+        color: bgColor,
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
-        label,
+        text,
         style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: isSelected ? AppColors.onPrimaryContainer : AppColors.onSurface,
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          color: textColor,
         ),
       ),
     );
@@ -181,8 +294,9 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
 
   Widget _buildTaskCard(BuildContext context, PickingTask task) {
     final bool isNew = task.status == 0;
+    final bool isHistorical = task.status == 2 || task.status == 3;
     int totalItems = task.details?.fold(0, (sum, d) => sum! + d.expectedQuantity) ?? 0;
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       padding: const EdgeInsets.all(16),
@@ -190,6 +304,13 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.outlineVariant),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -197,33 +318,23 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.assignment, color: AppColors.primary),
-                  const SizedBox(width: 4),
-                  Text(
-                    task.taskCode,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.onSurface),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: isNew 
-                      ? AppColors.tertiaryContainer.withOpacity(0.2)
-                      : AppColors.primaryContainer.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  isNew ? 'Mới' : 'Đang làm',
-                  style: TextStyle(
-                    fontSize: 12, 
-                    fontWeight: FontWeight.w500, 
-                    color: isNew ? AppColors.tertiary : AppColors.primary
-                  ),
+              Expanded(
+                child: Row(
+                  children: [
+                    const Icon(Icons.assignment, color: AppColors.primary),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        task.taskCode,
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.onSurface),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(width: 8),
+              _buildStatusBadge(task.status),
             ],
           ),
           const SizedBox(height: 16),
@@ -233,8 +344,9 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('SỐ LƯỢNG', style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
-                    Text('$totalItems', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                    const Text('TỔNG SỐ LƯỢNG', style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                    const SizedBox(height: 2),
+                    Text('$totalItems', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -243,7 +355,8 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('CHI TIẾT', style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
-                    Text('${task.details?.length ?? 0} SKU', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                    const SizedBox(height: 2),
+                    Text('${task.details?.length ?? 0} SKU', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -252,7 +365,7 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
           const SizedBox(height: 16),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
+              backgroundColor: isHistorical ? Colors.blueGrey : AppColors.primary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -265,15 +378,31 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
                 await provider.startTask(task.taskId);
               }
               if (context.mounted) {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const PickUpStep1Screen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PickUpStep1Screen()),
+                ).then((_) {
+                  provider.fetchTasks();
+                });
               }
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(isNew ? Icons.play_arrow : Icons.arrow_forward),
+                Icon(isHistorical
+                    ? Icons.visibility
+                    : isNew
+                        ? Icons.play_arrow
+                        : Icons.arrow_forward),
                 const SizedBox(width: 8),
-                Text(isNew ? 'Nhận nhiệm vụ' : 'Tiếp tục', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                Text(
+                  isHistorical
+                      ? 'Xem chi tiết'
+                      : isNew
+                          ? 'Nhận nhiệm vụ'
+                          : 'Tiếp tục',
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
               ],
             ),
           ),

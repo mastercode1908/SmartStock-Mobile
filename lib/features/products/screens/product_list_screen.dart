@@ -519,7 +519,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
           ),
           title: Text(
             product.productName,
+<<<<<<< HEAD
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
+=======
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.black),
+>>>>>>> main
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -600,20 +604,21 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     title: Text(
                       variant.variantName,
-                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black87),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 4),
                         Text(
                           'SKU: ${variant.sku}',
-                          style: const TextStyle(fontSize: 11, color: Colors.black45, fontFamily: 'JetBrains Mono'),
+                          style: const TextStyle(fontSize: 13, color: Colors.black54, fontFamily: 'JetBrains Mono'),
                         ),
                         if (variant.barcode.isNotEmpty) ...[
+                          const SizedBox(height: 2),
                           Text(
                             'Barcode: ${variant.barcode}',
-                            style: const TextStyle(fontSize: 11, color: Colors.black45),
+                            style: const TextStyle(fontSize: 13, color: Colors.black54),
                           ),
                         ],
                       ],
@@ -624,13 +629,13 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       children: [
                         Text(
                           currencyFormat.format(variant.costPrice),
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _primary),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: _primary),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           variant.status == 1 ? 'ĐANG BÁN' : 'NGƯNG BÁN',
                           style: TextStyle(
-                            fontSize: 9,
+                            fontSize: 10,
                             fontWeight: FontWeight.bold,
                             color: variant.status == 1 ? Colors.green[700] : Colors.red[700],
                           ),

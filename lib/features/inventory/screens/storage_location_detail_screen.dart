@@ -4,11 +4,17 @@ import '../providers/storage_location_provider.dart';
 import 'storage_location_form_screen.dart';
 import '../models/stock_balance.dart';
 import '../models/storage_location.dart';
+import '../../auth/providers/auth_provider.dart';
 
 class StorageLocationDetailScreen extends StatefulWidget {
   final int locationId;
+  final bool isReadOnly;
 
-  const StorageLocationDetailScreen({super.key, required this.locationId});
+  const StorageLocationDetailScreen({
+    super.key,
+    required this.locationId,
+    this.isReadOnly = false,
+  });
 
   @override
   State<StorageLocationDetailScreen> createState() => _StorageLocationDetailScreenState();
@@ -101,6 +107,8 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<StorageLocationProvider>();
+    final user = context.watch<AuthProvider>().currentUser;
+    final isStaff = user?.roleName == 'Staff';
     final loc = provider.selectedLocation;
     final isLoading = provider.isDetailLoading;
 
@@ -156,25 +164,27 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
             fontSize: 20,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined, color: Color(0xffb3272e)),
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => StorageLocationFormScreen(location: loc),
+        actions: (widget.isReadOnly || isStaff)
+            ? null
+            : [
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined, color: Color(0xffb3272e)),
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => StorageLocationFormScreen(location: loc),
+                      ),
+                    );
+                    // Reload details on return
+                    provider.loadLocationDetails(widget.locationId);
+                  },
                 ),
-              );
-              // Reload details on return
-              provider.loadLocationDetails(widget.locationId);
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline, color: Color(0xffb3272e)),
-            onPressed: () => _confirmDelete(loc.locationCode),
-          ),
-        ],
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Color(0xffb3272e)),
+                  onPressed: () => _confirmDelete(loc.locationCode),
+                ),
+              ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -188,7 +198,7 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
                 elevation: 0.5,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: Colors.grey[200]!),
+                  side: BorderSide(color: const Color(0xffba1a1a).withOpacity(0.2)),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -201,9 +211,9 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
                           const Text(
                             'Thông Tin Tọa Độ',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: Colors.black,
                             ),
                           ),
                           Container(
@@ -256,18 +266,18 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
                       'Tổng sản phẩm',
                       totalQuantity.toString(),
                       Icons.inventory_2_outlined,
-                      const Color(0xfffef3f2),
-                      const Color(0xff93000a),
+                      const Color(0xffffdad6),
+                      const Color(0xffba1a1a),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: _buildStatCard(
-                      'Theo Lô (Batch)',
+                      'Theo lô sản xuất',
                       lotQuantity.toString(),
                       Icons.receipt_long_outlined,
-                      const Color(0xffe6f3f0),
-                      const Color(0xff006a67),
+                      const Color(0xffffdad6),
+                      const Color(0xffba1a1a),
                     ),
                   ),
                 ],
@@ -277,21 +287,21 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
                 children: [
                   Expanded(
                     child: _buildStatCard(
-                      'Theo Serial',
+                      'Theo số Serial',
                       serialQuantity.toString(),
                       Icons.qr_code_outlined,
-                      const Color(0xffeff2f7),
-                      const Color(0xff005faf),
+                      const Color(0xffffdad6),
+                      const Color(0xffba1a1a),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: _buildStatCard(
-                      'Hàng Thường (Basic)',
+                      'Hàng thông thường',
                       basicQuantity.toString(),
                       Icons.widgets_outlined,
-                      const Color(0xfffff9db),
-                      const Color(0xffe67e22),
+                      const Color(0xffffdad6),
+                      const Color(0xffba1a1a),
                     ),
                   ),
                 ],
@@ -302,9 +312,9 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
               const Text(
                 'Hàng hóa đang lưu trữ',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: Colors.black,
                 ),
               ),
               const SizedBox(height: 12),
@@ -315,7 +325,7 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[200]!),
+                  border: Border.all(color: const Color(0xffba1a1a).withOpacity(0.2)),
                 ),
                 child: TextField(
                   onChanged: (val) {
@@ -340,9 +350,9 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
                 final lotItems = filteredBalances.where((item) => item.trackingMethod == 1).toList();
                 final serialItems = filteredBalances.where((item) => item.trackingMethod == 2 || item.trackingMethod == 3).toList();
                 return [
-                  _buildCategorySection('Hàng Thường (Basic)', basicItems, Icons.widgets_outlined, const Color(0xffe67e22)),
-                  _buildCategorySection('Hàng Theo Lô (Batch)', lotItems, Icons.receipt_long_outlined, const Color(0xff006a67)),
-                  _buildCategorySection('Hàng Theo Serial', serialItems, Icons.qr_code_outlined, const Color(0xff005faf)),
+                  _buildCategorySection('Hàng thông thường', basicItems, Icons.widgets_outlined, const Color(0xffba1a1a)),
+                  _buildCategorySection('Hàng quản lý theo Lô', lotItems, Icons.receipt_long_outlined, const Color(0xffba1a1a)),
+                  _buildCategorySection('Hàng quản lý theo Serial', serialItems, Icons.qr_code_outlined, const Color(0xffba1a1a)),
                 ];
               })(),
             ],
@@ -355,14 +365,14 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
   Widget _buildDetailRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, color: Colors.black45, size: 20),
+        Icon(icon, color: const Color(0xffba1a1a), size: 20),
         const SizedBox(width: 12),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: const TextStyle(fontSize: 12, color: Colors.black45)),
+            Text(label, style: const TextStyle(fontSize: 13, color: Colors.black54, fontWeight: FontWeight.w600)),
             const SizedBox(height: 2),
-            Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87)),
+            Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
           ],
         ),
       ],
@@ -373,18 +383,19 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.black45)),
+        Text(label, style: const TextStyle(fontSize: 13, color: Colors.black54, fontWeight: FontWeight.w600)),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
           decoration: BoxDecoration(
-            color: const Color(0xfff1f3f5),
-            borderRadius: BorderRadius.circular(8),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xffba1a1a).withOpacity(0.2)),
           ),
           child: Text(
             value,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
           ),
         ),
       ],
@@ -393,36 +404,52 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
 
   Widget _buildStatCard(String title, String value, IconData icon, Color bg, Color iconColor) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: const Color(0xffba1a1a).withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: Colors.grey[200]!),
+        border: Border.all(color: const Color(0xffba1a1a).withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
-            child: Icon(icon, color: iconColor, size: 18),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xffffdad6),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: const Color(0xffba1a1a), size: 20),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Text(
             value,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w900,
+              color: Colors.black,
+            ),
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 4),
           Text(
             title,
-            style: const TextStyle(fontSize: 10, color: Colors.black54, fontWeight: FontWeight.w500),
+            style: const TextStyle(
+              fontSize: 13,
+              color: Colors.black87,
+              fontWeight: FontWeight.bold,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -433,17 +460,17 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
 
   Widget _buildLabelValueChip(String label, String value) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: const Color(0xfff8f9fa),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.grey[200]!),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xffba1a1a).withOpacity(0.15)),
       ),
       child: RichText(
         text: TextSpan(
-          style: const TextStyle(fontSize: 11, color: Colors.black54),
+          style: const TextStyle(fontSize: 13, color: Colors.black87),
           children: [
-            TextSpan(text: '$label: ', style: const TextStyle(fontWeight: FontWeight.bold)),
+            TextSpan(text: '$label: ', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
             TextSpan(text: value),
           ],
         ),
@@ -491,6 +518,9 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
   }
 
   Widget _buildCategorySection(String title, List<StockBalance> items, IconData icon, Color headerColor) {
+    if (items.isEmpty) return const SizedBox.shrink();
+    final isStaff = context.read<AuthProvider>().currentUser?.roleName == 'Staff';
+    final themeColor = const Color(0xffba1a1a);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -498,21 +528,21 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
           padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
           child: Row(
             children: [
-              Icon(icon, size: 18, color: headerColor),
+              Icon(icon, size: 18, color: themeColor),
               const SizedBox(width: 8),
               Text(
                 title,
-                style: TextStyle(
-                  fontSize: 14,
+                style: const TextStyle(
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  color: headerColor,
+                  color: Colors.black87,
                 ),
               ),
               const SizedBox(width: 6),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: headerColor.withOpacity(0.1),
+                  color: themeColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
@@ -520,7 +550,7 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    color: headerColor,
+                    color: themeColor,
                   ),
                 ),
               ),
@@ -558,7 +588,7 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
                 elevation: 0.5,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: Colors.grey[100]!),
+                  side: BorderSide(color: const Color(0xffba1a1a).withOpacity(0.15)),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -572,9 +602,9 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
                             child: Text(
                               item.productName,
                               style: const TextStyle(
-                                fontSize: 15,
+                                fontSize: 17,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                                color: Colors.black,
                               ),
                             ),
                           ),
@@ -583,13 +613,13 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
                         ],
                       ),
                       if (item.variantName.isNotEmpty && item.variantName != item.productName) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         Text(
                           'Biến thể: ${item.variantName}',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.w500,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
@@ -612,17 +642,17 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
                             children: [
                               Text(
                                 'Lô: ${item.batchNumber ?? "N/A"}',
-                                style: const TextStyle(fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w500),
+                                style: const TextStyle(fontSize: 14, color: Colors.black87, fontWeight: FontWeight.bold),
                               ),
-                              const SizedBox(height: 2),
+                              const SizedBox(height: 4),
                               Text(
                                 'Hạn dùng: ${_formatDate(item.expiryDate)}',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   color: _isExpired(item.expiryDate)
                                       ? Colors.red
                                       : Colors.black54,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
@@ -631,15 +661,15 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                             decoration: BoxDecoration(
-                              color: const Color(0xffb3272e).withOpacity(0.08),
+                              color: const Color(0xffba1a1a).withOpacity(0.08),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
                               'SL: ${item.quantity}',
                               style: const TextStyle(
-                                fontSize: 14,
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xffb3272e),
+                                color: Color(0xffba1a1a),
                               ),
                             ),
                           ),
@@ -649,7 +679,7 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
                         const Divider(height: 20),
                         const Text(
                           'Danh sách số Serial:',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54),
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
                         ),
                         const SizedBox(height: 6),
                         Wrap(
@@ -665,11 +695,11 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.qr_code, size: 12, color: Colors.black54),
+                                const Icon(Icons.qr_code, size: 14, color: Colors.black54),
                                 const SizedBox(width: 4),
                                 Text(
                                   sn,
-                                  style: const TextStyle(fontSize: 11, fontFamily: 'Courier', fontWeight: FontWeight.bold, color: Colors.black87),
+                                  style: const TextStyle(fontSize: 13, fontFamily: 'Courier', fontWeight: FontWeight.bold, color: Colors.black87),
                                 ),
                               ],
                             ),
@@ -677,25 +707,26 @@ class _StorageLocationDetailScreenState extends State<StorageLocationDetailScree
                         ),
                       ],
                       const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            final loc = context.read<StorageLocationProvider>().selectedLocation!;
-                            _openTransferDialog(context, item, loc);
-                          },
-                          icon: const Icon(Icons.swap_horiz, size: 16),
-                          label: const Text('Chuyển vị trí'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xffb3272e),
-                            side: const BorderSide(color: Color(0xffb3272e)),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                      if (!widget.isReadOnly && !isStaff)
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              final loc = context.read<StorageLocationProvider>().selectedLocation!;
+                              _openTransferDialog(context, item, loc);
+                            },
+                            icon: const Icon(Icons.swap_horiz, size: 18),
+                            label: const Text('Chuyển vị trí', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xffba1a1a),
+                              side: const BorderSide(color: Color(0xffba1a1a)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 8),
                             ),
-                            padding: const EdgeInsets.symmetric(vertical: 8),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ),
