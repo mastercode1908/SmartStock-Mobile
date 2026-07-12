@@ -74,13 +74,12 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
                   _buildStatusFilters(),
                   const SizedBox(height: 24),
                   if (filteredTasks.isEmpty)
-                    const Center(
+                    Center(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 40.0),
+                        padding: const EdgeInsets.symmetric(vertical: 40.0),
                         child: Text(
                           'Không có nhiệm vụ nào trong mục này.',
-                          style: TextStyle(color: Colors.grey, fontSize: 16),
-                        ),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16)),
                       ),
                     )
                   else
@@ -147,8 +146,8 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
                       ),
                       child: Text(
                         displayCount,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: Theme.of(context).cardColor,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),
@@ -164,7 +163,7 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
       ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1.0),
-        child: Container(color: Colors.grey[300], height: 1.0),
+        child: Container(color: Theme.of(context).colorScheme.surfaceContainerHigh, height: 1.0),
       ),
     );
   }
@@ -306,7 +305,7 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
         border: Border.all(color: AppColors.outlineVariant),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -366,7 +365,7 @@ class _PickUpListScreenState extends State<PickUpListScreen> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: isHistorical ? Colors.blueGrey : AppColors.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
               elevation: 0,

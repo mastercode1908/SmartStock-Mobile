@@ -67,7 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
-          child: Container(color: Colors.grey[200], height: 1.0),
+          child: Container(color: Theme.of(context).colorScheme.surfaceContainerHigh, height: 1.0),
         ),
       ),
       body: SingleChildScrollView(
@@ -83,7 +83,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 border: Border.all(color: colorScheme.surfaceContainerHigh),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -128,9 +128,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               color: Color(0xffb3272e),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
-                              Icons.edit,
-                              color: Colors.white,
+                            child: Icon(
+                              Icons.edit, color: Theme.of(context).cardColor,
                               size: 16,
                             ),
                           ),
@@ -150,9 +149,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 4),
                   RichText(
                     text: TextSpan(
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: Colors.black54,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       children: [
                         const TextSpan(text: 'Email: '),
@@ -174,7 +173,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     decoration: BoxDecoration(
                       color: Theme.of(context).brightness == Brightness.light
-                          ? Colors.grey[100]
+                          ? Theme.of(context).colorScheme.surfaceContainerLow
                           : Theme.of(context).colorScheme.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
@@ -399,7 +398,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
@@ -432,7 +431,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 40,
               decoration: BoxDecoration(
                 color: Theme.of(context).brightness == Brightness.light
-                    ? Colors.grey[100]
+                    ? Theme.of(context).colorScheme.surfaceContainerLow
                     : Theme.of(context).colorScheme.surfaceContainerLow,
                 shape: BoxShape.circle,
               ),
@@ -537,7 +536,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             height: 80,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.grey[300]!),
+                              border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHigh!),
                               image: DecorationImage(
                                 image: selectedImage != null
                                     ? FileImage(selectedImage!) as ImageProvider
@@ -559,9 +558,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 color: Color(0xffb3272e),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(
-                                Icons.camera_alt,
-                                color: Colors.white,
+                              child: Icon(
+                                Icons.camera_alt, color: Theme.of(context).cardColor,
                                 size: 14,
                               ),
                             ),
@@ -591,9 +589,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               actions: [
                 TextButton(
                   onPressed: isLoading ? null : () => Navigator.pop(context),
-                  child: const Text(
-                    'Hủy',
-                    style: TextStyle(color: Colors.grey),
+                  child: Text(
+                    'Hủy', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                 ),
                 ElevatedButton(
@@ -650,14 +647,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xffb3272e),
-                    foregroundColor: Colors.white,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   ),
                   child: isLoading
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 16,
                           height: 16,
                           child: CircularProgressIndicator(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             strokeWidth: 2,
                           ),
                         )

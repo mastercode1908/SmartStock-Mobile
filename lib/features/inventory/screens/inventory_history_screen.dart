@@ -166,7 +166,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
               label: const Text('Lọc'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: (_filterStartDate != null || _filterEndDate != null) ? _primary : _surfaceContainerLowest,
-                foregroundColor: (_filterStartDate != null || _filterEndDate != null) ? Colors.white : _primary,
+                foregroundColor: (_filterStartDate != null || _filterEndDate != null) ? Theme.of(context).colorScheme.onPrimary : _primary,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -325,7 +325,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+                      border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.surfaceContainerHigh)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -363,15 +363,15 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                                   decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey.shade300),
+                                    border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHigh),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(tempStartDate != null ? DateFormat('dd/MM/yyyy').format(tempStartDate!) : 'Từ ngày',
-                                        style: TextStyle(color: tempStartDate != null ? Colors.black : Colors.grey)),
-                                      const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                                        style: TextStyle(color: tempStartDate != null ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurfaceVariant)),
+                                      Icon(Icons.calendar_today, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                     ],
                                   ),
                                 ),
@@ -394,15 +394,15 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                                   decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey.shade300),
+                                    border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHigh),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(tempEndDate != null ? DateFormat('dd/MM/yyyy').format(tempEndDate!) : 'Đến ngày',
-                                        style: TextStyle(color: tempEndDate != null ? Colors.black : Colors.grey)),
-                                      const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                                        style: TextStyle(color: tempEndDate != null ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurfaceVariant)),
+                                      Icon(Icons.calendar_today, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                     ],
                                   ),
                                 ),
@@ -417,7 +417,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      border: Border(top: BorderSide(color: Colors.grey.shade200)),
+                      border: Border(top: BorderSide(color: Theme.of(context).colorScheme.surfaceContainerHigh)),
                     ),
                     child: Row(
                       children: [
@@ -449,7 +449,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _primary,
-                              foregroundColor: Colors.white,
+                              foregroundColor: Theme.of(context).colorScheme.onPrimary,
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
@@ -488,7 +488,7 @@ class _InventoryHistoryScreenState extends State<InventoryHistoryScreen> {
         border: Border.all(color: _outlineVariant.withOpacity(0.3)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
