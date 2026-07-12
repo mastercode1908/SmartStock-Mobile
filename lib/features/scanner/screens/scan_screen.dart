@@ -5,6 +5,7 @@ import '../../inventory/providers/inventory_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../inventory/models/product_variant.dart';
 import '../../../main_tab_screen.dart';
+import '../../products/screens/product_detail_screen.dart';
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
@@ -94,87 +95,14 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
   }
 
   void _showProductDetails(ProductVariant match) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(24),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(16),
-                      image: match.imageUrl.isNotEmpty
-                          ? DecorationImage(
-                              image: NetworkImage(match.imageUrl),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
-                    ),
-                    child: match.imageUrl.isEmpty
-                        ? const Icon(Icons.inventory_2, color: Colors.grey, size: 40)
-                        : null,
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          match.variantName.isNotEmpty ? match.variantName : match.productName,
-                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
-                        Text('SKU: ${match.sku}', style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                        Text('Barcode: ${match.barcode}', style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                        Text('ĐVT: ${match.baseUnitSymbol}', style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.black54, width: 1.5),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context); // Close bottom sheet
-                    if (mounted) {
-                      _isProcessing = false;
-                      controller.start();
-                    }
-                  },
-                  child: const Text('Đóng', style: TextStyle(fontSize: 16, color: Colors.black87, fontWeight: FontWeight.bold)),
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        );
-      },
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProductDetailScreen(productId: match.productId),
+      ),
     ).then((_) {
-      if (_isProcessing && mounted) {
-        _isProcessing = false;
+      if (mounted) {
+        setState(() => _isProcessing = false);
         controller.start();
       }
     });

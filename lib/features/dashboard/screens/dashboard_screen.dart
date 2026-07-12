@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../inventory/providers/inventory_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../inventory/screens/inventory_list_screen.dart';
@@ -9,7 +10,6 @@ import '../../profile/screens/profile_screen.dart';
 import '../../notifications/screens/notification_screen.dart';
 import '../../inventory/screens/warehouse_location_screen.dart';
 import '../../inventory/screens/warehouse_map_screen.dart';
-import '../../inventory/screens/create_inventory_screen.dart';
 import '../../inventory/screens/incident_report_screen.dart';
 import '../../notifications/providers/notification_provider.dart';
 import '../../picking/screens/picking_list_screen.dart';
@@ -125,13 +125,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: Consumer<InventoryProvider>(
         builder: (context, provider, child) {
           final user = context.watch<AuthProvider>().currentUser;
-          final sessions = provider.sessions.where((s) => s.createdBy == user?.userId).toList();
+          final role = user?.roleName.toLowerCase() ?? '';
+          final isManager = role.contains('admin') || role.contains('manager');
+          
+          final sessions = isManager 
+              ? provider.sessions 
+              : provider.sessions.where((s) => s.createdBy == user?.userId || s.assignedTo == user?.userId).toList();
+              
           final todaySessions = sessions.where((s) => 
             s.startDate.year == DateTime.now().year && 
             s.startDate.month == DateTime.now().month && 
             s.startDate.day == DateTime.now().day).length;
           
-          final draftSessions = sessions.where((s) => s.status == 'DRAFT').length;
+          final completedSessions = sessions.where((s) => s.status == 'APPROVED').length;
           final pendingSessions = sessions.where((s) => s.status == 'PENDING').length;
 
           return SingleChildScrollView(
@@ -247,12 +253,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        const Text('ĐANG KIỂM', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54, letterSpacing: 1.0)),
+                                        const Text('ĐÃ DUYỆT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54, letterSpacing: 1.0)),
                                         const SizedBox(height: 4),
-                                        Text('$draftSessions đơn', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
+                                        Text('$completedSessions đơn', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
                                       ],
                                     ),
-                                    const Icon(Icons.inventory, color: Color(0xff93405f)),
+                                    const Icon(Icons.check_circle_outline, color: Color(0xff93405f)),
                                   ],
                                 ),
                               ),
@@ -295,95 +301,102 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 // Quick Access Grid
                 const Text('Truy cập nhanh', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87)),
                 const SizedBox(height: 16),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 16,
-                  alignment: WrapAlignment.start,
+                Column(
                   children: [
-                    _buildQuickAccessButton(
-                      icon: Icons.analytics, 
-                      label: 'Báo cáo', 
-                      bgColor: const Color(0xffd23e3e), 
-                      iconColor: Colors.white,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const IncidentReportScreen()),
-                        );
-                      },
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: _buildQuickAccessButton(
+                            icon: Icons.analytics, 
+                            label: 'Báo cáo', 
+                            bgColor: const Color(0xffb02528), 
+                            iconColor: Colors.white,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const IncidentReportScreen()),
+                              );
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildQuickAccessButton(
+                            icon: Icons.inventory_2, 
+                            label: 'Kiểm kê', 
+                            bgColor: const Color(0xffb02528), 
+                            iconColor: Colors.white,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const InventoryListScreen()),
+                              );
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildQuickAccessButton(
+                            icon: Icons.directions_walk, 
+                            label: 'Nhặt hàng', 
+                            bgColor: const Color(0xffb02528), 
+                            iconColor: Colors.white,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const PickingListScreen()),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
-                    _buildQuickAccessButton(
-                      icon: Icons.assignment, 
-                      label: 'Nhiệm vụ', 
-                      bgColor: const Color(0xffd23e3e), 
-                      iconColor: Colors.white,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const InventoryListScreen()),
-                        );
-                      },
-                    ),
-                    _buildQuickAccessButton(
-                      icon: Icons.inventory_2, 
-                      label: 'Kiểm kê', 
-                      bgColor: const Color(0xffe2e2e2), 
-                      iconColor: const Color(0xff5a413f), 
-                      isOutline: true,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const CreateInventoryScreen()),
-                        );
-                      },
-                    ),
-                    _buildQuickAccessButton(
-                      icon: Icons.directions_walk, 
-                      label: 'Nhặt hàng', 
-                      bgColor: const Color(0xffb02528), 
-                      iconColor: Colors.white,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const PickingListScreen()),
-                        );
-                      },
-                    ),
-                    _buildQuickAccessButton(
-                      icon: Icons.location_on, 
-                      label: 'Vị trí lưu trữ', 
-                      bgColor: const Color(0xffb02528), 
-                      iconColor: Colors.white,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const WarehouseLocationScreen()),
-                        );
-                      },
-                    ),
-                    _buildQuickAccessButton(
-                      icon: Icons.map_outlined, 
-                      label: 'Sơ đồ kho', 
-                      bgColor: const Color(0xffb02528), 
-                      iconColor: Colors.white,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const WarehouseMapScreen()),
-                        );
-                      },
-                    ),
-                    _buildQuickAccessButton(
-                      icon: Icons.notifications, 
-                      label: 'Thông báo', 
-                      bgColor: const Color(0xffb02528), 
-                      iconColor: Colors.white,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const NotificationScreen()),
-                        );
-                      },
+                    const SizedBox(height: 24),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: _buildQuickAccessButton(
+                            icon: Icons.location_on, 
+                            label: 'Vị trí', 
+                            bgColor: const Color(0xffb02528), 
+                            iconColor: Colors.white,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const WarehouseLocationScreen()),
+                              );
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildQuickAccessButton(
+                            icon: Icons.map_outlined, 
+                            label: 'Sơ đồ kho', 
+                            bgColor: const Color(0xffb02528), 
+                            iconColor: Colors.white,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const WarehouseMapScreen()),
+                              );
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildQuickAccessButton(
+                            icon: Icons.notifications, 
+                            label: 'Thông báo', 
+                            bgColor: const Color(0xffb02528), 
+                            iconColor: Colors.white,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -402,38 +415,93 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            _buildActivityItem(
-              icon: Icons.inventory,
-              title: 'Kiểm kê - Kệ B-04',
-              time: '10:45',
-              subtitle: 'Người thực hiện: N.V.A',
-              status: 'Hoàn thành',
-              statusColor: const Color(0xfffffbff),
-              statusBgColor: const Color(0xffb15878),
-            ),
-            const SizedBox(height: 8),
-            _buildActivityItem(
-              icon: Icons.inventory_2,
-              title: 'Kiểm kê - Khu vực A1',
-              time: '09:15',
-              subtitle: 'Đang đối soát dữ liệu',
-              status: 'Đang thực hiện',
-              statusColor: const Color(0xff5a666d),
-              statusBgColor: const Color(0xffd7e4ec),
-            ),
-            const SizedBox(height: 8),
-            _buildActivityItem(
-              icon: Icons.inventory,
-              iconColor: const Color(0xff93000a),
-              iconBgColor: const Color(0xffffdad6),
-              title: 'Kiểm kê - Kệ A2',
-              time: 'Hôm qua',
-              subtitle: 'Sai lệch: -2 sản phẩm',
-              subtitleColor: const Color(0xffba1a1a),
-              status: 'Cần xử lý',
-              statusColor: const Color(0xff93000a),
-              statusBgColor: const Color(0xffffdad6),
-            ),
+            ...() {
+              final sorted = List.of(sessions)..sort((a, b) => b.startDate.compareTo(a.startDate));
+              final top3 = sorted.take(3).toList();
+              
+              if (top3.isEmpty) {
+                return [
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24.0),
+                    child: Center(child: Text('Chưa có hoạt động nào', style: TextStyle(color: Colors.black54))),
+                  )
+                ];
+              }
+
+              return top3.map((session) {
+                String statusText = 'Không xác định';
+                Color statusColor = Colors.black;
+                Color statusBgColor = Colors.grey[300]!;
+                IconData icon = Icons.inventory;
+                Color iconColor = const Color(0xffb02528);
+                Color iconBgColor = const Color(0xffe2e2e2);
+
+                switch (session.status) {
+                  case 'DRAFT':
+                    statusText = 'Đang kiểm';
+                    statusColor = const Color(0xff5a666d);
+                    statusBgColor = const Color(0xffd7e4ec);
+                    break;
+                  case 'PENDING':
+                    statusText = 'Chờ duyệt';
+                    statusColor = const Color(0xff93000a);
+                    statusBgColor = const Color(0xffffdad6);
+                    iconColor = const Color(0xff93000a);
+                    iconBgColor = const Color(0xffffdad6);
+                    break;
+                  case 'APPROVED':
+                    statusText = 'Đã duyệt';
+                    statusColor = const Color(0xff006a67);
+                    statusBgColor = const Color(0xffccf2f0);
+                    break;
+                  case 'POSTED':
+                  case 'SYNCED':
+                    statusText = 'Đã ghi nhận';
+                    statusColor = const Color(0xfffffbff);
+                    statusBgColor = const Color(0xffb15878);
+                    break;
+                  case 'REJECTED':
+                    statusText = 'Từ chối';
+                    statusColor = const Color(0xffba1a1a);
+                    statusBgColor = const Color(0xffffdad6);
+                    break;
+                  case 'CANCELLED':
+                    statusText = 'Đã hủy';
+                    statusColor = const Color(0xffba1a1a);
+                    statusBgColor = const Color(0xffffdad6);
+                    break;
+                }
+
+                final timeStr = DateFormat('dd/MM HH:mm').format(session.startDate);
+                String assigneeName = session.assignedToName ?? '';
+                if (assigneeName.isEmpty && session.assignedTo != null) {
+                  if (session.assignedTo == user?.userId) {
+                    assigneeName = user?.fullName ?? '';
+                  } else {
+                    assigneeName = provider.getStaffName(session.assignedTo!);
+                    if (assigneeName.startsWith('Quản trị viên') && session.createdBy == session.assignedTo && session.createdByName?.isNotEmpty == true) {
+                      assigneeName = session.createdByName!;
+                    }
+                  }
+                }
+                if (assigneeName.isEmpty) assigneeName = 'Chưa giao';
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: _buildActivityItem(
+                    icon: icon,
+                    iconColor: iconColor,
+                    iconBgColor: iconBgColor,
+                    title: 'Kiểm kê - ${session.sessionCode}',
+                    time: timeStr,
+                    subtitle: 'Người TH: $assigneeName',
+                    status: statusText,
+                    statusColor: statusColor,
+                    statusBgColor: statusBgColor,
+                  ),
+                );
+              }).toList();
+            }(),
           ],
         ),
       );
@@ -456,18 +524,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Column(
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: 56,
+            height: 56,
             decoration: BoxDecoration(
               color: bgColor,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               border: isOutline ? Border.all(color: const Color(0xffe2bebb)) : null,
               boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
             ),
-            child: Icon(icon, color: iconColor),
+            child: Icon(icon, color: iconColor, size: 28),
           ),
           const SizedBox(height: 8),
-          Text(label, style: const TextStyle(fontSize: 12, color: Colors.black87)),
+          Text(label, style: const TextStyle(fontSize: 13, color: Colors.black87), textAlign: TextAlign.center),
         ],
       ),
     );

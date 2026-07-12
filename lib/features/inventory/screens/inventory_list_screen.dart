@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
-import 'package:provider/provider.dart';
+import '../../auth/models/user_model.dart';
 import 'package:intl/intl.dart';
-import '../../home/screens/employee_dashboard_screen.dart';
 import 'inventory_history_screen.dart';
 import 'create_inventory_screen.dart';
-import 'inventory_history_detail_screen.dart';
 import '../../scanner/screens/scan_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 import '../providers/inventory_provider.dart';
@@ -41,8 +39,8 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
   String _searchQuery = '';
   
   // Advanced Filter states
-  DateTime? _filterStartDate;
-  DateTime? _filterEndDate;
+  DateTime? _filterStartDate = DateTime.now();
+  DateTime? _filterEndDate = DateTime.now();
   int? _filterStaffId;
 
   @override
@@ -129,6 +127,21 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
     );
   }
 
+  bool _isFilterActive() {
+    // Active only if user explicitly changed dates away from today or set a staff
+    final today = DateTime.now();
+    final isDefaultStart = _filterStartDate != null &&
+        _filterStartDate!.year == today.year &&
+        _filterStartDate!.month == today.month &&
+        _filterStartDate!.day == today.day;
+    final isDefaultEnd = _filterEndDate != null &&
+        _filterEndDate!.year == today.year &&
+        _filterEndDate!.month == today.month &&
+        _filterEndDate!.day == today.day;
+    // Not default = filter is actively customised
+    return !isDefaultStart || !isDefaultEnd || _filterStaffId != null;
+  }
+
   Widget _buildSearchBar() {
     return Row(
       children: [
@@ -173,19 +186,13 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
             height: 48,
             width: 48,
             decoration: BoxDecoration(
-              color: (_filterStartDate != null || _filterEndDate != null || _filterStaffId != null) 
-                  ? _primary.withOpacity(0.1) 
-                  : _surfaceContainerLow,
+              color: _isFilterActive() ? _primary.withOpacity(0.1) : _surfaceContainerLow,
               borderRadius: BorderRadius.circular(12),
-              border: (_filterStartDate != null || _filterEndDate != null || _filterStaffId != null)
-                  ? Border.all(color: _primary.withOpacity(0.5))
-                  : null,
+              border: _isFilterActive() ? Border.all(color: _primary.withOpacity(0.5)) : null,
             ),
             child: Icon(
               Icons.filter_list, 
-              color: (_filterStartDate != null || _filterEndDate != null || _filterStaffId != null) 
-                  ? _primary 
-                  : _onSurfaceVariant
+              color: _isFilterActive() ? _primary : _onSurfaceVariant
             ),
           ),
         ),
@@ -217,23 +224,71 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
     );
   }
 
+  List<InventorySession> _getBaseFilteredSessions(InventoryProvider provider, UserModel? user) {
+    List<InventorySession> sessions = provider.sessions.where((s) =>
+        (s.createdBy == user?.userId || s.assignedTo == user?.userId)).toList();
+    if (user?.roleName == 'Staff') {
+      sessions = sessions.where((s) => 
+        s.startDate.year == DateTime.now().year && 
+        s.startDate.month == DateTime.now().month && 
+        s.startDate.day == DateTime.now().day
+      ).toList();
+    }
+
+    // Apply advanced filters
+    if (_filterStartDate != null) {
+      sessions = sessions.where((s) {
+        final sessionDate = DateTime(s.startDate.year, s.startDate.month, s.startDate.day);
+        final filterDate = DateTime(_filterStartDate!.year, _filterStartDate!.month, _filterStartDate!.day);
+        return sessionDate.isAtSameMomentAs(filterDate) || sessionDate.isAfter(filterDate);
+      }).toList();
+    }
+    if (_filterEndDate != null) {
+      sessions = sessions.where((s) {
+        final sessionDate = DateTime(s.startDate.year, s.startDate.month, s.startDate.day);
+        final filterDate = DateTime(_filterEndDate!.year, _filterEndDate!.month, _filterEndDate!.day);
+        return sessionDate.isAtSameMomentAs(filterDate) || sessionDate.isBefore(filterDate);
+      }).toList();
+    }
+    if (_filterStaffId != null) {
+      sessions = sessions.where((s) => s.assignedTo == _filterStaffId).toList();
+    }
+
+    // Apply search query
+    if (_searchQuery.isNotEmpty) {
+      final query = _searchQuery.toLowerCase();
+      sessions = sessions.where((s) {
+        String assigneeName = s.assignedToName ?? '';
+        if (assigneeName.isEmpty && s.assignedTo != null) {
+          if (s.assignedTo == user?.userId) {
+            assigneeName = user?.fullName ?? '';
+          } else {
+            assigneeName = provider.getStaffName(s.assignedTo!);
+            if (assigneeName.startsWith('Quản trị viên') && s.createdBy == s.assignedTo && s.createdByName?.isNotEmpty == true) {
+              assigneeName = s.createdByName!;
+            }
+          }
+        }
+        return s.sessionCode.toLowerCase().contains(query) || 
+               s.description.toLowerCase().contains(query) ||
+               assigneeName.toLowerCase().contains(query);
+      }).toList();
+    }
+
+    return sessions;
+  }
+
   Widget _buildFilterChips() {
     return Consumer<InventoryProvider>(
       builder: (context, provider, child) {
         final user = context.watch<AuthProvider>().currentUser;
-        var sessions = provider.sessions.where((s) => s.status != 'POSTED' && s.createdBy == user?.userId).toList();
-        if (user?.roleName == 'Staff') {
-          sessions = sessions.where((s) => 
-            s.startDate.year == DateTime.now().year && 
-            s.startDate.month == DateTime.now().month && 
-            s.startDate.day == DateTime.now().day
-          ).toList();
-        }
+        final sessions = _getBaseFilteredSessions(provider, user);
+        
         int allCount = sessions.length;
-        int draftCount = sessions.where((s) => s.status == 'DRAFT').length;
         int pendingCount = sessions.where((s) => s.status == 'PENDING').length;
         int approvedCount = sessions.where((s) => s.status == 'APPROVED').length;
         int rejectedCount = sessions.where((s) => s.status == 'REJECTED').length;
+        int postedCount = sessions.where((s) => s.status == 'POSTED').length;
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -241,13 +296,13 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
             children: [
               _buildChip('TẤT CẢ ($allCount)', 'TẤT CẢ'),
               const SizedBox(width: 8),
-              _buildChip('ĐANG KIỂM ĐẾM ($draftCount)', 'DRAFT'),
-              const SizedBox(width: 8),
               _buildChip('CHỜ DUYỆT ($pendingCount)', 'PENDING'),
               const SizedBox(width: 8),
               _buildChip('ĐÃ DUYỆT ($approvedCount)', 'APPROVED'),
               const SizedBox(width: 8),
               _buildChip('TỪ CHỐI ($rejectedCount)', 'REJECTED'),
+              const SizedBox(width: 8),
+              _buildChip('ĐÃ GHI NHẬN ($postedCount)', 'POSTED'),
             ],
           ),
         );
@@ -292,44 +347,10 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
         }
 
         final user = context.watch<AuthProvider>().currentUser;
-        List<InventorySession> activeSessions = provider.sessions.where((s) => s.status != 'POSTED' && s.createdBy == user?.userId).toList();
-        if (user?.roleName == 'Staff') {
-          activeSessions = activeSessions.where((s) => 
-            s.startDate.year == DateTime.now().year && 
-            s.startDate.month == DateTime.now().month && 
-            s.startDate.day == DateTime.now().day
-          ).toList();
-        }
+        List<InventorySession> activeSessions = _getBaseFilteredSessions(provider, user);
 
         if (_currentFilter != 'TẤT CẢ') {
           activeSessions = activeSessions.where((s) => s.status == _currentFilter).toList();
-        }
-        
-        if (_searchQuery.isNotEmpty) {
-          final query = _searchQuery.toLowerCase();
-          activeSessions = activeSessions.where((s) => 
-            s.sessionCode.toLowerCase().contains(query) || 
-            s.description.toLowerCase().contains(query)
-          ).toList();
-        }
-
-        // Apply advanced filters
-        if (_filterStartDate != null) {
-          activeSessions = activeSessions.where((s) {
-            final sessionDate = DateTime(s.startDate.year, s.startDate.month, s.startDate.day);
-            final filterDate = DateTime(_filterStartDate!.year, _filterStartDate!.month, _filterStartDate!.day);
-            return sessionDate.isAtSameMomentAs(filterDate) || sessionDate.isAfter(filterDate);
-          }).toList();
-        }
-        if (_filterEndDate != null) {
-          activeSessions = activeSessions.where((s) {
-            final sessionDate = DateTime(s.startDate.year, s.startDate.month, s.startDate.day);
-            final filterDate = DateTime(_filterEndDate!.year, _filterEndDate!.month, _filterEndDate!.day);
-            return sessionDate.isAtSameMomentAs(filterDate) || sessionDate.isBefore(filterDate);
-          }).toList();
-        }
-        if (_filterStaffId != null) {
-          activeSessions = activeSessions.where((s) => s.assignedTo == _filterStaffId).toList();
         }
 
         if (activeSessions.isEmpty) {
@@ -431,6 +452,20 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
               );
             }
 
+            String assigneeName = session.assignedToName ?? '';
+            if (assigneeName.isEmpty && session.assignedTo != null) {
+              if (session.assignedTo == user?.userId) {
+                assigneeName = user?.fullName ?? '';
+                if (assigneeName.isEmpty) assigneeName = user?.email ?? '';
+              } else {
+                assigneeName = provider.getStaffName(session.assignedTo!);
+                if (assigneeName.startsWith('Quản trị viên') && session.createdBy == session.assignedTo && session.createdByName?.isNotEmpty == true) {
+                  assigneeName = session.createdByName!;
+                }
+              }
+            }
+            if (assigneeName.isEmpty) assigneeName = 'Chưa giao';
+
             return InkWell(
               onTap: () {
                 final role = context.read<AuthProvider>().currentUser?.roleName ?? '';
@@ -465,15 +500,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                 date: dateStr,
                 warehouseName: session.warehouseName?.isNotEmpty == true ? session.warehouseName! : 'Chưa rõ',
                 countType: session.countType,
-                createdBy: session.assignedToName?.isNotEmpty == true 
-                    ? session.assignedToName! 
-                    : (session.assignedTo != null 
-                        ? (session.assignedTo == context.read<AuthProvider>().currentUser?.userId 
-                            ? (context.read<AuthProvider>().currentUser!.fullName.isNotEmpty 
-                                ? context.read<AuthProvider>().currentUser!.fullName 
-                                : context.read<AuthProvider>().currentUser!.email)
-                            : provider.getStaffName(session.assignedTo!))
-                        : 'Chưa giao'),
+                createdBy: assigneeName,
                 statusWidget: statusWidget,
                 isCompleted: isCompleted,
               ),
@@ -749,14 +776,15 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                         Expanded(
                           child: OutlinedButton(
                             onPressed: () {
+                              final today = DateTime.now();
                               setModalState(() {
-                                tempStartDate = null;
-                                tempEndDate = null;
+                                tempStartDate = today;
+                                tempEndDate = today;
                                 tempStaffId = null;
                               });
                               setState(() {
-                                _filterStartDate = null;
-                                _filterEndDate = null;
+                                _filterStartDate = today;
+                                _filterEndDate = today;
                                 _filterStaffId = null;
                               });
                               Navigator.pop(context);
